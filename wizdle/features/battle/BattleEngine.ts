@@ -41,8 +41,8 @@ export class BattleEngine{
             this.projectile2Art = new Image();
             this.projectile2Art.src = "/assets/gold-bolt.png";
 
-            this.wizard1 = new Wizard(0.75, -0.8, wizard1Art, 0.125, 0.25);
-            this.wizard2 = new Wizard(-0.75, 0.8, wizard2Art, 1.5, 3);
+            this.wizard1 = new Wizard(0.75, -0.8, wizard1Art, 0.125, 0.25, 1.1);
+            this.wizard2 = new Wizard(-0.75, 0.8, wizard2Art, 1.5, 3.5, 1);
 
         } catch (error) {
             console.error("Error initializing Battle: " + error)
