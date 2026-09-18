@@ -3,6 +3,8 @@ import { Projectile, fireProjectile, updateProjectiles } from "./battle_objects/
 import BattleObject from "./BattleObject";
 import { getScreenPosition, sprite } from "./rendering";
 
+const KNOCKBACK = 0.00001    // increasing the number increases how long wizards remain affected by knockback
+
 export class BattleEngine{
     private running: boolean = false;
     private ctx!: CanvasRenderingContext2D;
@@ -14,7 +16,6 @@ export class BattleEngine{
     private projectile2Art!: HTMLImageElement
 
     private animationFrameId: number | null = null;
-    
     
     private prevTimestamp: number | null = null;
     private projectiles: Projectile[] = [];
@@ -74,10 +75,9 @@ export class BattleEngine{
             this.prevTimestamp = timestamp;
         }
 
-        const dt = (timestamp - this.prevTimestamp) / 1000
-        this.prevTimestamp = timestamp
-
-        console.log("frame")
+        let dt = (timestamp - this.prevTimestamp) / 1000        // Get amount of time passed in seconds
+        dt = Math.min(dt, 0.1);                                 // cap time passed at 0.1 seconds
+        this.prevTimestamp = timestamp                          // rest previous timestampf or next dt calculation
 
         this.update(dt)
         this.render()
@@ -95,23 +95,26 @@ export class BattleEngine{
         this.wizard2.position.x += (this.wizard2.dx + this.wizard2.kx) * dt;
         this.wizard2.position.y += (this.wizard2.dy + this.wizard2.ky) * dt;
 
-        this.wizard1.kx *= 0.9;
-        this.wizard1.ky *= 0.9;
+        
+        const kMod = Math.pow(KNOCKBACK, dt);       // knockback modifier with time, based on knockback constant
 
-        this.wizard2.kx *= 0.9;
-        this.wizard2.ky *= 0.9;
+        this.wizard1.kx *= kMod;
+        this.wizard1.ky *= kMod;
+
+        this.wizard2.kx *= kMod;
+        this.wizard2.ky *= kMod;
 
         this.wizard1.fireTimer += dt;
         this.wizard2.fireTimer += dt;
 
         if (this.wizard1.fireTimer >= this.wizard1.fireDelay) {
             fireProjectile(this.wizard1, this.wizard2, this.projectile1Art, this.wizard1.knockback, this.projectiles);
-            this.wizard1.fireTimer = 0;
+            this.wizard1.fireTimer -= this.wizard1.fireDelay;
         }
 
         if (this.wizard2.fireTimer >= this.wizard2.fireDelay) {
             fireProjectile(this.wizard2, this.wizard1, this.projectile2Art, this.wizard2.knockback, this.projectiles);
-            this.wizard2.fireTimer = 0;
+            this.wizard2.fireTimer -= this.wizard2.fireDelay;
         }
 
         updateProjectiles(this.projectiles, dt);

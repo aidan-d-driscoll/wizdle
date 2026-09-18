@@ -22,11 +22,11 @@ export class Wizard extends BattleObject{
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) { // normalize direction
-            const dirX = dx / distance;
-            const dirY = dy / distance;
+            const dirX = dx / distance / 4;
+            const dirY = dy / distance / 4;
             
-            this.dx = dirX * distance / 4; // speed proportional to distance
-            this.dy = dirY * distance / 2;
+            this.dx = dirX; // speed proportional to distance
+            this.dy = dirY;
         }
     }
 }

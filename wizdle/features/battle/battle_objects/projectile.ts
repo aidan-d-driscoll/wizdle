@@ -61,7 +61,7 @@ function collideProjectile(projectile: Projectile, wizard: Wizard) {
 
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (distance < 0.2) {
+    if (distance < 0.13) {
         wizard.kx += projectile.dx * projectile.knockback;
         wizard.ky += projectile.dy * projectile.knockback;
         projectile.dead = true;
