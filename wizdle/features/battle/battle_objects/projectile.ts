@@ -1,7 +1,7 @@
-import GameObject from "./wizdle/components/gameObject";
-import { Wizard } from "./wizard";
+import BattleObject from "@/features/battle/BattleObject";
+import { Wizard } from "@/features/battle/battle_objects/wizard";
 
-export class Projectile extends GameObject {
+export class Projectile extends BattleObject {
     image!: HTMLImageElement;
     knockback!: number;
     target!: Wizard;
@@ -16,7 +16,7 @@ export class Projectile extends GameObject {
     }
 }
 
-export function fireProjectile(source: GameObject, target: Wizard, image: HTMLImageElement, knockback: number, projectiles: Projectile[]) {
+export function fireProjectile(source: BattleObject, target: Wizard, image: HTMLImageElement, knockback: number, projectiles: Projectile[]) {
     const dx = target.position.x - source.position.x;
     const dy = target.position.y - source.position.y;
 

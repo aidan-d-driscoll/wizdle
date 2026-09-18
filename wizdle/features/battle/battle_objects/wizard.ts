@@ -1,7 +1,7 @@
-import { Position } from "./type";
-import GameObject from "./wizdle/components/gameObject";
+import BattleObject from "@/features/battle/BattleObject";
+import Position from "@/types/position";
 
-export class Wizard extends GameObject{
+export class Wizard extends BattleObject{
     image!: HTMLImageElement;
     fireTimer!: number;
     fireDelay!: number;

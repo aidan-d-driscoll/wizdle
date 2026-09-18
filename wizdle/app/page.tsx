@@ -1,9 +1,9 @@
-import { Game } from "@/features/game/Game";
+import { Battle } from "@/features/battle/Battle";
 
 export default function Home() {
   return (
     <div className="flex w-full h-full bg-blue">
-      <Game/>
+      <Battle />
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import { Position } from "./type";
+import { Position } from "@/types/position";
 
-export default class GameObject {
+export default class BattleObject {
     position!: Position;
     dx!: number;
     dy!: number;
