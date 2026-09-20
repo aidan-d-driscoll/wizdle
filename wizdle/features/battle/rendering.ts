@@ -8,12 +8,12 @@ export function clear(ctx: CanvasRenderingContext2D | null, battle: HTMLCanvasEl
     ctx.fillRect(0, 0, battle.width, battle.height);
 }
 
-export function sprite(ctx: CanvasRenderingContext2D, image: HTMLImageElement, position: Position, dx: number) {  // draw a sprite at a getScreenPosition position
-    const size = 128;
+export function sprite(ctx: CanvasRenderingContext2D, image: HTMLImageElement, position: Position, xVel: number) {  // draw a sprite at a getScreenPosition position
+    const size = 96;
 
     ctx.save();
 
-    if (dx > 0) {
+    if (xVel > 0) {
         ctx.translate(position.x, position.y);
         ctx.scale(-1, 1);
 

@@ -1,0 +1,20 @@
+import Entity from "../entities/entity";
+import { Projectile } from "../entities/projectile";
+import { spellOptions } from "@/types/options";
+
+export default abstract class Spell{
+    image: HTMLImageElement;
+    knockback: number;
+    castTime: number;
+    projectile!: Projectile;
+
+    dead = false;
+
+    constructor({image, knockback, castTime}:spellOptions){
+        this.image = image;
+        this.knockback = knockback;
+        this.castTime = castTime;
+    }
+
+    abstract newCast(source: Entity): Projectile | null;
+}

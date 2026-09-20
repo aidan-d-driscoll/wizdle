@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { BattleEngine } from "./BattleEngine";
+import { Engine } from "./engine";
 
 export function Battle() {
   const battleRef = useRef<HTMLCanvasElement>(null);
@@ -10,7 +10,7 @@ export function Battle() {
     const battle = battleRef.current;
     if (!battle) return;
 
-    const engine = new BattleEngine(battle);
+    const engine = new Engine(battle);
     engine.start();
 
     return () => {

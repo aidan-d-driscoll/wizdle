@@ -1,28 +1,31 @@
 import Entity from "@/features/battle/entities/entity";
-import Position from "@/types/position";
 import { getDistance } from "@/utilities/mathUtils";
 import Spell from "../spells/spell";
 import { moveOptions } from "@/types/options";
 import { entityOptions } from "@/types/options";
 import { events } from "../events/eventManager";
+import Position from "@/types/position";
 
-const CIRCLING_SPEED = 0.2
+const CIRCLING_SPEED = 0.5
 
 type wizardOptions = entityOptions & {
     spells: Spell[],
     speed: number
+    moveTarget: Position
 }
 
 export class Wizard extends Entity{
     castTimers: number[] = [];
     spells: Spell[];
+    moveTarget: Position;
     private speed: number;
 
-    constructor({startingPosition, image, spells, target = null, speed = 1, width}: wizardOptions) {
-        super({startingPosition: startingPosition, image: image, target: target, width: width})
-        this.image = image;
-        this.spells = spells;
-        this.speed = speed;
+    constructor(args: wizardOptions) {
+        super(args)
+        this.image = args.image;
+        this.spells = args.spells;
+        this.speed = args.speed;
+        this.moveTarget = args.moveTarget
         for (const spell of this.spells){
             this.castTimers.push(0)
         }
@@ -30,25 +33,27 @@ export class Wizard extends Entity{
 
     move(args: moveOptions){
         args.speed = this.speed
-        args.targetPosition = this.target?.position
+        if (this.target && (Math.abs(getDistance(this.target.position, this.moveTarget)) < Math.abs(getDistance(this.position, this.moveTarget)))) {
+            args.targetPosition = this.target.position
+        } else {
+            args.targetPosition = this.moveTarget
+        }
         super.move(args)
 
-        if (args.targetPosition) {
-            const dx = args.targetPosition.x - this.position.x;
-            const dy = args.targetPosition.y - this.position.y;
+        const dx = args.targetPosition.x - this.position.x;
+        const dy = args.targetPosition.y - this.position.y;
 
-            const distance = getDistance(args.targetPosition, this.position);
+        const distance = getDistance(args.targetPosition, this.position);
 
-            const xCircleAmount = 1 - (Math.abs(dx)/(Math.abs(dx)+Math.abs(dy)))
-            const yCircleAmount = 1 - xCircleAmount
+        const xCircleAmount = 1 - (Math.abs(dx)/(Math.abs(dx)+Math.abs(dy)))
+        const yCircleAmount = 1 - xCircleAmount
 
-            const xCircleDirection = -1 * Math.sign(dy)
-            const yCircleDirection = Math.sign(dx)
+        const xCircleDirection = -1 * Math.sign(dy)
+        const yCircleDirection = Math.sign(dx)
 
-            if (distance > 0) { // normalize direction
-                this.xVel = this.xVel + (this.speed * xCircleDirection * xCircleAmount * CIRCLING_SPEED);
-                this.yVel = this.yVel + (this.speed * yCircleDirection * yCircleAmount * CIRCLING_SPEED);
-            }
+        if (distance > 0) { // normalize direction
+            this.xVel = this.xVel + (this.speed * xCircleDirection * xCircleAmount * CIRCLING_SPEED);
+            this.yVel = this.yVel + (this.speed * yCircleDirection * yCircleAmount * CIRCLING_SPEED);
         }
     }
 
@@ -72,13 +77,17 @@ export class Wizard extends Entity{
     }
 
     update(dt: number){
-        for(let i = 0; i < this.castTimers.length; i++){
-            this.castTimers[i] += dt
-            if (this.castTimers[i] >= this.spells[i].castTime){
-                events.emit("castSpell", {spell: this.spells[i], caster: this})
-                this.castTimers[i] -= this.spells[i].castTime
+        super.update(dt)
+        if (this.target) {
+            for(let i = 0; i < this.castTimers.length; i++){
+                this.castTimers[i] += dt
+                if (this.castTimers[i] >= this.spells[i].castTime){
+                    events.emit("castSpell", {spell: this.spells[i], caster: this})
+                    this.castTimers[i] -= this.spells[i].castTime
+                }
             }
         }
+        
     }
 
     // moveToward(targetPosition: Position) {
