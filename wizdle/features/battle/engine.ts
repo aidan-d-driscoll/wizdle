@@ -38,19 +38,26 @@ export class Engine{
             const wizard2Art = new Image();
             wizard2Art.src = "/assets/gilded-wizard.png";
 
-            this.projectile1Art = new Image();
-            this.projectile1Art.src = "/assets/grape-shot.png";
+            const projectile1Art = new Image();
+            projectile1Art.src = "/assets/grape-shot.png";
 
-            this.projectile2Art = new Image();
-            this.projectile2Art.src = "/assets/gold-bolt.png";
+            const projectile2Art = new Image();
+            projectile2Art.src = "/assets/gold-bolt.png";
+            
+            const projectile3Art = new Image();
+            projectile3Art.src = "/assets/blue-blast.png";
+
+            const aura1Art = new Image();
+            aura1Art.src = "/assets/aura-of-death.png";
 
             this.centerRingPosition = {x: 0, y: 0};
 
-            const spell1 = new BoltSpell({image: this.projectile1Art, knockback: 0.15, castTime: 0.1, travelSpeed: 4})
-            const wizard1 = new Wizard({startingPosition: {x:0.60, y:-0.60}, image: wizard1Art, spells: [spell1], speed: 0.3, width: 0.3, moveTarget: this.centerRingPosition});
+            const spell1 = new BoltSpell({image: projectile1Art, knockback: 0.11, castTime: 0.1, travelSpeed: 3})
+            const spell3 = new BoltSpell({image: aura1Art, knockback: 15, castTime: 30, travelSpeed: 0.001})
+            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1, spell3], speed: 0.25, width: 0.3, moveTarget: this.centerRingPosition});
 
-            const spell2 = new BoltSpell({image: this.projectile2Art, knockback: 0.1, castTime: 1, travelSpeed: 3})
-            const wizard2 = new Wizard({startingPosition: {x:-0.60, y:0.60}, image: wizard2Art, spells: [spell2], speed: 0.3, width: 0.3, moveTarget: this.centerRingPosition});
+            const spell2 = new BoltSpell({image: projectile2Art, knockback: 1.4, castTime: 1, travelSpeed: 2})
+            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.3, width: 0.3, moveTarget: this.centerRingPosition});
 
             wizard1.target = wizard2
             wizard2.target = wizard1

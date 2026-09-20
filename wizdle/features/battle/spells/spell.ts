@@ -1,3 +1,4 @@
+import { Aura } from "../entities/aura";
 import Entity from "../entities/entity";
 import { Projectile } from "../entities/projectile";
 import { spellOptions } from "@/types/options";
@@ -16,5 +17,5 @@ export default abstract class Spell{
         this.castTime = castTime;
     }
 
-    abstract newCast(source: Entity): Projectile | null;
+    abstract newCast(source: Entity): Projectile | Aura | null;
 }

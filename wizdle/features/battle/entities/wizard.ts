@@ -78,6 +78,12 @@ export class Wizard extends Entity{
 
     update(dt: number){
         super.update(dt)
+        if (!this.dead && Math.abs(getDistance(this.position, this.moveTarget)) > 1) { this.dead = true}
+        if (this.target && this.target.dead){
+            this.target.position.x = (Math.random() * 2) - 1
+            this.target.position.y = (Math.random() * 2) - 1
+            this.speed = 0.5
+        }
         if (this.target) {
             for(let i = 0; i < this.castTimers.length; i++){
                 this.castTimers[i] += dt

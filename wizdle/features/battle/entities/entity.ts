@@ -48,18 +48,24 @@ export default abstract class Entity {
     }
 
     update(dt: number): void{
-        this.xVel += this.kx
-        this.yVel += this.ky
-
-        this.position = {
-            x: this.position.x + this.xVel * dt, 
-            y: this.position.y + this.yVel * dt
+        if(Math.abs(this.position.x) > 1.5 || Math.abs(this.position.y) > 1.5){
+            this.dead = true;
         }
 
-        const kMod = Math.pow(KNOCKBACK, dt); 
+        if(!this.dead){
+            this.xVel += this.kx
+            this.yVel += this.ky
 
-        this.kx *= kMod;
-        this.ky *= kMod;
+            this.position = {
+                x: this.position.x + this.xVel * dt, 
+                y: this.position.y + this.yVel * dt
+            }
+
+            const kMod = Math.pow(KNOCKBACK, dt); 
+
+            this.kx *= kMod;
+            this.ky *= kMod;
+        }        
     }
 
     abstract collideWith(e: Entity): void;
