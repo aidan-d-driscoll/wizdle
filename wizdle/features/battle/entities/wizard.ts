@@ -52,8 +52,8 @@ export class Wizard extends Entity{
         const yCircleDirection = Math.sign(dx)
 
         if (distance > 0) { // normalize direction
-            this.xVel = this.xVel + (this.speed * xCircleDirection * xCircleAmount * CIRCLING_SPEED);
-            this.yVel = this.yVel + (this.speed * yCircleDirection * yCircleAmount * CIRCLING_SPEED);
+            this.velocity.dx += (this.speed * xCircleDirection * xCircleAmount * CIRCLING_SPEED);
+            this.velocity.dy += (this.speed * yCircleDirection * yCircleAmount * CIRCLING_SPEED);
         }
     }
 
@@ -82,7 +82,7 @@ export class Wizard extends Entity{
         if (this.target && this.target.dead){
             this.target.position.x = (Math.random() * 2) - 1
             this.target.position.y = (Math.random() * 2) - 1
-            this.speed = 0.5
+            this.speed = 1
         }
         if (this.target) {
             for(let i = 0; i < this.castTimers.length; i++){

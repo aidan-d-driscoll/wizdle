@@ -146,7 +146,7 @@ export class Engine{
         this.ctx.fill();               // Render the filled shape
 
         for(const e of this.entities){
-            sprite(this.ctx, e.image, getScreenPosition(e.position, this.battleCanvas), e.xVel)
+            sprite(this.ctx, e.image, getScreenPosition(e.position, this.battleCanvas), e.velocity.dx)
         }
     }
 

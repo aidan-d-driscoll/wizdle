@@ -1,3 +1,4 @@
+import Vector from "@/types/vector";
 import { Projectile } from "./projectile";
 import { moveOptions, projectileOptions } from "@/types/options";
 
@@ -13,9 +14,8 @@ export class Bolt extends Projectile {
         this.travelSpeed = args.travelSpeed;
         this.target = args.target;
 
-        this.xVel = this.xDir * this.travelSpeed
-        this.yVel = this.yDir * this.travelSpeed
-
+        this.velocity = new Vector({startPos: this.position, endPos: this.target.position});
+        this.velocity.magnitude = this.travelSpeed;
     }
 
     move(args: moveOptions): void{}
