@@ -64,7 +64,7 @@ export class Engine{
             const spell3 = new BoltSpell({image: grapeShotArt, knockback: 20, castTime: 30, travelSpeed: 1.8})
             const text = new AuraSpell({image: hollowPurple, knockback: 0, castTime: 25, duration: 6, yOffset: 0.1})
             const prefire = new AuraSpell({image: grapeShotArt, knockback: 0, castTime: 25, duration: 5, yOffset: -0.05})
-            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1, spell3, spell4, text], speed: 0.25, width: 0.3, moveTarget: this.centerRingPosition});
+            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1, spell3, spell4, text, prefire], speed: 0.25, width: 0.3, moveTarget: this.centerRingPosition});
 
             const spell2 = new BoltSpell({image: goldBoltArt, knockback: 1.4, castTime: 1, travelSpeed: 2})
             const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.3, width: 0.3, moveTarget: this.centerRingPosition});
