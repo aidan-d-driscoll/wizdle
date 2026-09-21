@@ -7,6 +7,7 @@ type auraOptions = entityOptions & {
     source: Wizard
     duration: number
     knockback: number
+    yOffset: number
 }
 
 export class Aura extends Entity {
@@ -14,6 +15,7 @@ export class Aura extends Entity {
     source: Wizard
     knockback: number
     durationTimer = 0
+    yOffset: number = 0
 
     constructor(args: auraOptions) {
         super(args)
@@ -21,11 +23,12 @@ export class Aura extends Entity {
         this.source = args.source
         this.knockback = args.knockback
         this.width = args.width
+        this.yOffset = args.yOffset
     }
 
     move(args: moveOptions): void{
         this.position.x = this.source.position.x
-        this.position.y = this.source.position.y
+        this.position.y = this.source.position.y + this.yOffset
     }
 
     update(dt: number): void{

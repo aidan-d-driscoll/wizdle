@@ -5,15 +5,18 @@ import { Wizard } from "../entities/wizard";
 
 type auraSpellOptions = spellOptions & {
     duration: number
+    yOffset: number
 }
 
 export class AuraSpell extends Spell{
     duration: number
     width = 2
+    yOffset = 0
 
     constructor(args: auraSpellOptions){
         super(args)
         this.duration = args.duration
+        this.yOffset = args.yOffset
     }
 
     newCast(source: Wizard): Aura | null {
@@ -25,7 +28,8 @@ export class AuraSpell extends Spell{
             width: this.width,
             knockback: this.knockback,
             duration: this.duration,
-            target: source.target
+            target: source.target,
+            yOffset: this.yOffset
         })
     }
 }
