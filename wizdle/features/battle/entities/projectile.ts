@@ -12,8 +12,6 @@ export class Projectile extends Entity{
         this.source = args.source
 
         this.knockback = new Vector({dx: this.velocity.dx, dy: this.velocity.dy, magnitude: args.knockback})
-
-        // console.log("projectile velocity: " + this.velocity)
     }
 
     collideWith(e: Entity): void {

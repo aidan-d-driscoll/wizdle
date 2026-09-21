@@ -7,7 +7,7 @@ import { events } from "../events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
 
-const CIRCLING_SPEED = 0.0
+const CIRCLING_SPEED = 0.9
 
 type wizardOptions = entityOptions & {
     spells: Spell[],
@@ -31,7 +31,7 @@ export class Wizard extends Entity{
         this._speed = args.speed;
         if (args.attackTarget) this.attackTarget = args.attackTarget;
         this.prefferedPosition = args.prefferedPosition; 
-        this.moveTarget = args.prefferedPosition;
+        this.moveTarget = this.prefferedPosition;
         this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
         for (const spell of this.spells){
             this.castTimers.push(0)
@@ -39,27 +39,23 @@ export class Wizard extends Entity{
     }
 
     move(args: moveOptions): void{
-        this.moveTarget = {x: 0.3, y: 0.3};
+        this.moveTarget = this.prefferedPosition;
         this._circling = false;
 
-        console.log("wizard position x: " + this.position.x)
-
-        // if (this.attackTarget) {
-        //     this.moveTarget = this.attackTarget.position;
-        //     this._circling = true;
-        // }
+        if (this.attackTarget && (Math.abs(getDistance({from: this.attackTarget.position, to:this.prefferedPosition})) < Math.abs(getDistance({from: this.position, to:this.prefferedPosition})))) {
+            this.moveTarget = this.attackTarget.position;
+            this._circling = true;
+        }
 
         this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
 
-        // if (this._circling){
-        //     this.velocity = new Vector({
-        //         dx: this.velocity.dx + -1 * CIRCLING_SPEED * this.velocity.dy,
-        //         dy: this.velocity.dx + CIRCLING_SPEED * this.velocity.dx,
-        //         magnitude: this._speed
-        //     })
-        // }
-
-        console.log("wizard velocity: " + this.velocity)
+        if (this._circling){
+            this.velocity = new Vector({
+                dx: this.velocity.dx + (-1 * CIRCLING_SPEED * this.velocity.dy),
+                dy: this.velocity.dy + (CIRCLING_SPEED * this.velocity.dx),
+                magnitude: this._speed
+            })
+        }
     }
 
     collideWith(e: Entity){
@@ -67,7 +63,7 @@ export class Wizard extends Entity{
             const dx = e.x - this.x;
             const dy = e.y - this.y;
 
-            const distance = getDistance(e.position, this.position);
+            const distance = getDistance({from:e.position, to:this.position});
             const overlap = this.width - distance; // how much they overlap
 
             const dirX = dx / distance; // direction from obj1 to obj2
@@ -83,13 +79,8 @@ export class Wizard extends Entity{
 
     update(dt: number){
         super.update(dt)
-        if (!this.dead && Math.abs(getDistance(this.position, this.moveTarget)) > 1) { this.dead = true}
-        if (this.attackTarget && this.attackTarget.dead){
-            this.attackTarget.x = (Math.random() * 2) - 1
-            this.attackTarget.y = (Math.random() * 2) - 1
-            this._speed = 0
-        }
-        if (this.attackTarget) {
+        if (!this.dead && Math.abs(getDistance({from: this.position, to: this.prefferedPosition})) > 1) { this.dead = true}
+        if (!this.attackTarget?.dead) {
             for(let i = 0; i < this.castTimers.length; i++){
                 this.castTimers[i] += dt
                 if (this.castTimers[i] >= this.spells[i].castTime){

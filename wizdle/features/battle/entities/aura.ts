@@ -42,7 +42,7 @@ export class Aura extends Entity {
             const xDiff = e.x - this.y
             const yDiff = e.y - this.y
 
-            const targetDistance = getDistance(e.position, this.position)
+            const targetDistance = getDistance({from: e.position, to: this.position})
             
             const xDir = xDiff / targetDistance
             const yDir = yDiff / targetDistance

@@ -10,7 +10,7 @@ type boltSpellOptions = spellOptions & {
 
 export class BoltSpell extends Spell{
     travelSpeed: number;
-    width = 0.3;
+    width = 0.1;
     knockback:number;
 
     constructor(args: boltSpellOptions){
@@ -21,8 +21,6 @@ export class BoltSpell extends Spell{
 
     newCast(source: Wizard): Projectile | null {
         if (!source.attackTarget) return null
-
-        console.log("travelspeed " + this.travelSpeed)
         return new Projectile({
             startingPosition: source.position,
             image: this.image,

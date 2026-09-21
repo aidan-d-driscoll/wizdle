@@ -54,16 +54,16 @@ export class Engine{
             const aura1Art = new Image();
             aura1Art.src = "/assets/aura-of-death.png";
 
-            const hollowPurple = new Image();
-            hollowPurple.src = "/assets/hollow-purple.png";
+            const hollowPurpleText = new Image();
+            hollowPurpleText.src = "/assets/hollow-purple.png";
 
             this.centerRingPosition = {x: 0, y: 0};
 
-            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 0, castTime: 30, travelSpeed: 1})
-            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 0.1, width: 0.3, prefferedPosition: this.centerRingPosition});
+            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 0.015, castTime: 3, travelSpeed: 3})
+            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 0.3, width: 0.15, prefferedPosition: this.centerRingPosition});
 
-            const spell2 = new BoltSpell({image: goldBoltArt, knockback: 0, castTime: 30, travelSpeed: 1})
-            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.1, width: 0.3, prefferedPosition: this.centerRingPosition});
+            const spell2 = new BoltSpell({image: goldBoltArt, knockback: 0.0011, castTime: 0.17, travelSpeed: 0.7})
+            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.3, width: 0.15, prefferedPosition: this.centerRingPosition});
 
             wizard1.attackTarget = wizard2
             wizard2.attackTarget = wizard1
@@ -152,7 +152,7 @@ export class Engine{
 
     private detectCollisions(e1: Entity){
         for(const e2 of this.entities){
-            if (getDistance(e1.position, e2.position) < e1.width && e1 !== e2){
+            if (getDistance({from: e1.position, to: e2.position}) < e1.width && e1 !== e2){
                 events.emit("collision", {entity1: e1, entity2: e2})
             }
         }
