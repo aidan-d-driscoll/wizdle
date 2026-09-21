@@ -13,7 +13,8 @@ export default class Vector{
     constructor(args:{dx: number, dy: number, magnitude?: number} | {startPos: Position, endPos: Position, magnitude?: number}){
         //console.log("mag " + args.magnitude)
 
-        console.log("new vector mag:" + args.magnitude)
+        console.log("-----------------------------------------------")
+        console.log("new vector in mag:" + args.magnitude)
 
         if ("dx" in args){
             console.log("> dx: " + args.dx + ", dy: " + args.dy)
@@ -39,6 +40,7 @@ export default class Vector{
             this._dy = this._yDir
         }
         
+        console.log("new vector out mag: " + this._magnitude)
     }
 
     set magnitude(value: number){

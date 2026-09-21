@@ -39,25 +39,27 @@ export class Wizard extends Entity{
     }
 
     move(args: moveOptions): void{
-        this.moveTarget = this.prefferedPosition;
+        this.moveTarget = {x: 0.3, y: 0.3};
         this._circling = false;
 
-        if (this.attackTarget && (Math.abs(getDistance(this.attackTarget.position, this.prefferedPosition)) < Math.abs(getDistance(this.position, this.prefferedPosition)))) {
-            this.moveTarget = this.attackTarget.position;
-            this._circling = true;
-        }
+        console.log("wizard position x: " + this.position.x)
+
+        // if (this.attackTarget) {
+        //     this.moveTarget = this.attackTarget.position;
+        //     this._circling = true;
+        // }
 
         this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
 
-        if (this._circling){
-            this.velocity = new Vector({
-                dx: this.velocity.dx + -1 * CIRCLING_SPEED * this.velocity.dy,
-                dy: this.velocity.dx + CIRCLING_SPEED * this.velocity.dx,
-                magnitude: this._speed
-            })
-        }
+        // if (this._circling){
+        //     this.velocity = new Vector({
+        //         dx: this.velocity.dx + -1 * CIRCLING_SPEED * this.velocity.dy,
+        //         dy: this.velocity.dx + CIRCLING_SPEED * this.velocity.dx,
+        //         magnitude: this._speed
+        //     })
+        // }
 
-        console.log("wizardmag: " + this.velocity.magnitude)
+        console.log("wizard velocity: " + this.velocity)
     }
 
     collideWith(e: Entity){

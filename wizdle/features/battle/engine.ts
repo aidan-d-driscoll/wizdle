@@ -60,10 +60,10 @@ export class Engine{
             this.centerRingPosition = {x: 0, y: 0};
 
             const spell1 = new BoltSpell({image: blueBlastArt, knockback: 0, castTime: 30, travelSpeed: 1})
-            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 1, width: 0.3, prefferedPosition: this.centerRingPosition});
+            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 0.1, width: 0.3, prefferedPosition: this.centerRingPosition});
 
             const spell2 = new BoltSpell({image: goldBoltArt, knockback: 0, castTime: 30, travelSpeed: 1})
-            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 1, width: 0.3, prefferedPosition: this.centerRingPosition});
+            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.1, width: 0.3, prefferedPosition: this.centerRingPosition});
 
             wizard1.attackTarget = wizard2
             wizard2.attackTarget = wizard1
@@ -123,8 +123,6 @@ export class Engine{
     }
 
     private update(dt: number) {
-        
-
         for(let i = 0; i < this.entities.length; i++){
             const e = this.entities[i]
             if (e.dead) this.entities.splice(i, 1)
