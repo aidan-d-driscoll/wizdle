@@ -1,45 +1,32 @@
 import Entity from "./entity";
 import { projectileOptions } from "@/types/options";
-import { getDistance } from "@/utilities/mathUtils";
 import { Wizard } from "./wizard";
+import Vector from "@/types/vector";
 
 export class Projectile extends Entity{
-    knockback: number;
+    knockback: Vector;
     source: Entity;
-
-    xDir: number;
-    yDir: number;
-
-    xKnockback: number;
-    yKnockback: number;
 
     constructor(args: projectileOptions){
         super(args)
-        this.knockback = args.knockback
         this.source = args.source
 
-        const xDiff = args.target.position.x - this.position.x
-        const yDiff = args.target.position.y - this.position.y
-        const targetDistance = getDistance(args.target.position, this.position)
+        this.knockback = new Vector({dx: this.velocity.dx, dy: this.velocity.dy, magnitude: args.knockback})
 
-        this.xDir = xDiff / targetDistance
-        this.yDir = yDiff / targetDistance
-
-        this.xKnockback = this.xDir * this.knockback
-        this.yKnockback = this.yDir * this.knockback
+        // console.log("projectile velocity: " + this.velocity)
     }
 
     collideWith(e: Entity): void {
         if (e instanceof Wizard && e !== this.source){
-            e.applyKnockback(this.xKnockback, this.yKnockback)
+            e.applyKnockback(this.knockback)
             this.dead = true;
         }
     }
 }
 
 // export function fireProjectile(source: Entity, target: Wizard, image: HTMLImageElement, knockback: number, projectileSpeed: number, projectiles: Projectile[]) {
-//     const dx = target.position.x - source.position.x;
-//     const dy = target.position.y - source.position.y;
+//     const dx = target.x - source.x;
+//     const dy = target.y - source.y;
 
 //     const distance = Math.sqrt(dx * dx + dy * dy);
 
@@ -49,8 +36,8 @@ export class Projectile extends Entity{
 
 //         projectiles.push(
 //             new Projectile(
-//                 source.position.x,
-//                 source.position.y,
+//                 source.x,
+//                 source.y,
 //                 dirX,
 //                 dirY,
 //             )
@@ -60,8 +47,8 @@ export class Projectile extends Entity{
 
 // export function updateProjectiles(projectiles: Projectile[], dt: number) {
 //     for (const projectile of projectiles) {
-//         projectile.position.x += projectile.dx * projectile.travelSpeed * dt;
-//         projectile.position.y += projectile.dy * projectile.travelSpeed * dt;
+//         projectile.x += projectile.dx * projectile.travelSpeed * dt;
+//         projectile.y += projectile.dy * projectile.travelSpeed * dt;
 
 //         collideProjectile(projectile, projectile.target);
 //     }
@@ -74,8 +61,8 @@ export class Projectile extends Entity{
 // }
 
 // function collideProjectile(projectile: Projectile, wizard: Wizard) {
-//     const dx = wizard.position.x - projectile.position.x;
-//     const dy = wizard.position.y - projectile.position.y;
+//     const dx = wizard.x - projectile.x;
+//     const dy = wizard.y - projectile.y;
 
 //     const distance = Math.sqrt(dx * dx + dy * dy);
 

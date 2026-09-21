@@ -7,7 +7,6 @@ export default abstract class Spell{
     image: HTMLImageElement;
     knockback: number;
     castTime: number;
-    projectile!: Projectile;
 
     dead = false;
 

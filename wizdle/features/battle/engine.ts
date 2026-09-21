@@ -59,18 +59,14 @@ export class Engine{
 
             this.centerRingPosition = {x: 0, y: 0};
 
-            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 0.11, castTime: 0.21, travelSpeed: 2.5})
-            const spell4 = new BoltSpell({image: redRayArt, knockback: 0.11, castTime: 0.37, travelSpeed: 2.2})
-            const spell3 = new BoltSpell({image: grapeShotArt, knockback: 20, castTime: 30, travelSpeed: 1.8})
-            const text = new AuraSpell({image: hollowPurple, knockback: 0, castTime: 25, duration: 6, yOffset: 0.1})
-            const prefire = new AuraSpell({image: grapeShotArt, knockback: 0, castTime: 25, duration: 5, yOffset: -0.05})
-            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1, spell3, spell4, text, prefire], speed: 0.25, width: 0.3, moveTarget: this.centerRingPosition});
+            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 0, castTime: 30, travelSpeed: 1})
+            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 1, width: 0.3, prefferedPosition: this.centerRingPosition});
 
-            const spell2 = new BoltSpell({image: goldBoltArt, knockback: 1.4, castTime: 1, travelSpeed: 2})
-            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.3, width: 0.3, moveTarget: this.centerRingPosition});
+            const spell2 = new BoltSpell({image: goldBoltArt, knockback: 0, castTime: 30, travelSpeed: 1})
+            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 1, width: 0.3, prefferedPosition: this.centerRingPosition});
 
-            wizard1.target = wizard2
-            wizard2.target = wizard1
+            wizard1.attackTarget = wizard2
+            wizard2.attackTarget = wizard1
 
             this.entities.push(wizard1)
             this.entities.push(wizard2)
@@ -133,13 +129,9 @@ export class Engine{
             const e = this.entities[i]
             if (e.dead) this.entities.splice(i, 1)
             else {
-                e.move({dt: dt})
+                e.update(dt)
                 this.detectCollisions(e)
             }
-        }
-
-        for(const e of this.entities){
-            e.update(dt)
         }
     }
 
@@ -175,9 +167,6 @@ export class Engine{
     private createSpellProjectile(spell: Spell, caster: Wizard){
         const projectile = spell.newCast(caster)
         if (projectile) this.entities.push(projectile)
-    }
-
-    private cleanupDeadEntities() {
     }
 
 

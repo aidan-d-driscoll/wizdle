@@ -2,49 +2,58 @@ import { getDistance } from "@/utilities/mathUtils";
 import Position from "./position";
 
 export default class Vector{
+    private _xDir: number;
+    private _yDir: number;
+    private _originalMagnitude: number;
+
     private _dx:number;
     private _dy:number;
     private _magnitude: number;
 
-    constructor(args:{dx: number, dy: number});
-    constructor(args:{startPos: Position, endPos: Position});
+    constructor(args:{dx: number, dy: number, magnitude?: number} | {startPos: Position, endPos: Position, magnitude?: number}){
+        //console.log("mag " + args.magnitude)
 
-    constructor(args:{dx: number, dy: number} | {startPos: Position, endPos: Position}){
-        if ("dx" in args && "dy" in args){
-            this._dx = args.dx
-            this._dy = args.dy
+        console.log("new vector mag:" + args.magnitude)
+
+        if ("dx" in args){
+            console.log("> dx: " + args.dx + ", dy: " + args.dy)
+            this._yDir = args.dx
+            this._xDir = args.dy
         } else {
-            this._dx = args.endPos.x - args.startPos.x;
-            this._dy = args.endPos.y - args.startPos.y;
+            this._yDir = args.startPos.x - args.endPos.x;
+            this._xDir = args.startPos.y - args.endPos.y;
+            console.log("> [positions] dx: " + this._xDir + ", dy: " + this._yDir)
         }
-        this._magnitude = this.calculateMagnitude()
-    }
 
-    calculateMagnitude(): number {
-        return getDistance({x:0,y:0}, {x:this._dx, y: this._dy})
+        this._originalMagnitude = getDistance({x:0,y:0}, {x:this._xDir, y: this._yDir})
+
+        if (args.magnitude) {
+            console.log("mag mag")
+            this._magnitude = args.magnitude
+            this._dx = args.magnitude/this._originalMagnitude * this._xDir
+            this._dy = args.magnitude/this._originalMagnitude * this._yDir
+        }
+        else {
+            this._magnitude = this._originalMagnitude
+            this._dx = this._xDir
+            this._dy = this._yDir
+        }
+        
     }
 
     set magnitude(value: number){
-        this._dx = value/this.magnitude * this._dx
-        this._dy = value/this.magnitude * this._dy
         this._magnitude = value
+        this._dx = value/this._originalMagnitude * this._xDir
+        this._dy = value/this._originalMagnitude * this._yDir
     }
 
     get magnitude(): number { return this._magnitude }
 
-    set dx(value: number){
-        this._dx = value
-        this._magnitude = this.calculateMagnitude()
-    }
-
     get dx(): number { return this._dx }
-
-    set dy(value: number){
-        this._dy = value
-        this._magnitude = this.calculateMagnitude()
-    }
 
     get dy(): number { return this._dy }
     
-    
+    toString(): string {
+        return `Vector(dx:${this._dx}, dy:${this._dy}, magnitude: ${this._magnitude})`;
+    }
 }

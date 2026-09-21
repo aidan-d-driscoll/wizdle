@@ -1,5 +1,6 @@
 import Position from "./position"
 import Entity from "@/features/battle/entities/entity"
+import Vector from "./vector"
 
 export type moveOptions = {
     speed?: number,
@@ -11,15 +12,14 @@ export type entityOptions = {
     startingPosition: Position,
     image: HTMLImageElement,
     width: number,
-    xVel?: number,
-    yVel?: number,
-    target?: Entity | null
+    startingVelocity?: Vector
 }
 
 export type projectileOptions = entityOptions & {
     source: Entity;
     knockback: number;
-    target: Entity;
+    travelSpeed: number;
+    startingVelocity: Vector;
 }
 
 export type spellOptions = {

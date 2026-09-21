@@ -12,13 +12,10 @@ export class Bolt extends Projectile {
     constructor(args: boltOptions) {
         super(args)
         this.travelSpeed = args.travelSpeed;
-        this.target = args.target;
 
         this.velocity = new Vector({startPos: this.position, endPos: this.target.position});
         this.velocity.magnitude = this.travelSpeed;
     }
-
-    move(args: moveOptions): void{}
 }
 
 

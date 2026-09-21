@@ -27,8 +27,8 @@ export class Aura extends Entity {
     }
 
     move(args: moveOptions): void{
-        this.position.x = this.source.position.x
-        this.position.y = this.source.position.y + this.yOffset
+        this.x = this.source.x
+        this.y = this.source.y + this.yOffset
     }
 
     update(dt: number): void{
@@ -39,8 +39,8 @@ export class Aura extends Entity {
 
     collideWith(e: Entity): void {
         if (e instanceof Wizard && e !== this.source){
-            const xDiff = e.position.x - this.position.y
-            const yDiff = e.position.y - this.position.y
+            const xDiff = e.x - this.y
+            const yDiff = e.y - this.y
 
             const targetDistance = getDistance(e.position, this.position)
             
