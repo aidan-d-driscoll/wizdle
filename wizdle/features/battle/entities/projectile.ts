@@ -8,6 +8,7 @@ export class Projectile extends Entity{
     source: Entity;
 
     constructor(args: projectileOptions){
+        args.frictionless = true
         super(args)
         this.source = args.source
 
@@ -16,7 +17,7 @@ export class Projectile extends Entity{
 
     collideWith(e: Entity): void {
         if (e instanceof Wizard && e !== this.source){
-            e.applyKnockback(this.knockback)
+            e.applyForce(this.knockback)
             this.dead = true;
         }
     }

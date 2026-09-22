@@ -6,7 +6,6 @@ import Position from "@/types/position";
 import { getDistance } from "@/utilities/mathUtils";
 import { events } from "./events/eventManager";
 import { BoltSpell } from "./spells/boltSpell";
-import { AuraSpell } from "./spells/auraSpell";
 
 const MIN_WATER_WIDTH = 40
 
@@ -59,11 +58,11 @@ export class Engine{
 
             this.centerRingPosition = {x: 0, y: 0};
 
-            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 0.015, castTime: 3, travelSpeed: 3})
-            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 0.3, width: 0.15, prefferedPosition: this.centerRingPosition});
+            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 2.2, castTime: 3, travelSpeed: 4})
+            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 0.037, width: 0.15, prefferedPosition: this.centerRingPosition});
 
-            const spell2 = new BoltSpell({image: goldBoltArt, knockback: 0.0011, castTime: 0.17, travelSpeed: 0.7})
-            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.3, width: 0.15, prefferedPosition: this.centerRingPosition});
+            const spell2 = new BoltSpell({image: redRayArt, knockback: 0.9, castTime: 0.25, travelSpeed: 1.7})
+            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.040, width: 0.15, prefferedPosition: this.centerRingPosition});
 
             wizard1.attackTarget = wizard2
             wizard2.attackTarget = wizard1

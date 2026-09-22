@@ -6,8 +6,9 @@ import { entityOptions } from "@/types/options";
 import { events } from "../events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
+import { Cinzel } from "next/font/google";
 
-const CIRCLING_SPEED = 0.9
+const CIRCLING_SPEED = 0.045
 
 type wizardOptions = entityOptions & {
     spells: Spell[],
@@ -47,19 +48,21 @@ export class Wizard extends Entity{
             this._circling = true;
         }
 
-        this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
+        this.applyForce(new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed}))
 
         if (this._circling){
-            this.velocity = new Vector({
-                dx: this.velocity.dx + (-1 * CIRCLING_SPEED * this.velocity.dy),
-                dy: this.velocity.dy + (CIRCLING_SPEED * this.velocity.dx),
-                magnitude: this._speed
-            })
+            this.applyForce(new Vector({
+                dx: this.velocity.dy * -1 * CIRCLING_SPEED,
+                dy: this.velocity.dx * CIRCLING_SPEED
+            }))
         }
+
+        
     }
 
     collideWith(e: Entity){
         if (e instanceof Wizard){
+
             const dx = e.x - this.x;
             const dy = e.y - this.y;
 
@@ -74,6 +77,8 @@ export class Wizard extends Entity{
 
             e.x += dirX * overlap / 2;
             e.y += dirY * overlap / 2;
+
+
         }
     }
 

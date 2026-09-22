@@ -13,6 +13,7 @@ export type entityOptions = {
     image: HTMLImageElement,
     width: number,
     startingVelocity?: Vector
+    frictionless?: boolean
 }
 
 export type projectileOptions = entityOptions & {

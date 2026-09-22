@@ -50,7 +50,7 @@ export class Aura extends Entity {
             const xKnockback = xDir * this.knockback
             const yKnockback = yDir * this.knockback
 
-            e.applyKnockback(xKnockback, yKnockback)
+            e.applyForce(xKnockback, yKnockback)
         }
     }
 }
