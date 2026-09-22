@@ -8,13 +8,14 @@ import Position from "@/types/position";
 import Vector from "@/types/vector";
 import { Cinzel } from "next/font/google";
 
-const CIRCLING_SPEED = 0.045
+const CIRCLING_SPEED = 0.8
 
 type wizardOptions = entityOptions & {
     spells: Spell[],
     speed: number,
     prefferedPosition: Position,
-    attackTarget?: Wizard
+    attackTarget?: Wizard,
+    maxHitPoints: number
 }
 
 export class Wizard extends Entity{
@@ -25,6 +26,9 @@ export class Wizard extends Entity{
     moveTarget: Position;
     private _circling = false;
     private _speed: number;
+
+    private _maxHitPoints: number;
+    private _currentHitPoints: number;
 
     constructor(args: wizardOptions) {
         super(args)
@@ -37,6 +41,10 @@ export class Wizard extends Entity{
         for (const spell of this.spells){
             this.castTimers.push(0)
         }
+
+        this._maxHitPoints = args.maxHitPoints;
+        this._currentHitPoints = args.maxHitPoints;
+
     }
 
     move(args: moveOptions): void{
@@ -47,17 +55,17 @@ export class Wizard extends Entity{
             this.moveTarget = this.attackTarget.position;
             this._circling = true;
         }
+        if (Math.abs(getDistance({from: this.position, to: this.moveTarget})) > 0.1){
+            this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
 
-        this.applyForce(new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed}))
-
-        if (this._circling){
-            this.applyForce(new Vector({
-                dx: this.velocity.dy * -1 * CIRCLING_SPEED,
-                dy: this.velocity.dx * CIRCLING_SPEED
-            }))
+            if (this._circling){
+                this.velocity = new Vector({
+                    dx: this.velocity.dx + this.velocity.dy * -1 * CIRCLING_SPEED,
+                    dy: this.velocity.dy + this.velocity.dx * CIRCLING_SPEED,
+                    magnitude: this._speed
+                })
+            }
         }
-
-        
     }
 
     collideWith(e: Entity){
@@ -77,14 +85,12 @@ export class Wizard extends Entity{
 
             e.x += dirX * overlap / 2;
             e.y += dirY * overlap / 2;
-
-
         }
     }
 
     update(dt: number){
         super.update(dt)
-        if (!this.dead && Math.abs(getDistance({from: this.position, to: this.prefferedPosition})) > 1) { this.dead = true}
+        if (!this.dead && (Math.abs(getDistance({from: this.position, to: this.prefferedPosition})) > 1 || this._currentHitPoints <= 0)) { this.dead = true}
         if (!this.attackTarget?.dead) {
             for(let i = 0; i < this.castTimers.length; i++){
                 this.castTimers[i] += dt
@@ -94,7 +100,10 @@ export class Wizard extends Entity{
                 }
             }
         }
-        
+    }
+
+    takeDamage(dmg: number) {
+        this._currentHitPoints -= dmg
     }
 
     // moveToward(targetPosition: Position) {

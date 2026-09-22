@@ -32,11 +32,11 @@ export class Engine{
 
             this.ctx.imageSmoothingEnabled = false;
 
-            const wizard1Art = new Image();
-            wizard1Art.src = "/assets/grape-omancer.png";
+            const grapeWizardArt = new Image();
+            grapeWizardArt.src = "/assets/grape-omancer.png";
 
-            const wizard2Art = new Image();
-            wizard2Art.src = "/assets/gilded-wizard.png";
+            const goldWizardArt = new Image();
+            goldWizardArt.src = "/assets/gilded-wizard.png";
 
             const grapeShotArt = new Image();
             grapeShotArt.src = "/assets/grape-shot.png";
@@ -58,11 +58,26 @@ export class Engine{
 
             this.centerRingPosition = {x: 0, y: 0};
 
-            const spell1 = new BoltSpell({image: blueBlastArt, knockback: 2.2, castTime: 3, travelSpeed: 4})
-            const wizard1 = new Wizard({startingPosition: {x:0.55, y:-0.55}, image: wizard1Art, spells: [spell1], speed: 0.037, width: 0.15, prefferedPosition: this.centerRingPosition});
+            const spell1 = new BoltSpell({image: blueBlastArt})
+            const wizard1 = new Wizard({
+                startingPosition: {x:0.55, y:-0.55}, 
+                image: grapeWizardArt, spells: [spell1], 
+                speed: 0.4, 
+                width: 0.15, 
+                prefferedPosition: this.centerRingPosition,
+                maxHitPoints: 100
+            });
 
-            const spell2 = new BoltSpell({image: redRayArt, knockback: 0.9, castTime: 0.25, travelSpeed: 1.7})
-            const wizard2 = new Wizard({startingPosition: {x:-0.55, y:0.55}, image: wizard2Art, spells: [spell2], speed: 0.040, width: 0.15, prefferedPosition: this.centerRingPosition});
+            const spell2 = new BoltSpell({image: redRayArt})
+            const wizard2 = new Wizard({
+                startingPosition: {x:-0.55, y:0.55}, 
+                image: goldWizardArt, 
+                spells: [spell2], 
+                speed: 0.35,
+                width: 0.15,
+                prefferedPosition: this.centerRingPosition,
+                maxHitPoints: 100
+            });
 
             wizard1.attackTarget = wizard2
             wizard2.attackTarget = wizard1

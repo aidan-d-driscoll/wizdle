@@ -21,10 +21,12 @@ export type projectileOptions = entityOptions & {
     knockback: number;
     travelSpeed: number;
     startingVelocity: Vector;
+    damage: number;
 }
 
 export type spellOptions = {
     image: HTMLImageElement,
-    knockback: number,
-    castTime: number,
+    knockback?: number,
+    castTime?: number,
+    damage?: number
 }

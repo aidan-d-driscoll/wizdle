@@ -10,5 +10,9 @@ export type GameEvents = {
     castSpell: {
         spell: Spell,
         caster: Wizard
+    },
+    dealDamage: {
+        damage: number,
+        target: Wizard
     }
 }
