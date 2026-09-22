@@ -3,10 +3,10 @@ import Spell from "./spell";
 import { Projectile } from "../entities/projectile";
 import { Wizard } from "../entities/wizard";
 import Vector from "@/types/vector";
-import { getRandomFloat, setOptionalRandomNumber } from "@/utilities/mathUtils";
+import { setOptionalRandomNumber } from "@/utilities/mathUtils";
 
-const MIN_TRAVEL_SPEED = 0.9;
-const MAX_TRAVEL_SPEED = 2;
+const MIN_TRAVEL_SPEED = 1;
+const MAX_TRAVEL_SPEED = 2.5;
 
 
 type boltSpellOptions = spellOptions & {
@@ -15,7 +15,7 @@ type boltSpellOptions = spellOptions & {
 
 export class BoltSpell extends Spell{
     travelSpeed: number;
-    width = 0.1;
+    width = 0.07;
 
     constructor(args: boltSpellOptions){
         super(args)
@@ -35,5 +35,9 @@ export class BoltSpell extends Spell{
             travelSpeed: this.travelSpeed,
             damage: this.damage
         })
+    }
+
+    toString(): string{
+        return "Bolt Spell( cast time =" + this.castTime + ", damage=" + this.damage + ", knockback=" + this.knockback + ", travel speed=" + this.travelSpeed +")"
     }
 }

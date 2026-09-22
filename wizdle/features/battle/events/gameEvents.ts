@@ -11,7 +11,7 @@ export type GameEvents = {
         spell: Spell,
         caster: Wizard
     },
-    dealDamage: {
+    takeDamage: {
         damage: number,
         target: Wizard
     }

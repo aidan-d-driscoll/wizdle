@@ -31,7 +31,6 @@ export default abstract class Entity {
     set y(value: number) { this.position.y = value }
 
     applyForce(newForce: Vector): void{
-        console.log("Knocking back")
         this.forces = new Vector({
             dx: this.forces.dx + newForce.dx,
             dy: this.forces.dy + newForce.dy
@@ -40,7 +39,6 @@ export default abstract class Entity {
 
     update(dt: number): void{
         this.move({dt: dt})
-        console.log("-----------------------------")
 
         if(Math.abs(this.position.x) > 1.5 || Math.abs(this.position.y) > 1.5){
             this.dead = true;

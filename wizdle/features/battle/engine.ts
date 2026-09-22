@@ -3,7 +3,7 @@ import Spell from "./spells/spell";
 import Entity from "./entities/entity";
 import { getScreenPosition, sprite } from "./rendering";
 import Position from "@/types/position";
-import { getDistance } from "@/utilities/mathUtils";
+import { getDistance, setOptionalRandomNumber } from "@/utilities/mathUtils";
 import { events } from "./events/eventManager";
 import { BoltSpell } from "./spells/boltSpell";
 
@@ -15,9 +15,6 @@ export class Engine{
     private centerRingPosition!: Position;
 
     private entities: Entity[] = []
-
-    private grapeShotArt!: HTMLImageElement
-    private goldBoltArt!: HTMLImageElement
 
     private animationFrameId: number | null = null;
     
@@ -56,27 +53,26 @@ export class Engine{
             const hollowPurpleText = new Image();
             hollowPurpleText.src = "/assets/hollow-purple.png";
 
+            // Use the center of the ring to give the wizards a preffered position
             this.centerRingPosition = {x: 0, y: 0};
 
             const spell1 = new BoltSpell({image: blueBlastArt})
             const wizard1 = new Wizard({
+                name: "grandpa grape",
                 startingPosition: {x:0.55, y:-0.55}, 
                 image: grapeWizardArt, spells: [spell1], 
-                speed: 0.4, 
-                width: 0.15, 
-                prefferedPosition: this.centerRingPosition,
-                maxHitPoints: 100
+                width: 0.10, 
+                prefferedPosition: this.centerRingPosition
             });
 
             const spell2 = new BoltSpell({image: redRayArt})
             const wizard2 = new Wizard({
+                name: "general goldie",
                 startingPosition: {x:-0.55, y:0.55}, 
                 image: goldWizardArt, 
-                spells: [spell2], 
-                speed: 0.35,
-                width: 0.15,
-                prefferedPosition: this.centerRingPosition,
-                maxHitPoints: 100
+                spells: [spell2],
+                width: 0.10,
+                prefferedPosition: this.centerRingPosition
             });
 
             wizard1.attackTarget = wizard2
@@ -85,12 +81,9 @@ export class Engine{
             this.entities.push(wizard1)
             this.entities.push(wizard2)
 
-            events.on("collision", ({entity1, entity2}) => {
-                this.handleCollision(entity1, entity2)
-            })
-
+            // this lets wizards "access" the engine to create the spell effect entities without exporting the engine class
             events.on("castSpell", ({spell, caster}) => {
-                this.createSpellProjectile(spell, caster)
+                this.createSpellEffect(spell, caster)
             })
 
         } catch (error) {
@@ -99,6 +92,7 @@ export class Engine{
     }
 
     start() {
+        // prevents two instances from running at once
         if (this.running) return;
 
         this.running = true
@@ -117,18 +111,23 @@ export class Engine{
         this.prevTimestamp = null
     }
 
+    // runs every frame of the animation
     private frame = (timestamp:number) => {
         if (!this.running) return
 
         if (this.prevTimestamp === null) {
+            // the first timestamp will come in null, set it to the time on the first displayed frame instead
             this.prevTimestamp = timestamp;
         }
 
-        let dt = (timestamp - this.prevTimestamp) / 1000        // Get amount of time passed in seconds
+        // Get amount of time passed in seconds
+        let dt = (timestamp - this.prevTimestamp) / 1000        
 
-        dt = Math.min(dt, 0.1);                                  // cap time passed at 0.1 seconds
+        // cap time passed at 0.1 seconds
+        dt = Math.min(dt, 0.1);                                  
 
-        this.prevTimestamp = timestamp                          // rest previous timestampf or next dt calculation
+        // rest previous timestampf or next dt calculation
+        this.prevTimestamp = timestamp                          
 
         this.update(dt)
         this.render()
@@ -141,7 +140,10 @@ export class Engine{
             const e = this.entities[i]
             if (e.dead) this.entities.splice(i, 1)
             else {
+                // every entity will have an update function meant to manage frame-by-frame logic
                 e.update(dt)
+
+                // check if this entity is colliding with anything and create a collision event when true
                 this.detectCollisions(e)
             }
         }
@@ -165,18 +167,18 @@ export class Engine{
     }
 
     private detectCollisions(e1: Entity){
+        // compare the distanc between every entity and every other entity
         for(const e2 of this.entities){
-            if (getDistance({from: e1.position, to: e2.position}) < e1.width && e1 !== e2){
-                events.emit("collision", {entity1: e1, entity2: e2})
+            // if widths overlap
+            if (e1 !== e2 && getDistance({from: e1.position, to: e2.position}) < e1.width){
+                // each entity handles its own collision logic
+                e1.collideWith(e2)
             }
         }
     }
 
-    private handleCollision(e1: Entity, e2: Entity){
-        e1.collideWith(e2)
-    }
-
-    private createSpellProjectile(spell: Spell, caster: Wizard){
+    // allows anything to emit a "castSpell" event and have a spell effect added to the entity list
+    private createSpellEffect(spell: Spell, caster: Wizard){
         const projectile = spell.newCast(caster)
         if (projectile) this.entities.push(projectile)
     }

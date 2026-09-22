@@ -9,7 +9,7 @@ export function clear(ctx: CanvasRenderingContext2D | null, battle: HTMLCanvasEl
 }
 
 export function sprite(ctx: CanvasRenderingContext2D, image: HTMLImageElement, position: Position, xVel: number) {  // draw a sprite at a getScreenPosition position
-    const size = 96;
+    const size = 64;
 
     ctx.save();
 
