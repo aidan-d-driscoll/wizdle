@@ -1,6 +1,6 @@
-import { Aura } from "../entities/aura";
-import Entity from "../entities/entity";
-import { Projectile } from "../entities/projectile";
+import { Aura } from "@/features/battle/entities/spellEffects/aura";
+import Entity from "@/features/battle/entities/entity";
+import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
 import { spellOptions } from "@/types/options";
 
 export default abstract class Spell{

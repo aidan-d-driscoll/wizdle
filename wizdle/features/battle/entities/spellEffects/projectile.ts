@@ -1,6 +1,6 @@
-import Entity from "./entity";
+import Entity from "@/features/battle/entities/entity";
 import { projectileOptions } from "@/types/options";
-import { Wizard } from "./wizard";
+import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
 
 export class Projectile extends Entity{

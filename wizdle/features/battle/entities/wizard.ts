@@ -1,12 +1,10 @@
 import Entity from "@/features/battle/entities/entity";
 import { getDistance } from "@/utilities/mathUtils";
-import Spell from "../spells/spell";
-import { moveOptions } from "@/types/options";
-import { entityOptions } from "@/types/options";
-import { events } from "../events/eventManager";
+import Spell from "@/features/battle/spells/spell";
+import { moveOptions, entityOptions } from "@/types/options";
+import { events } from "@/features/battle/events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
-import { Cinzel } from "next/font/google";
 
 const CIRCLING_SPEED = 0.045
 

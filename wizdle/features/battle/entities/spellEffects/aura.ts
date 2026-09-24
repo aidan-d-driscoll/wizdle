@@ -1,6 +1,6 @@
-import Entity from "./entity";
+import Entity from "@/features/battle/entities/entity";
 import { entityOptions, moveOptions } from "@/types/options";
-import { Wizard } from "./wizard";
+import { Wizard } from "@/features/battle/entities/wizard";
 import { getDistance } from "@/utilities/mathUtils";
 
 type auraOptions = entityOptions & {

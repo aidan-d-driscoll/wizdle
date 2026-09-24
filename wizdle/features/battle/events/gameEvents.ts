@@ -1,6 +1,6 @@
-import Entity from "../entities/entity";
-import { Wizard } from "../entities/wizard"
-import Spell from "../spells/spell";
+import Entity from "@/features/battle/entities/entity";
+import { Wizard } from "@/features/battle/entities/wizard"
+import Spell from "@/features/battle/spells/spell";
 
 export type GameEvents = {
     collision: {

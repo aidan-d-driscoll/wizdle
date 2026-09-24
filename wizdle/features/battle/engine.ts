@@ -1,11 +1,11 @@
-import { Wizard } from "./entities/wizard";
-import Spell from "./spells/spell";
-import Entity from "./entities/entity";
-import { getScreenPosition, sprite } from "./rendering";
+import { Wizard } from "@/features/battle/entities/wizard";
+import Spell from "@/features/battle/spells/spell";
+import Entity from "@/features/battle/entities/entity";
+import { getScreenPosition, sprite } from "@/features/battle/rendering";
 import Position from "@/types/position";
 import { getDistance } from "@/utilities/mathUtils";
-import { events } from "./events/eventManager";
-import { BoltSpell } from "./spells/boltSpell";
+import { events } from "@/features/battle/events/eventManager";
+import { BoltSpell } from "@/features/battle/spells/boltSpell";
 
 const MIN_WATER_WIDTH = 40
 

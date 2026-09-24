@@ -1,7 +1,7 @@
 import { spellOptions } from "@/types/options";
-import Spell from "./spell";
-import { Projectile } from "../entities/projectile";
-import { Wizard } from "../entities/wizard";
+import Spell from "@/features/battle/spells/spell";
+import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
+import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
 
 type boltSpellOptions = spellOptions & {

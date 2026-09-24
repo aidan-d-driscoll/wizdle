@@ -1,4 +1,4 @@
-import { GameEvents } from "./gameEvents";
+import { GameEvents } from "@/features/battle/events/gameEvents";
 
 type Handler<Type> = (payload: Type) => void
 

@@ -1,7 +1,7 @@
 import { spellOptions } from "@/types/options";
-import Spell from "./spell";
-import { Aura } from "../entities/aura";
-import { Wizard } from "../entities/wizard";
+import Spell from "@/features/battle/spells/spell";
+import { Aura } from "@/features/battle/entities/spellEffects/aura";
+import { Wizard } from "@/features/battle/entities/wizard";
 
 type auraSpellOptions = spellOptions & {
     duration: number
