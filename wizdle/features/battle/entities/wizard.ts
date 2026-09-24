@@ -1,18 +1,26 @@
 import Entity from "@/features/battle/entities/entity";
-import { getDistance } from "@/utilities/mathUtils";
+import { getDistance, setOptionalRandomNumber } from "@/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
 import { moveOptions, entityOptions } from "@/types/options";
 import { events } from "@/features/battle/events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
 
-const CIRCLING_SPEED = 0.045
+const CIRCLING_SPEED = 1.2
+
+const MIN_MAX_HP = 30
+const MAX_MAX_HP = 300
+
+const MIN_SPEED = 0.25
+const MAX_SPEED = 0.44
 
 type wizardOptions = entityOptions & {
     spells: Spell[],
-    speed: number,
+    speed?: number,
     prefferedPosition: Position,
-    attackTarget?: Wizard
+    attackTarget?: Wizard,
+    maxHitPoints?: number
+    name: string
 }
 
 export class Wizard extends Entity{
@@ -24,10 +32,15 @@ export class Wizard extends Entity{
     private _circling = false;
     private _speed: number;
 
+    name: string;
+
+    private _maxHitPoints: number;
+    private _currentHitPoints: number;
+
     constructor(args: wizardOptions) {
         super(args)
         this.spells = args.spells;
-        this._speed = args.speed;
+        this._speed = setOptionalRandomNumber({value: args.speed, min: MIN_SPEED, max: MAX_SPEED})
         if (args.attackTarget) this.attackTarget = args.attackTarget;
         this.prefferedPosition = args.prefferedPosition; 
         this.moveTarget = this.prefferedPosition;
@@ -35,6 +48,18 @@ export class Wizard extends Entity{
         for (const spell of this.spells){
             this.castTimers.push(0)
         }
+
+        this._maxHitPoints = setOptionalRandomNumber({value: args.maxHitPoints, min: MIN_MAX_HP, max: MAX_MAX_HP})
+        this._currentHitPoints = this._maxHitPoints;
+
+        this.name = args.name;
+
+        events.on("takeDamage", ({damage, target}) => {
+            this.logHP()
+        })
+
+        console.log(this.toString())
+
     }
 
     move(args: moveOptions): void{
@@ -45,17 +70,17 @@ export class Wizard extends Entity{
             this.moveTarget = this.attackTarget.position;
             this._circling = true;
         }
+        if (Math.abs(getDistance({from: this.position, to: this.moveTarget})) > 0.1){
+            this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
 
-        this.applyForce(new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed}))
-
-        if (this._circling){
-            this.applyForce(new Vector({
-                dx: this.velocity.dy * -1 * CIRCLING_SPEED,
-                dy: this.velocity.dx * CIRCLING_SPEED
-            }))
+            if (this._circling){
+                this.velocity = new Vector({
+                    dx: this.velocity.dx + this.velocity.dy * -1 * CIRCLING_SPEED,
+                    dy: this.velocity.dy + this.velocity.dx * CIRCLING_SPEED,
+                    magnitude: this._speed
+                })
+            }
         }
-
-        
     }
 
     collideWith(e: Entity){
@@ -75,14 +100,12 @@ export class Wizard extends Entity{
 
             e.x += dirX * overlap / 2;
             e.y += dirY * overlap / 2;
-
-
         }
     }
 
     update(dt: number){
         super.update(dt)
-        if (!this.dead && Math.abs(getDistance({from: this.position, to: this.prefferedPosition})) > 1) { this.dead = true}
+        if (!this.dead && (Math.abs(getDistance({from: this.position, to: this.prefferedPosition})) > 1 || this._currentHitPoints <= 0)) { this.dead = true}
         if (!this.attackTarget?.dead) {
             for(let i = 0; i < this.castTimers.length; i++){
                 this.castTimers[i] += dt
@@ -92,25 +115,20 @@ export class Wizard extends Entity{
                 }
             }
         }
-        
     }
 
-    // moveToward(targetPosition: Position) {
-    //     const dx = targetPosition.x - this.x;
-    //     const dy = targetPosition.y - this.y;
+    takeDamage(dmg: number) {
+        this._currentHitPoints -= dmg
+    }
 
-    //     const distance = getDistance(targetPosition, this.position);
-    //     //const distance = Math.sqrt(Math.sqrt(dx * dx + dy * dy))
+    toString(){
+        let out = this.name + "\n > Max HP = " + this._maxHitPoints + "\n > speed: " + this._speed + "\n > spells:"
+        for(const spell of this.spells)
+            out += "\n   > " +spell.toString()
+        return out
+    }
 
-    //     const xCircleAmount = 1 - (Math.abs(dx)/(Math.abs(dx)+Math.abs(dy)))
-    //     const yCircleAmount = 1 - xCircleAmount
-
-    //     const xCircleDirection = -1 * Math.sign(dy)
-    //     const yCircleDirection = Math.sign(dx)
-
-    //     if (distance > 0) { // normalize direction
-    //         this.xVel = dx / distance / 4 * this.speed + (this.speed * xCircleDirection * xCircleAmount * CIRCLING_SPEED);
-    //         this.yVel = dy / distance / 4 * this.speed + (this.speed * yCircleDirection * yCircleAmount * CIRCLING_SPEED);
-    //     }
-    // }
+    logHP(){
+        console.log(this.name + ": " + this._currentHitPoints)
+    }
 }

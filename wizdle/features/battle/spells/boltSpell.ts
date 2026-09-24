@@ -3,20 +3,24 @@ import Spell from "@/features/battle/spells/spell";
 import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
 import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
+import { setOptionalRandomNumber } from "@/utilities/mathUtils";
+
+const MIN_TRAVEL_SPEED = 1;
+const MAX_TRAVEL_SPEED = 2.5;
+
 
 type boltSpellOptions = spellOptions & {
-    travelSpeed: number
+    travelSpeed?: number
 }
 
 export class BoltSpell extends Spell{
     travelSpeed: number;
-    width = 0.1;
-    knockback:number;
+    width = 0.07;
 
     constructor(args: boltSpellOptions){
         super(args)
-        this.travelSpeed = args.travelSpeed
-        this.knockback = args.knockback
+
+        this.travelSpeed = setOptionalRandomNumber({value: args.travelSpeed, min: MIN_TRAVEL_SPEED, max: MAX_TRAVEL_SPEED})
     }
 
     newCast(source: Wizard): Projectile | null {
@@ -28,7 +32,12 @@ export class BoltSpell extends Spell{
             startingVelocity: new Vector({startPos: source.position, endPos: source.attackTarget.position, magnitude: this.travelSpeed}),
             source: source,
             knockback: this.knockback,
-            travelSpeed: this.travelSpeed
+            travelSpeed: this.travelSpeed,
+            damage: this.damage
         })
+    }
+
+    toString(): string{
+        return "Bolt Spell( cast time =" + this.castTime + ", damage=" + this.damage + ", knockback=" + this.knockback + ", travel speed=" + this.travelSpeed +")"
     }
 }
