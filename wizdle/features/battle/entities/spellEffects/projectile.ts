@@ -2,7 +2,7 @@ import Entity from "@/features/battle/entities/entity";
 import { projectileOptions } from "@/types/options";
 import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
-import { events } from "../events/eventManager";
+import { events } from "@/features/battle/events/eventManager";
 
 export class Projectile extends Entity{
     knockback: Vector;
