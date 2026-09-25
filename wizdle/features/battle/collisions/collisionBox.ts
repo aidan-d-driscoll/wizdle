@@ -7,10 +7,8 @@ export class CollisionBox extends Rectangle{
     constructor(args: rectangleOptions){
         super(args)
         this.fatBox = new Rectangle(args)
-        this.fatBox.scale(1.1);
+        this.fatBox.scale(1.05);
 
-        this.collisions.
+        collisions.push(this.fatBox)
     }
-
-    update()
 }
