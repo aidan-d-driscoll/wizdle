@@ -1,6 +1,7 @@
 import Entity from "@/features/battle/entities/entity";
 import { Wizard } from "@/features/battle/entities/wizard"
 import Spell from "@/features/battle/spells/spell";
+import { CollisionBox } from "../collisions/collisionBox";
 
 export type GameEvents = {
     collision: {
@@ -14,5 +15,12 @@ export type GameEvents = {
     takeDamage: {
         damage: number,
         target: Wizard
+    },
+    breachEvent: {
+        box: CollisionBox
+    },
+    boxCollision: {
+        box1: CollisionBox,
+        box2: CollisionBox
     }
 }

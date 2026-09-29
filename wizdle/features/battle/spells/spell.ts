@@ -6,8 +6,8 @@ import { spellOptions } from "@/types/options";
 
 const CAST_TIME_INFLUENCE = 0.6
 
-const MIN_KNOCKBACK = 0.15;
-const MAX_KNOCKBACK = MIN_KNOCKBACK*20;
+const MIN_KNOCKBACK = 0.4;
+const MAX_KNOCKBACK = MIN_KNOCKBACK*4;
 
 const MIN_CAST_TIME = 0.05;
 const MAX_CAST_TIME = MIN_CAST_TIME*40;

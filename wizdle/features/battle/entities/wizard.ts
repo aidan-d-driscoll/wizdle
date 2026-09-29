@@ -1,18 +1,18 @@
-import Entity from "@/features/battle/entities/entity";
+import Entity, { entityOptions } from "@/features/battle/entities/entity";
 import { getDistance, setOptionalRandomNumber } from "@/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
-import { moveOptions, entityOptions } from "@/types/options";
+import { moveOptions } from "@/types/options";
 import { events } from "@/features/battle/events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
 
 const CIRCLING_SPEED = 1.2
 
-const MIN_MAX_HP = 30
-const MAX_MAX_HP = 300
+const MIN_MAX_HP = 200
+const MAX_MAX_HP = 250
 
-const MIN_SPEED = 0.25
-const MAX_SPEED = 0.44
+const MIN_SPEED = 0.20
+const MAX_SPEED = 0.40
 
 type wizardOptions = entityOptions & {
     spells: Spell[],
@@ -70,6 +70,7 @@ export class Wizard extends Entity{
             this.moveTarget = this.attackTarget.position;
             this._circling = true;
         }
+        
         if (Math.abs(getDistance({from: this.position, to: this.moveTarget})) > 0.1){
             this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
 
@@ -84,23 +85,7 @@ export class Wizard extends Entity{
     }
 
     collideWith(e: Entity){
-        if (e instanceof Wizard){
-
-            const dx = e.x - this.x;
-            const dy = e.y - this.y;
-
-            const distance = getDistance({from:e.position, to:this.position});
-            const overlap = this.width - distance; // how much they overlap
-
-            const dirX = dx / distance; // direction from obj1 to obj2
-            const dirY = dy / distance;
-
-            this.x -= dirX * overlap / 2; // push them apart equally
-            this.y -= dirY * overlap / 2;
-
-            e.x += dirX * overlap / 2;
-            e.y += dirY * overlap / 2;
-        }
+        
     }
 
     update(dt: number){

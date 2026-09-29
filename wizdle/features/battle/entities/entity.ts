@@ -1,34 +1,38 @@
-import { Position } from "@/types/position";
-import { moveOptions, entityOptions } from "@/types/options";
+import { Position, positionObject } from "@/types/position";
+import { moveOptions } from "@/types/options";
 import Vector from "@/types/vector";
+import { Sprite, spriteOptions } from "@/features/battle/rendering/sprite";
+import { CollisionBox } from "../collisions/collisionBox";
+import { rectangleOptions } from "@/types/rectangle";
 
-const FRICTION = 0.002
+const FRICTION = 0.00015
 
-export default abstract class Entity {
-    position: Position;
+export type entityOptions = rectangleOptions & {
+    startingPosition: Position,
+    sprite?: Sprite,
+    startingVelocity?: Vector,
+    physics?: boolean,
+    collisionBox?: CollisionBox
+}
+
+export default abstract class Entity extends positionObject {
     velocity: Vector = new Vector({dx: 0, dy: 0});
-    image: HTMLImageElement;
-    width: number;
-    dead = false;
-    frictionless = false;
-
     forces: Vector = new Vector({dx: 0, dy: 0});
+    physics = true;
+    dead = false;
 
-    constructor({startingPosition, image, width, startingVelocity, frictionless}: entityOptions){
-        this.position = startingPosition;
-        if(startingVelocity) this.velocity = startingVelocity;
-        this.image = image;
-        this.width = width;
-        if(frictionless) this.frictionless = frictionless
+    sprite: Sprite | null = null;
+
+    collisionBox: CollisionBox | null = null;
+
+    constructor(args: entityOptions){
+        super(args.startingPosition)
+
+        if(args.startingVelocity) this.velocity = args.startingVelocity;
+        this.sprite = args.sprite ? args.sprite : null
+        if(args.physics) this.physics = args.physics
+        if(args.collisionBox) this.collisionBox = args.collisionBox
     }
-
-    get x(): number { return this.position.x }
-
-    set x(value: number) { this.position.x = value }
-
-    get y(): number { return this.position.y }
-
-    set y(value: number) { this.position.y = value }
 
     applyForce(newForce: Vector): void{
         this.forces = new Vector({
@@ -51,13 +55,17 @@ export default abstract class Entity {
             }
         }
         
-        if (!this.frictionless){
+        if (!this.physics){
             const fMod = Math.pow(dt, FRICTION)
         
 
             this.forces.magnitude *= fMod
         }
         
+        if (this.sprite) this.sprite.position = this.position
+        if (this.collisionBox) this.collisionBox.tight.position = this.position
+
+        console.log(this.collisionBox.tight.position)
     }
 
     move(args: moveOptions): void{}

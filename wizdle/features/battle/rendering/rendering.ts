@@ -1,11 +1,11 @@
 import { Position } from "@/types/position";
 
-export function clear(ctx: CanvasRenderingContext2D | null, battle: HTMLCanvasElement, background: string) { // clear the getScreenPosition before rendering each frame
+export function clear(ctx: CanvasRenderingContext2D | null, canvas: HTMLCanvasElement, background: string) { // clear the getScreenPosition before rendering each frame
     if (!ctx){
         throw new Error("Invalid battle context.")
     }
     ctx.fillStyle = background;
-    ctx.fillRect(0, 0, battle.width, battle.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 export function sprite(ctx: CanvasRenderingContext2D, image: HTMLImageElement, position: Position, xVel: number) {  // draw a sprite at a getScreenPosition position
@@ -37,9 +37,9 @@ export function sprite(ctx: CanvasRenderingContext2D, image: HTMLImageElement, p
     ctx.restore();
 }
 
-export function getScreenPosition(position: Position, battle: HTMLCanvasElement) { // convert world coordinates (-1..1)
+export function getScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return {
-        x: (position.x + 1) / 2 * battle.width,
-        y: (1 - (position.y + 1) / 2) * battle.height
+        x: (position.x + 1) / 2 * canvas.width,
+        y: (1 - (position.y + 1) / 2) * canvas.height
     };
 }

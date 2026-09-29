@@ -4,25 +4,33 @@ export type Position = {
 }
 
 export class positionObject{
-    position: Position;
+    protected _position: Position;
 
     constructor(args:{x: number, y: number}){
-        this.position = args;
+        this._position = args;
     }
 
     get x(): number {
-        return this.position.x
+        return this._position.x
     }
     set x(value: number) {
-        this.position.x = value
+        this._position.x = value
     }
 
     get y(): number {
-        return this.position.y
+        return this._position.y
     }
 
     set y(value: number) {
-        this.position.y = value
+        this._position.y = value
+    }
+
+    get position(): Position {
+        return this._position
+    }
+
+    set position(value: Position) {
+        this._position = value;
     }
 }
 
