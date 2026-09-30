@@ -63,9 +63,12 @@ export default abstract class Entity extends positionObject {
         }
         
         if (this.sprite) this.sprite.position = this.position
-        if (this.collisionBox) this.collisionBox.tight.position = this.position
+        if (this.collisionBox){
+            this.collisionBox.tight.position = this.position
+            this.collisionBox.update()
+        }
 
-        console.log(this.collisionBox.tight.position)
+        
     }
 
     move(args: moveOptions): void{}

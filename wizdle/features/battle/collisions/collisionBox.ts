@@ -18,6 +18,7 @@ export class CollisionBox{
     }
 
     update(): void {
+        // console.log("COLLBOX")
         if (this.tight.breaches(this.fat)) {
             this.dirty = true;
             this.fat.position = this.tight.position;

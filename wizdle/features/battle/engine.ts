@@ -78,8 +78,8 @@ export class Engine{
                 }),
                 collisionBox: new CollisionBox({
                     startingPosition: {x: 0.5, y: 0.5},
-                    width: 1,
-                    height: 1
+                    width: 0.3,
+                    height:0.3
                 })
             }))
 
@@ -99,8 +99,8 @@ export class Engine{
                 }),
                 collisionBox: new CollisionBox({
                     startingPosition: {x: -0.5, y: -0.5},
-                    width: 1,
-                    height:1
+                    width: 0.3,
+                    height:0.3
                 })
             }))
 
@@ -220,7 +220,7 @@ export class Engine{
 
         if(VISIBLE_COLLISION_BOXES){
             for(const cb of this.collisionBoxes){
-                cb.renderOnto(this.canvas, this.ctx)
+                // cb.renderOnto(this.canvas, this.ctx)
                 //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
             }
         }

@@ -26,14 +26,15 @@ export class Rectangle extends positionObject{
     set position(value: Position) {
         this.xMin += value.x - this.x
         this.xMax += value.x - this.x
-        this.xMin += value.y - this.y
-        this.xMax += value.y - this.y
+        this.yMin += value.y - this.y
+        this.yMax += value.y - this.y
+        console.log("val - " + this.xMin + "," + this.xMax)
 
         super.position = value
     }
 
     get position(): Position {
-        return this._position;
+        return super.position;
     }
 
     get width(): number {
@@ -68,9 +69,10 @@ export class Rectangle extends positionObject{
     }
 
     breaches(outer: Rectangle): boolean {
-        return (this.xMax > outer.xMax) || 
-           (this.xMin < outer.xMin) || 
-           (this.yMin < outer.yMin) || 
-           (this.yMax > outer.yMax);
+        console.log("BREACH")
+        return (this.x > outer.xMax) || 
+           (this.x < outer.xMin) || 
+           (this.y < outer.yMin) || 
+           (this.y > outer.yMax);
     }
 }
