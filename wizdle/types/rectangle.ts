@@ -28,7 +28,7 @@ export class Rectangle extends positionObject{
         this.xMax += value.x - this.x
         this.yMin += value.y - this.y
         this.yMax += value.y - this.y
-        console.log("val - " + this.xMin + "," + this.xMax)
+        // console.log("val - " + this.xMin + "," + this.xMax)
 
         super.position = value
     }
@@ -52,27 +52,26 @@ export class Rectangle extends positionObject{
            (this.yMax >= target.yMin);
     }
 
-    scale(mulitplier: number, scaleX: boolean = true, scaleY: boolean = true): void {
+    scale(multiplier: number, scaleX: boolean = true, scaleY: boolean = true): void {
         if (scaleX){
-            const widthGrowth = Math.abs((this._width * mulitplier) - this._width)
-            this._width = widthGrowth
+            const widthGrowth = Math.abs((this._width * multiplier) - this._width)
+            this._width = this._width * multiplier
             this.xMax += 0.5 * widthGrowth
             this.xMin -= 0.5 * widthGrowth
         }
         
         if (scaleY){
-            const heightGrowth = Math.abs((this._height * mulitplier) - this._height)
-            this._height = heightGrowth
-            this.xMax += 0.5 * heightGrowth
-            this.xMin -= 0.5 * heightGrowth
+            const heightGrowth = Math.abs((this._height * multiplier) - this._height)
+            this._height = this._height * multiplier
+            this.yMax += 0.5 * heightGrowth
+            this.yMin -= 0.5 * heightGrowth
         }
     }
 
     breaches(outer: Rectangle): boolean {
-        console.log("BREACH")
-        return (this.x > outer.xMax) || 
-           (this.x < outer.xMin) || 
-           (this.y < outer.yMin) || 
-           (this.y > outer.yMax);
+        return (this.xMin < outer.xMin) ||
+               (this.xMax > outer.xMax) ||
+               (this.yMin < outer.yMin) ||
+               (this.yMax > outer.yMax);
     }
 }

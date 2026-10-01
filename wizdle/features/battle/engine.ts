@@ -29,6 +29,8 @@ export class Engine{
     
     private prevTimestamp: number | null = null;
 
+    private battlePaused: boolean = true;
+
     constructor(private canvas: HTMLCanvasElement) {
         try{
             this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D
@@ -78,8 +80,8 @@ export class Engine{
                 }),
                 collisionBox: new CollisionBox({
                     startingPosition: {x: 0.5, y: 0.5},
-                    width: 0.3,
-                    height:0.3
+                    width: 0.15,
+                    height:0.2
                 })
             }))
 
@@ -99,15 +101,13 @@ export class Engine{
                 }),
                 collisionBox: new CollisionBox({
                     startingPosition: {x: -0.5, y: -0.5},
-                    width: 0.3,
-                    height:0.3
+                    width: 0.15,
+                    height:0.2
                 })
             }))
 
             this.entities[0].attackTarget = this.entities[1]
             this.entities[1].attackTarget = this.entities[0]
-
-            console.log(this.sprites)
 
             // const spell1 = new BoltSpell({image: blueBlastArt})
             // const wizard1 = new Wizard({
@@ -138,6 +138,7 @@ export class Engine{
             // events.on("castSpell", ({spell, caster}) => {
             //     this.createSpellEffect(spell, caster)
             // })
+            window.addEventListener("mousedown", () => { this.battlePaused = !this.battlePaused; });
 
         } catch (error) {
             console.error("Error initializing Battle: " + error)
@@ -166,6 +167,7 @@ export class Engine{
 
     // runs every frame of the animation
     private frame = (timestamp:number) => {
+        
         if (!this.running) return
 
         if (this.prevTimestamp === null) {
@@ -182,8 +184,13 @@ export class Engine{
         // rest previous timestampf or next dt calculation
         this.prevTimestamp = timestamp                          
 
-        this.update(dt)
-        this.render()
+        if(!this.battlePaused){
+        
+            this.update(dt)
+            this.render()
+        } else {
+            dt = 0
+        }
 
         this.animationFrameId = requestAnimationFrame(this.frame)
     }
@@ -220,7 +227,8 @@ export class Engine{
 
         if(VISIBLE_COLLISION_BOXES){
             for(const cb of this.collisionBoxes){
-                // cb.renderOnto(this.canvas, this.ctx)
+                console.log("rendering collision box")
+                cb.renderOnto(this.canvas, this.ctx)
                 //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
             }
         }

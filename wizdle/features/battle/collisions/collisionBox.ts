@@ -14,11 +14,10 @@ export class CollisionBox{
 
         this.tight = new Rectangle(args)
         this.fat = new Rectangle(args)
-        this.fat.scale(1.1);
+        this.fat.scale(2);
     }
 
     update(): void {
-        // console.log("COLLBOX")
         if (this.tight.breaches(this.fat)) {
             this.dirty = true;
             this.fat.position = this.tight.position;
@@ -30,20 +29,45 @@ export class CollisionBox{
     }
 
     renderOnto(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D){
+
+        const fatScreenPosition = this.getFatScreenPosition(canvas)
+        const fatBoxWidth = this.fat.width*canvas.width/2
+        const fatBoxHeight = this.fat.height*canvas.height/2
+        fatScreenPosition.x -= 0.5*fatBoxWidth
+        fatScreenPosition.y -= 0.5*fatBoxHeight
+        
+        ctx.save();
+
+        ctx.fillStyle = "#9c044b46"
+        ctx.fillRect(fatScreenPosition.x, fatScreenPosition.y, fatBoxWidth, fatBoxHeight)
+
+        ctx.restore();
+
         const screenPosition = this.getScreenPosition(canvas)
+        const boxWidth = this.tight.width*canvas.width/2
+        const boxHeight = this.tight.height*canvas.height/2
+        screenPosition.x -= 0.5*boxWidth
+        screenPosition.y -= 0.5*boxHeight
         
         ctx.save();
 
         ctx.fillStyle = "#13049c42"
-        ctx.fillRect(screenPosition.x, screenPosition.y, this.tight.width, this.tight.height)
+        ctx.fillRect(screenPosition.x, screenPosition.y, boxWidth, boxHeight)
 
         ctx.restore();
     }
 
     getScreenPosition(canvas: HTMLCanvasElement){
         return {
-            x: (this.tight.position.x + 1) / 2 * canvas.width - 0.5 * this.tight.width,
-            y: (1 - (this.tight.position.y + 1) / 2) * canvas.height - 0.5 * this.tight.height
+            x: (this.tight.position.x + 1) / 2 * canvas.width,
+            y: (1 - (this.tight.position.y + 1) / 2) * canvas.height
+        };
+    }
+
+    getFatScreenPosition(canvas: HTMLCanvasElement){
+        return {
+            x: (this.fat.position.x + 1) / 2 * canvas.width,
+            y: (1 - (this.fat.position.y + 1) / 2) * canvas.height
         };
     }
 }
