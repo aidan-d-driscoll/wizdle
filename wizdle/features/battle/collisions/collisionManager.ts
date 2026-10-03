@@ -1,7 +1,7 @@
-import { CollisionBox } from "./collisionBox";
+import { CollisionBody } from "./collisionBody";
 
 interface Endpoint {
-    readonly cb: CollisionBox
+    readonly cb: CollisionBody
     readonly isMin: boolean
     xPos: number
     slot: number
@@ -14,45 +14,50 @@ interface Handle {
 
 export default class CollisionManager{
     endpoints: Endpoint[] = [];
-    handles = new Map<CollisionBox, Handle>();
-    collisionCandidates = new Map<number, {boxA: CollisionBox, boxB: CollisionBox}>
+    handles = new Map<CollisionBody, Handle>();
+    collisionCandidates = new Map<number, {bodyA: CollisionBody, bodyB: CollisionBody}>
+    activeCollisions = new Map<number, {bodyA: CollisionBody, bodyB: CollisionBody}>
 
     update(): void {
         for (const cb of this.handles.keys()){
             if(cb.dirty){
-                this.repositionCollisionBox(cb)
+                this.repositionCollisionBody(cb)
             }
         }
 
-        this.logEndpoints()
-
-        let cands = "Collision candidates: "
-        let c;
-        for (const key of this.collisionCandidates.keys()){
-            c = this.collisionCandidates.get(key)
-            if (c) cands += `\n > box${c.boxA.id} <-> box${c.boxB.id}`
+        let key: number;
+        let tightBoxCollision: boolean;
+        for (const candidate of this.collisionCandidates) {
+            tightBoxCollision = candidate[1].bodyA.tight.overlaps(candidate[1].bodyB.tight)
+            key = this.pairKey(candidate[1].bodyA, candidate[1].bodyB)
+            if (this.activeCollisions.has(key)){
+                if(tightBoxCollision){
+                    console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                } else {
+                    this.activeCollisions.delete(key)
+                    console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                }
+            } else if(tightBoxCollision) {
+                this.activeCollisions.set(key, candidate[1])
+                console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+            }
         }
-
-        console.log(cands +"\n")
-
-        for (const candidate of this.collisionCandidates){
-            if(candidate[1].boxA.tight.overlaps(candidate[1].boxB.tight))
-                console.log(`EMIT COLLISION EVENT PLACEHOLDER [box${candidate[1].boxA.id} <-> box${candidate[1].boxB.id}]`)
-        }
-        console.log("----------------------------------------------------------------------------------")
+        
+        // console.log("----------------------------------------------------------------------------------")
     }    
 
-    add(cb: CollisionBox){
+    add(cb: CollisionBody){
         const newMinEp: Endpoint = {cb: cb, isMin: true, xPos: cb.fat.xMin, slot: -1};
         const newMaxEp: Endpoint = {cb: cb, isMin: false, xPos: cb.fat.xMax, slot: -1};
 
-        const numSlots = this.endpoints.length;
+        let numSlots = this.endpoints.length;
 
         let i = 0;
         while(i < numSlots){
             if (newMinEp.slot == -1 && cb.fat.xMin < this.endpoints[i].xPos) {
                 newMinEp.slot = i
                 this.endpoints.splice(i, 0, newMinEp)
+                numSlots++;
                 i++;
             }
             if (newMinEp.slot !== -1 && cb.fat.xMax < this.endpoints[i].xPos) {
@@ -72,17 +77,41 @@ export default class CollisionManager{
             newMaxEp.slot = i
             i++;
         }
+
+        const activeBodyes = new Set<CollisionBody>
+        let inAddedBody = false;
+        for (const ep of this.endpoints){
+            if (ep === newMaxEp){
+                break;
+            } else if (ep === newMinEp){
+                inAddedBody = true;
+                for (const other of activeBodyes) this.registerCollisionCandidate(cb, other)
+                continue;
+            }
+            if (ep.isMin){
+                if (inAddedBody) this.registerCollisionCandidate(cb, ep.cb)
+                activeBodyes.add(ep.cb)
+            } else if (!inAddedBody) {
+                activeBodyes.delete(ep.cb)
+            }
+        }
         
         this.handles.set(cb, {minEp: newMinEp, maxEp: newMaxEp})
 
         this.correctEndpointSlots();
 
-        this.logEndpoints()
+        // this.logEndpoints()
     }
 
-    remove(cb: CollisionBox): void{
+    remove(cb: CollisionBody): void{
         const handle = this.handles.get(cb)
         if (handle){
+            for (const cand of this.collisionCandidates){
+                if ((cand[1].bodyA == cb) || (cand[1].bodyB == cb)){
+                    this.collisionCandidates.delete(cand[0])
+                }
+            }
+
             this.endpoints.splice(handle.maxEp.slot, 1)
             this.endpoints.splice(handle.minEp.slot, 1)
 
@@ -92,7 +121,7 @@ export default class CollisionManager{
         }
     }
 
-    private pairKey(cbA: CollisionBox, cbB: CollisionBox){
+    private pairKey(cbA: CollisionBody, cbB: CollisionBody){
         const x = cbA.id < cbB.id ? cbA.id : cbB.id;
         const y = cbA.id < cbB.id ? cbB.id : cbA.id;
         return x + y * y;
@@ -114,16 +143,21 @@ export default class CollisionManager{
         const key = this.pairKey(minEp.cb, maxEp.cb);
 
         if (minEp.slot < maxEp.slot){
-            this.collisionCandidates.set(key, {boxA: epA.cb, boxB: epB.cb})
+            this.collisionCandidates.set(key, {bodyA: minEp.cb, bodyB: maxEp.cb})
         } else this.collisionCandidates.delete(key);
     }
 
-    // On a breach, after cb has created its new fatBox
-    private repositionCollisionBox(cb: CollisionBox): void{
+    private registerCollisionCandidate(cbA: CollisionBody, cbB: CollisionBody): void {
+        const key = this.pairKey(cbA, cbB);
+        this.collisionCandidates.set(key, {bodyA: cbA, bodyB: cbB});
+    }
+
+    // On a breach, after cb has created its new fatBody
+    private repositionCollisionBody(cb: CollisionBody): void{
 
         const handle = this.handles.get(cb)
         if (!handle) {
-            console.error("[Error] Attempted to reposition unknown CollisionBox");
+            console.error("[Error] Attempted to reposition unknown CollisionBody");
             return;
         }
 
@@ -177,7 +211,7 @@ export default class CollisionManager{
     private logHandles() {
         let handles = "Handles:"
         for (const h of this.handles)
-            handles += `\n > box${h[0].id}: min(${h[1].minEp.slot}), max(${h[1].maxEp.slot})`
+            handles += `\n > body${h[0].id}: min(${h[1].minEp.slot}), max(${h[1].maxEp.slot})`
 
         console.log(handles)
     }

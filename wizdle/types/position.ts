@@ -32,6 +32,13 @@ export class positionObject{
     set position(value: Position) {
         this._position = value;
     }
+
+    getScreenPosition(canvas: HTMLCanvasElement){
+        return {
+            x: (this.position.x + 1) / 2 * canvas.width,
+            y: (1 - (this.position.y + 1) / 2) * canvas.height
+        };
+    }
 }
 
 export default Position;

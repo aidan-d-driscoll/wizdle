@@ -7,8 +7,9 @@ import { getDistance } from "@/utilities/mathUtils";
 import { events } from "@/features/battle/events/eventManager";
 import { BoltSpell } from "@/features/battle/spells/boltSpell";
 import { Sprite } from "./rendering/sprite";
-import { CollisionBox } from "./collisions/collisionBox";
+import { CollisionBody } from "./collisions/collisionBody";
 import CollisionManager from "./collisions/collisionManager";
+import { Circle } from "@/types/shapes/circle";
 
 const MIN_WATER_WIDTH = 40
 
@@ -23,7 +24,7 @@ export class Engine{
 
     private entities: Entity[] = []
     private sprites: Sprite[] = []
-    private collisionBoxes: CollisionBox[] = []
+    private CollisionBodyes: CollisionBody[] = []
 
     private animationFrameId: number | null = null;
     
@@ -78,10 +79,11 @@ export class Engine{
                     height: 96,
                     canvas: this.canvas,
                 }),
-                collisionBox: new CollisionBox({
-                    startingPosition: {x: 0.5, y: 0.5},
-                    width: 0.15,
-                    height:0.2
+                CollisionBody: new CollisionBody({
+                    tight: new Circle({
+                        startingPosition: {x: 0.5, y: 0.5}, 
+                        radius: 0.1
+                    })
                 })
             }))
 
@@ -99,10 +101,14 @@ export class Engine{
                     height: 96,
                     canvas: this.canvas,
                 }),
-                collisionBox: new CollisionBox({
-                    startingPosition: {x: -0.5, y: -0.5},
-                    width: 0.15,
-                    height:0.2
+                CollisionBody: new CollisionBody({
+                    tight: new Circle({
+                        startingPosition: {x: 0.5, y: 0.5}, 
+                        radius: 0.1
+                    })
+                    // startingPosition: {x: -0.5, y: -0.5},
+                    // width: 0.15,
+                    // height:0.2
                 })
             }))
 
@@ -138,7 +144,10 @@ export class Engine{
             // events.on("castSpell", ({spell, caster}) => {
             //     this.createSpellEffect(spell, caster)
             // })
-            window.addEventListener("mousedown", () => { this.battlePaused = !this.battlePaused; });
+            canvas.addEventListener("mousedown", () => { 
+                console.log("pause click!")
+                this.battlePaused = !this.battlePaused; 
+            });
 
         } catch (error) {
             console.error("Error initializing Battle: " + error)
@@ -185,9 +194,8 @@ export class Engine{
         this.prevTimestamp = timestamp                          
 
         if(!this.battlePaused){
-        
-            this.update(dt)
-            this.render()
+            this.update(dt);
+            this.render();
         } else {
             dt = 0
         }
@@ -226,8 +234,7 @@ export class Engine{
         }
 
         if(VISIBLE_COLLISION_BOXES){
-            for(const cb of this.collisionBoxes){
-                console.log("rendering collision box")
+            for(const cb of this.CollisionBodyes){
                 cb.renderOnto(this.canvas, this.ctx)
                 //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
             }
@@ -237,9 +244,9 @@ export class Engine{
     private addEntity(e: Entity){
         this.entities.push(e);
         if (e.sprite) this.sprites.push(e.sprite)
-        if (e.collisionBox){
-            this.collisionBoxes.push(e.collisionBox)
-            this.cm.add(e.collisionBox)
+        if (e.CollisionBody){
+            this.CollisionBodyes.push(e.CollisionBody)
+            this.cm.add(e.CollisionBody)
         }
     }
 }

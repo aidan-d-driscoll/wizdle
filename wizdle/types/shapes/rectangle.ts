@@ -1,15 +1,16 @@
-import Position, { positionObject } from "@/types/position";
+import Position from "@/types/position";
+import { Shape } from "@/types/shapes/shape";
 
 export type rectangleOptions = {startingPosition: Position, width: number, height: number}
 
-export class Rectangle extends positionObject{
+export class Rectangle extends Shape{
     xMin: number;
     xMax: number;
     yMin: number;
     yMax: number;
 
-    private _width: number;
-    private _height: number;
+    protected _width: number;
+    protected _height: number;
 
     constructor(args:rectangleOptions) {
         super(args.startingPosition)
@@ -23,29 +24,9 @@ export class Rectangle extends positionObject{
         this.yMax = this.y + 0.5 * this._height
     }
 
-    set position(value: Position) {
-        this.xMin += value.x - this.x
-        this.xMax += value.x - this.x
-        this.yMin += value.y - this.y
-        this.yMax += value.y - this.y
-        // console.log("val - " + this.xMin + "," + this.xMax)
+    overlaps(target: Shape): boolean {
+        if (!(target instanceof Rectangle)) return target.overlaps(this)
 
-        super.position = value
-    }
-
-    get position(): Position {
-        return super.position;
-    }
-
-    get width(): number {
-        return this._width
-    }
-
-    get height(): number {
-        return this._height
-    }
-
-    overlaps(target: Rectangle): boolean {
         return (this.xMin <= target.xMax) && 
            (this.xMax >= target.xMin) && 
            (this.yMin <= target.yMax) && 
@@ -68,10 +49,23 @@ export class Rectangle extends positionObject{
         }
     }
 
-    breaches(outer: Rectangle): boolean {
-        return (this.xMin < outer.xMin) ||
-               (this.xMax > outer.xMax) ||
-               (this.yMin < outer.yMin) ||
-               (this.yMax > outer.yMax);
+    renderOnto(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, color: string){
+        ctx.restore();
+
+        const screenPosition = this.getScreenPosition(canvas)
+        const bodyWidth = this.width*canvas.width/2
+        const bodyHeight = this.height*canvas.height/2
+        screenPosition.x -= 0.5*bodyWidth
+        screenPosition.y -= 0.5*bodyHeight
+        
+        ctx.save();
+
+        ctx.fillStyle = color
+        ctx.fillRect(screenPosition.x, screenPosition.y, bodyWidth, bodyHeight)
+
+        ctx.restore();
+
     }
+
+    
 }
