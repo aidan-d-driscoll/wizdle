@@ -1,13 +1,13 @@
 import { Position, positionObject } from "@/types/position";
 import { moveOptions } from "@/types/options";
 import Vector from "@/types/vector";
-import { Sprite, spriteOptions } from "@/features/battle/rendering/sprite";
+import { Sprite } from "@/features/battle/rendering/sprite";
 import { CollisionBody } from "../collisions/collisionBody";
-import { rectangleOptions } from "@/types/shapes/rectangle";
+import { Collidable } from "@/features/battle/collisions/collidable";
 
 const FRICTION = 0.00015
 
-export type entityOptions = rectangleOptions & {
+export type entityOptions =  {
     startingPosition: Position,
     sprite?: Sprite,
     startingVelocity?: Vector,
@@ -15,7 +15,10 @@ export type entityOptions = rectangleOptions & {
     CollisionBody?: CollisionBody
 }
 
-export default abstract class Entity extends positionObject {
+export default abstract class Entity extends positionObject implements Collidable {
+    static nextId = 0;
+    readonly id: number;
+
     velocity: Vector = new Vector({dx: 0, dy: 0});
     forces: Vector = new Vector({dx: 0, dy: 0});
     physics = true;
@@ -28,10 +31,16 @@ export default abstract class Entity extends positionObject {
     constructor(args: entityOptions){
         super(args.startingPosition)
 
+        this.id = Entity.nextId;
+        Entity.nextId++;
+
         if(args.startingVelocity) this.velocity = args.startingVelocity;
         this.sprite = args.sprite ? args.sprite : null
         if(args.physics) this.physics = args.physics
-        if(args.CollisionBody) this.CollisionBody = args.CollisionBody
+        if(args.CollisionBody) {
+            this.CollisionBody = args.CollisionBody
+            this.CollisionBody.owner = this
+        }
     }
 
     applyForce(newForce: Vector): void{
@@ -72,7 +81,5 @@ export default abstract class Entity extends positionObject {
     }
 
     move(args: moveOptions): void{}
-
-    abstract collideWith(e: Entity): void;
 }
 

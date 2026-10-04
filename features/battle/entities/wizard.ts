@@ -5,6 +5,7 @@ import { moveOptions } from "@/types/options";
 import { events } from "@/features/battle/events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
+import { Collidable } from "../collisions/collidable";
 
 const CIRCLING_SPEED = 1.2
 
@@ -84,10 +85,6 @@ export class Wizard extends Entity{
         }
     }
 
-    collideWith(e: Entity){
-        
-    }
-
     update(dt: number){
         super.update(dt)
         if (!this.dead && (Math.abs(getDistance({from: this.position, to: this.prefferedPosition})) > 1 || this._currentHitPoints <= 0)) { this.dead = true}
@@ -115,5 +112,17 @@ export class Wizard extends Entity{
 
     logHP(){
         console.log(this.name + ": " + this._currentHitPoints)
+    }
+
+    onCollisionEnter(other: Collidable){
+        console.log("WIZARD COLLISION ENTER")
+    }
+
+    onCollisionStay(other: Collidable){
+        console.log("WIZARD COLLISION STAY")
+    }
+    
+    onCollisionExit(other: Collidable){
+        console.log("WIZARD COLLISION EXIT")
     }
 }

@@ -27,19 +27,33 @@ export default class CollisionManager{
 
         let key: number;
         let tightBoxCollision: boolean;
+        let bodyA: CollisionBody;
+        let bodyB: CollisionBody;
         for (const candidate of this.collisionCandidates) {
             tightBoxCollision = candidate[1].bodyA.tight.overlaps(candidate[1].bodyB.tight)
-            key = this.pairKey(candidate[1].bodyA, candidate[1].bodyB)
+            bodyA = candidate[1].bodyA
+            bodyB = candidate[1].bodyB
+            key = this.pairKey(bodyA, bodyB)
             if (this.activeCollisions.has(key)){
+                // The collsion was happening on the last update
                 if(tightBoxCollision){
-                    console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                    // The Collision bodys are still overlapping -> collision continues
+                    // console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                    if(bodyA.owner.onCollisionStay) bodyA.owner.onCollisionStay(bodyB.owner);
+                    if(bodyB.owner.onCollisionStay) bodyB.owner.onCollisionStay(bodyA.owner);
                 } else {
+                    // The collision boxes are no longer overlaping -> collision ends
+                    // console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                     this.activeCollisions.delete(key)
-                    console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                    if(bodyA.owner.onCollisionExit) bodyA.owner.onCollisionExit(bodyB.owner);
+                    if(bodyB.owner.onCollisionExit) bodyB.owner.onCollisionExit(bodyA.owner);
                 }
             } else if(tightBoxCollision) {
+                // The objects are overlapping and they weren't last frame -> collision starts
+                // console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
-                console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                if(bodyA.owner.onCollisionEnter) bodyA.owner.onCollisionEnter(bodyB.owner);
+                if(bodyB.owner.onCollisionEnter) bodyB.owner.onCollisionEnter(bodyA.owner);
             }
         }
         

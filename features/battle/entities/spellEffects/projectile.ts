@@ -10,7 +10,7 @@ export class Projectile extends Entity{
     damage: number;
 
     constructor(args: projectileOptions){
-        args.frictionless = true
+        args.physics = false
         super(args)
         this.source = args.source
 

@@ -1,13 +1,18 @@
-import { Rectangle, rectangleOptions } from "@/types/shapes/rectangle";
+import { Rectangle } from "@/types/shapes/rectangle";
 import { Shape } from "@/types/shapes/shape";
+import Entity from "@/features/battle/entities/entity";
+import { Collidable } from "./collidable";
 
 export type collisionBodyOptions = {
     tight: Shape
+    owner: Collidable
 }
 
 export class CollisionBody {
     private static nextId = 0;
     readonly id: number;
+
+    owner: Collidable;
 
     tight: Shape;
     fat: Rectangle;
@@ -16,6 +21,8 @@ export class CollisionBody {
     constructor(args: collisionBodyOptions) {
         this.id = CollisionBody.nextId;
         CollisionBody.nextId++;
+
+        this.owner = args.owner;
 
         this.tight = args.tight
         this.fat = new Rectangle({ startingPosition: this.tight.position, width: this.tight.width, height: this.tight.height})
