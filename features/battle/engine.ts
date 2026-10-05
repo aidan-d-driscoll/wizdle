@@ -1,16 +1,9 @@
 import { Wizard } from "@/features/battle/entities/wizard";
-import Spell from "@/features/battle/spells/spell";
 import Entity from "@/features/battle/entities/entity";
-import { getScreenPosition, sprite } from "@/features/battle/rendering/rendering";
 import Position from "@/types/position";
-import { getDistance } from "@/utilities/mathUtils";
-import { events } from "@/features/battle/events/eventManager";
-import { BoltSpell } from "@/features/battle/spells/boltSpell";
-import { Sprite } from "./rendering/sprite";
-import { CollisionBody } from "./collisions/collisionBody";
 import CollisionManager from "./collisions/collisionManager";
-import { Circle } from "@/types/shapes/circle";
 import { Platform } from "./collisions/platform";
+import { Sprite } from "./rendering/sprite";
 
 const MIN_WATER_WIDTH = 40
 
