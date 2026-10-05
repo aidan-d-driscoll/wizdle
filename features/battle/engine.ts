@@ -7,6 +7,15 @@ import { Sprite } from "./rendering/sprite";
 
 const MIN_WATER_WIDTH = 40
 
+const DEV_TOOLS_ENABLED = true;
+/*
+ * Dev tool options:
+ * * Click the canvas: Pause game
+ * * Left arrow: reduce playback speed
+ * * Right arrow: increase playback speed
+ * * Spacebar: play 1 frame (can be used to start new playback)
+ */
+
 const VISIBLE_COLLISION_BOXES = false;
 const INITIAL_BATTLE_SPEED = 1;
 
@@ -25,7 +34,7 @@ export class Engine{
     
     private prevTimestamp: number | null = null;
 
-    private battlePaused: boolean = true;
+    private battlePaused: boolean = false;
     private battleSpeed: number = INITIAL_BATTLE_SPEED;
 
     constructor(readonly canvas: HTMLCanvasElement) {
@@ -128,26 +137,37 @@ export class Engine{
             // events.on("castSpell", ({spell, caster}) => {
             //     this.createSpellEffect(spell, caster)
             // })
-            canvas.addEventListener("mousedown", () => { 
-                console.log("pause click!")
-                this.battlePaused = !this.battlePaused; 
-            });
 
-            window.addEventListener('keydown', (event) => {
-                switch (event.key) {
-                    case 'ArrowLeft':
-                        this.battleSpeed = Math.max(0.1, this.battleSpeed-0.1);
-                        break;
-                    case 'ArrowRight':
-                        this.battleSpeed = Math.min(5, this.battleSpeed+0.1);
-                        break;
-                    default:
-                        return; // Quit when other keys are pressed
-                }
+            if (DEV_TOOLS_ENABLED){
+                this.battlePaused = true;
+
+                canvas.addEventListener("mousedown", () => { 
+                    console.log("pause click!")
+                    this.battlePaused = !this.battlePaused; 
+                });
+    
+                window.addEventListener('keydown', (event) => {
+                    switch (event.key) {
+                        case 'ArrowLeft':
+                            this.battleSpeed = Math.max(0.1, this.battleSpeed-0.1);
+                            break;
+                        case 'ArrowRight':
+                            this.battleSpeed = Math.min(5, this.battleSpeed+0.1);
+                            break;
+                        case ' ':
+                            if (this.battlePaused) {
+                                this.update(1/60)
+                                this.render()
+                            }
+                        default:
+                            return; // Quit when other keys are pressed
+                    }
+                
+                    // Optional: Prevent default browser behavior (like scrolling)
+                    event.preventDefault(); 
+                });
+            }
             
-                // Optional: Prevent default browser behavior (like scrolling)
-                event.preventDefault(); 
-            });
 
         } catch (error) {
             console.error("Error initializing Battle: " + error)
