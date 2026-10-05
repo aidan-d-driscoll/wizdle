@@ -28,9 +28,6 @@ export class Sprite extends positionObject{
         this.height = args.height;
     }
 
-    update(dt: number){
-    }
-
     renderOnto(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D){
         this._screenPosition = this.getScreenPosition(canvas)
         

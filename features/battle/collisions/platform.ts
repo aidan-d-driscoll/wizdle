@@ -12,7 +12,7 @@ export class Platform extends Entity{
             owner: this,
             tight: new Circle({
                 startingPosition: this.position,
-                radius: 0.88
+                radius: 0.90
             })
         })
         

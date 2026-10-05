@@ -1,5 +1,4 @@
 import { CollisionBody } from "./collisionBody";
-import { Collidable } from "./collidable";
 import Vector from "@/types/vector";
 import { Circle } from "@/types/shapes/circle";
 

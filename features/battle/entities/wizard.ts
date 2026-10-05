@@ -1,8 +1,6 @@
 import Entity, { entityOptions } from "@/features/battle/entities/entity";
 import { getDistance, setOptionalRandomNumber } from "@/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
-import { moveOptions } from "@/types/options";
-import { events } from "@/features/battle/events/eventManager";
 import Position from "@/types/position";
 import Vector from "@/types/vector";
 import { Collidable } from "../collisions/collidable";
@@ -53,7 +51,7 @@ export class Wizard extends Entity{
             owner: this,
             tight: new Circle({
                 startingPosition: this.position,
-                radius: 0.1
+                radius: 0.08
             })
         })
 
@@ -102,15 +100,11 @@ export class Wizard extends Entity{
 
         this.name = args.name;
 
-        events.on("takeDamage", ({damage, target}) => {
-            this.logHP()
-        })
-
         console.log(this.toString())
 
     }
 
-    move(args: moveOptions): void{
+    move(): void{
         this.moveTarget = this.prefferedPosition;
         this._circling = false;
 
