@@ -41,7 +41,6 @@ export class Projectile extends Entity{
 
     onCollisionEnter(other: Collidable){
         if (other instanceof Wizard && other !== this.source){
-            console.log("WIZARD HIT")
             other.applyForce(this.knockback)
             other.takeDamage(this.damage)
             this.engine.markForDestruction(this)

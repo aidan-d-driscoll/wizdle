@@ -1,5 +1,4 @@
 import { Position, positionObject } from "@/types/position";
-import { moveOptions } from "@/types/options";
 import Vector from "@/types/vector";
 import { Sprite } from "@/features/battle/rendering/sprite";
 import { CollisionBody } from "../collisions/collisionBody";
@@ -54,7 +53,7 @@ export default abstract class Entity extends positionObject implements Collidabl
     }
 
     update(dt: number): void{
-        this.move({dt: dt})
+        this.move()
 
         if(Math.abs(this.position.x) > 1.5 || Math.abs(this.position.y) > 1.5){
             this.engine.markForDestruction(this)
@@ -77,7 +76,7 @@ export default abstract class Entity extends positionObject implements Collidabl
         
     }
 
-    move(args: moveOptions): void{}
+    move(): void{}
 
     set position(value: Position) {
         super.position = value;

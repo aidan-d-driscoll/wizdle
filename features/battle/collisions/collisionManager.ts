@@ -60,22 +60,21 @@ export default class CollisionManager{
             if (this.activeCollisions.has(key)){
                 // The collsion was happening on the last update
                 if(tightBoxCollision){
-                    // The Collision bodys are still overlapping -> collision continues
+                    // The Collision bodys are still overlapping -> collision continues -> Emit collision STAY
                     // console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                     if(bodyA.owner.physics && bodyB.owner.physics) handlePhysicsOverlap(bodyA, bodyB)
-                    else console.log("IGNORING PHYSICS")
 
                     if(bodyA.owner.onCollisionStay) bodyA.owner.onCollisionStay(bodyB.owner);
                     if(bodyB.owner.onCollisionStay) bodyB.owner.onCollisionStay(bodyA.owner);
                 } else {
-                    // The collision boxes are no longer overlaping -> collision ends
+                    // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
                     // console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                     this.activeCollisions.delete(key)
                     if(bodyA.owner.onCollisionExit) bodyA.owner.onCollisionExit(bodyB.owner);
                     if(bodyB.owner.onCollisionExit) bodyB.owner.onCollisionExit(bodyA.owner);
                 }
             } else if(tightBoxCollision) {
-                // The objects are overlapping and they weren't last frame -> collision starts
+                // The objects are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
                 // console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
 

@@ -70,6 +70,9 @@ export class Engine{
             const hollowPurpleText = new Image();
             hollowPurpleText.src = "/assets/hollow-purple.png";
 
+            const deathArt = new Image();
+            deathArt.src = "/assets/tombstone.png";
+
             this.addEntity(new Platform({
                 engine: this,
                 startingPosition: {x:0, y:0}
@@ -141,8 +144,7 @@ export class Engine{
             if (DEV_TOOLS_ENABLED){
                 this.battlePaused = true;
 
-                canvas.addEventListener("mousedown", () => { 
-                    console.log("pause click!")
+                canvas.addEventListener("mousedown", () => {
                     this.battlePaused = !this.battlePaused; 
                 });
     
@@ -253,6 +255,7 @@ export class Engine{
 
         for(const sp of this.sprites){
             sp[1].renderOnto(this.canvas, this.ctx)
+            console.log(sp[0])
             //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
         }
 

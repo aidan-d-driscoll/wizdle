@@ -91,7 +91,7 @@ export class Wizard extends Entity{
         this.prefferedPosition = args.prefferedPosition; 
         this.moveTarget = this.prefferedPosition;
         this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
-        for (const spell of this.spells){
+        for (let i=0; i<this.spells.length; i++){
             this.castTimers.push(0)
         }
 
@@ -128,7 +128,9 @@ export class Wizard extends Entity{
 
     update(dt: number){
         super.update(dt)
-        if (!this.dead && this._currentHitPoints <= 0) { this.engine.markForDestruction(this) }
+        if (!this.dead && this._currentHitPoints <= 0) { 
+            this.engine.markForDestruction(this)
+        }
         if (!this.attackTarget?.dead) {
             for(let i = 0; i < this.castTimers.length; i++){
                 this.castTimers[i] += dt
