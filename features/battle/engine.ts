@@ -255,8 +255,6 @@ export class Engine{
 
         for(const sp of this.sprites){
             sp[1].renderOnto(this.canvas, this.ctx)
-            console.log(sp[0])
-            //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
         }
 
         if(VISIBLE_COLLISION_BOXES){

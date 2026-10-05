@@ -45,6 +45,7 @@ export class BoltSpell extends Spell{
     }
 
     toString(): string{
-        return "Bolt Spell( cast time =" + this.castTime + ", damage=" + this.damage + ", knockback=" + this.knockback + ", travel speed=" + this.travelSpeed +")"
+        if (this.knockback < 40) return "Bolt Spell( cast time =" + this.castTime + ", damage=" + this.damage + ", knockback=" + this.knockback + ", travel speed=" + this.travelSpeed +")"
+        else return "Imaginary Technique..."
     }
 }

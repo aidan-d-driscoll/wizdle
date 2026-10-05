@@ -55,7 +55,7 @@ export class Wizard extends Entity{
             })
         })
 
-        const spellArtNum = setOptionalRandomNumber({min: 0, max: 3.03})
+        const spellArtNum = setOptionalRandomNumber({min: 0, max: 600})
         let spellArt = new Image();
         spellArt.src = "/assets/red-ray.png";
 
