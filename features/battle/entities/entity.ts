@@ -4,20 +4,24 @@ import Vector from "@/types/vector";
 import { Sprite } from "@/features/battle/rendering/sprite";
 import { CollisionBody } from "../collisions/collisionBody";
 import { Collidable } from "@/features/battle/collisions/collidable";
+import { Engine } from "../engine";
 
 const FRICTION = 0.00015
 
 export type entityOptions =  {
+    engine: Engine,
     startingPosition: Position,
     sprite?: Sprite,
     startingVelocity?: Vector,
     physics?: boolean,
-    CollisionBody?: CollisionBody
+    collisionBody?: CollisionBody
 }
 
 export default abstract class Entity extends positionObject implements Collidable {
     static nextId = 0;
     readonly id: number;
+
+    engine: Engine;
 
     velocity: Vector = new Vector({dx: 0, dy: 0});
     forces: Vector = new Vector({dx: 0, dy: 0});
@@ -26,10 +30,12 @@ export default abstract class Entity extends positionObject implements Collidabl
 
     sprite: Sprite | null = null;
 
-    CollisionBody: CollisionBody | null = null;
+    collisionBody: CollisionBody | null = null;
 
     constructor(args: entityOptions){
         super(args.startingPosition)
+
+        this.engine = args.engine;
 
         this.id = Entity.nextId;
         Entity.nextId++;
@@ -37,10 +43,7 @@ export default abstract class Entity extends positionObject implements Collidabl
         if(args.startingVelocity) this.velocity = args.startingVelocity;
         this.sprite = args.sprite ? args.sprite : null
         if(args.physics) this.physics = args.physics
-        if(args.CollisionBody) {
-            this.CollisionBody = args.CollisionBody
-            this.CollisionBody.owner = this
-        }
+        if (args.collisionBody) { this.collisionBody = args.collisionBody }
     }
 
     applyForce(newForce: Vector): void{
@@ -54,7 +57,7 @@ export default abstract class Entity extends positionObject implements Collidabl
         this.move({dt: dt})
 
         if(Math.abs(this.position.x) > 1.5 || Math.abs(this.position.y) > 1.5){
-            this.dead = true;
+            this.engine.markForDestruction(this)
         }
 
         if(!this.dead){
@@ -64,22 +67,43 @@ export default abstract class Entity extends positionObject implements Collidabl
             }
         }
         
-        if (!this.physics){
+        if (this.physics){
             const fMod = Math.pow(dt, FRICTION)
-        
 
             this.forces.magnitude *= fMod
         }
         
         if (this.sprite) this.sprite.position = this.position
-        if (this.CollisionBody){
-            this.CollisionBody.tight.position = this.position
-            this.CollisionBody.update()
-        }
-
         
     }
 
     move(args: moveOptions): void{}
+
+    set position(value: Position) {
+        super.position = value;
+        if (this.collisionBody) this.collisionBody.tight.position = value;
+    }
+
+    get position(): Position {
+        return super.position;
+    }
+
+    set x(value: number) {
+        super.position.x = value;
+        if (this.collisionBody) this.collisionBody.tight.position.x = value;
+    }
+
+    get x(): number {
+        return super.x
+    }
+
+    set y(value: number) {
+        super.position.y = value;
+        if (this.collisionBody) this.collisionBody.tight.position.y = value;
+    }
+
+    get y(): number {
+        return super.y
+    }
 }
 

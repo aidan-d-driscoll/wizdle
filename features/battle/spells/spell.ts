@@ -1,8 +1,7 @@
 import { setOptionalRandomNumber } from "@/utilities/mathUtils";
-import { Aura } from "@/features/battle/entities/spellEffects/aura";
 import Entity from "@/features/battle/entities/entity";
 import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
-import { spellOptions } from "@/types/options";
+import { Sprite } from "../rendering/sprite";
 
 const CAST_TIME_INFLUENCE = 0.6
 
@@ -15,8 +14,18 @@ const MAX_CAST_TIME = MIN_CAST_TIME*40;
 const MIN_DAMAGE = 10;
 const MAX_DAMAGE = MIN_DAMAGE*5;
 
+export type spellOptions = {
+    owner: Entity;
+    sprite: Sprite,
+    knockback?: number,
+    castTime?: number,
+    damage?: number
+}
+
 export default abstract class Spell{
-    image: HTMLImageElement;
+    owner: Entity;
+
+    sprite: Sprite;
     knockback: number;
     castTime: number;
     spellQuality: number;
@@ -25,7 +34,9 @@ export default abstract class Spell{
     dead = false;
 
     constructor(args:spellOptions){
-        this.image = args.image;
+        this.owner = args.owner
+
+        this.sprite = args.sprite;
 
         this.castTime = setOptionalRandomNumber({value: args.castTime, min: MIN_CAST_TIME, max: MAX_CAST_TIME})
 
@@ -37,5 +48,5 @@ export default abstract class Spell{
         this.damage = setOptionalRandomNumber({value: args.damage, min: MIN_DAMAGE, max: MAX_DAMAGE})
     }
 
-    abstract newCast(source: Entity): Projectile | Aura | null;
+    abstract newCast(source: Entity): Projectile | null;
 }

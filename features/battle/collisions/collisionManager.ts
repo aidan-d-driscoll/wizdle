@@ -1,4 +1,7 @@
 import { CollisionBody } from "./collisionBody";
+import { Collidable } from "./collidable";
+import Vector from "@/types/vector";
+import { Circle } from "@/types/shapes/circle";
 
 interface Endpoint {
     readonly cb: CollisionBody
@@ -12,6 +15,25 @@ interface Handle {
     maxEp: Endpoint
 }
 
+function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody){
+    if(bodyA.tight instanceof Circle && bodyB.tight instanceof Circle){
+        const push = new Vector({startPos: bodyA.tight.position, endPos: bodyB.tight.position})
+        const overlap = bodyA.tight.radius + bodyB.tight.radius - push.magnitude;
+
+        push.magnitude = overlap;
+
+        bodyA.owner.position = {
+            x: bodyA.owner.position.x - push.dx/2,
+            y: bodyA.owner.position.y - push.dy/2
+        }
+
+        bodyB.owner.position = {
+            x: bodyB.owner.position.x + push.dx/2,
+            y: bodyB.owner.position.y + push.dy/2
+        }
+    }
+}
+
 export default class CollisionManager{
     endpoints: Endpoint[] = [];
     handles = new Map<CollisionBody, Handle>();
@@ -19,7 +41,9 @@ export default class CollisionManager{
     activeCollisions = new Map<number, {bodyA: CollisionBody, bodyB: CollisionBody}>
 
     update(): void {
+
         for (const cb of this.handles.keys()){
+            cb.update()
             if(cb.dirty){
                 this.repositionCollisionBody(cb)
             }
@@ -39,6 +63,9 @@ export default class CollisionManager{
                 if(tightBoxCollision){
                     // The Collision bodys are still overlapping -> collision continues
                     // console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                    if(bodyA.owner.physics && bodyB.owner.physics) handlePhysicsOverlap(bodyA, bodyB)
+                    else console.log("IGNORING PHYSICS")
+
                     if(bodyA.owner.onCollisionStay) bodyA.owner.onCollisionStay(bodyB.owner);
                     if(bodyB.owner.onCollisionStay) bodyB.owner.onCollisionStay(bodyA.owner);
                 } else {
@@ -52,6 +79,7 @@ export default class CollisionManager{
                 // The objects are overlapping and they weren't last frame -> collision starts
                 // console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
+
                 if(bodyA.owner.onCollisionEnter) bodyA.owner.onCollisionEnter(bodyB.owner);
                 if(bodyB.owner.onCollisionEnter) bodyB.owner.onCollisionEnter(bodyA.owner);
             }

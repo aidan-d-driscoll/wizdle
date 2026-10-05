@@ -10,10 +10,11 @@ import { Sprite } from "./rendering/sprite";
 import { CollisionBody } from "./collisions/collisionBody";
 import CollisionManager from "./collisions/collisionManager";
 import { Circle } from "@/types/shapes/circle";
+import { Platform } from "./collisions/platform";
 
 const MIN_WATER_WIDTH = 40
 
-const VISIBLE_COLLISION_BOXES = true;
+const VISIBLE_COLLISION_BOXES = false;
 
 export class Engine{
     private running: boolean = false;
@@ -23,8 +24,8 @@ export class Engine{
     private cm: CollisionManager = new CollisionManager();
 
     private entities: Entity[] = []
-    private sprites: Sprite[] = []
-    private CollisionBodyes: CollisionBody[] = []
+    private destructionQueue: Entity[] = []
+    private sprites = new Map<Entity, Sprite>
 
     private animationFrameId: number | null = null;
     
@@ -32,7 +33,7 @@ export class Engine{
 
     private battlePaused: boolean = true;
 
-    constructor(private canvas: HTMLCanvasElement) {
+    constructor(readonly canvas: HTMLCanvasElement) {
         try{
             this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D
             if (!this.ctx){
@@ -65,10 +66,14 @@ export class Engine{
             const hollowPurpleText = new Image();
             hollowPurpleText.src = "/assets/hollow-purple.png";
 
+            this.addEntity(new Platform({
+                engine: this,
+                startingPosition: {x:0, y:0}
+            }))
+
             this.addEntity(new Wizard({
-                startingPosition: {x: 0.5, y: 0.5},  
-                width: 96, 
-                height: 96, 
+                engine: this,
+                startingPosition: {x: 0.5, y: 0.5},   
                 spells: [], 
                 name: "Grandpa Grape", 
                 prefferedPosition: {x:0, y:0},
@@ -78,19 +83,12 @@ export class Engine{
                     width: 96,
                     height: 96,
                     canvas: this.canvas,
-                }),
-                CollisionBody: new CollisionBody({
-                    tight: new Circle({
-                        startingPosition: {x: 0.5, y: 0.5}, 
-                        radius: 0.1
-                    })
                 })
             }))
 
             this.addEntity(new Wizard({
-                startingPosition: {x: -0.5, y: -0.5},  
-                width: 96, 
-                height: 96, 
+                engine: this,
+                startingPosition: {x: -0.5, y: -0.5},
                 spells: [], 
                 name: "General Goldie", 
                 prefferedPosition: {x:0, y:0},
@@ -100,20 +98,11 @@ export class Engine{
                     width: 96,
                     height: 96,
                     canvas: this.canvas,
-                }),
-                CollisionBody: new CollisionBody({
-                    tight: new Circle({
-                        startingPosition: {x: 0.5, y: 0.5}, 
-                        radius: 0.1
-                    })
-                    // startingPosition: {x: -0.5, y: -0.5},
-                    // width: 0.15,
-                    // height:0.2
                 })
             }))
 
-            this.entities[0].attackTarget = this.entities[1]
-            this.entities[1].attackTarget = this.entities[0]
+            this.entities[1].attackTarget = this.entities[2]
+            this.entities[2].attackTarget = this.entities[1]
 
             // const spell1 = new BoltSpell({image: blueBlastArt})
             // const wizard1 = new Wizard({
@@ -190,7 +179,7 @@ export class Engine{
         // cap time passed at 0.1 seconds
         dt = Math.min(dt, 0.1);                                  
 
-        // rest previous timestampf or next dt calculation
+        // reset previous timestamp for next dt calculation
         this.prevTimestamp = timestamp                          
 
         if(!this.battlePaused){
@@ -214,6 +203,8 @@ export class Engine{
         }
 
         this.cm.update()
+
+        this.processDestruction()
     }
 
     private render() {
@@ -229,24 +220,43 @@ export class Engine{
         this.ctx.fill();               // Render the filled shape
 
         for(const sp of this.sprites){
-            sp.renderOnto(this.canvas, this.ctx)
+            sp[1].renderOnto(this.canvas, this.ctx)
             //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
         }
 
         if(VISIBLE_COLLISION_BOXES){
-            for(const cb of this.CollisionBodyes){
+            for(const cb of this.cm.handles.keys()){
                 cb.renderOnto(this.canvas, this.ctx)
                 //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
             }
         }
     }
 
-    private addEntity(e: Entity){
+    addEntity(e: Entity){
         this.entities.push(e);
-        if (e.sprite) this.sprites.push(e.sprite)
-        if (e.CollisionBody){
-            this.CollisionBodyes.push(e.CollisionBody)
-            this.cm.add(e.CollisionBody)
+        if (e.sprite) this.sprites.set(e, e.sprite)
+
+        if(e.collisionBody) {
+            this.cm.add(e.collisionBody)
+        }
+    }
+
+    markForDestruction(e: Entity){
+        if (!e.dead){
+            e.dead = true;
+            this.destructionQueue.push(e)
+        }
+    }
+
+    private processDestruction(){
+        if (this.destructionQueue.length === 0) return;
+
+        for (const e of this.destructionQueue){
+            if (e.sprite) this.sprites.delete(e)
+
+            if(e.collisionBody) {
+                this.cm.remove(e.collisionBody)
+            }
         }
     }
 }

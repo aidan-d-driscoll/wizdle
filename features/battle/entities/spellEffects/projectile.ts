@@ -1,8 +1,19 @@
-import Entity from "@/features/battle/entities/entity";
-import { projectileOptions } from "@/types/options";
+import Entity, {entityOptions} from "@/features/battle/entities/entity";
 import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
-import { events } from "@/features/battle/events/eventManager";
+import { Collidable } from "../../collisions/collidable";
+import { CollisionBody } from "../../collisions/collisionBody";
+import { Circle } from "@/types/shapes/circle";
+import { Sprite } from "../../rendering/sprite";
+
+export type projectileOptions = entityOptions & {
+    source: Entity;
+    knockback: number;
+    travelSpeed: number;
+    startingVelocity: Vector;
+    damage: number;
+    sprite: Sprite;
+}
 
 export class Projectile extends Entity{
     knockback: Vector;
@@ -10,20 +21,30 @@ export class Projectile extends Entity{
     damage: number;
 
     constructor(args: projectileOptions){
-        args.physics = false
         super(args)
+        this.sprite = args.sprite;
+        this.physics = false;
+
         this.source = args.source
+
+        this.collisionBody = new CollisionBody({
+            owner: this,
+            tight: new Circle({
+                startingPosition: this.source.position,
+                radius: 0.04
+            })
+        })
 
         this.knockback = new Vector({dx: this.velocity.dx, dy: this.velocity.dy, magnitude: args.knockback})
         this.damage = args.damage
     }
 
-    collideWith(e: Entity): void {
-        if (e instanceof Wizard && e !== this.source){
-            e.applyForce(this.knockback)
-            e.takeDamage(this.damage)
-            events.emit("takeDamage", {damage: this.damage, target: e})
-            this.dead = true;
+    onCollisionEnter(other: Collidable){
+        if (other instanceof Wizard && other !== this.source){
+            console.log("WIZARD HIT")
+            other.applyForce(this.knockback)
+            other.takeDamage(this.damage)
+            this.engine.markForDestruction(this)
         }
     }
 }

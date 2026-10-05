@@ -1,9 +1,9 @@
-import { spellOptions } from "@/types/options";
-import Spell from "@/features/battle/spells/spell";
+import Spell, { spellOptions } from "@/features/battle/spells/spell";
 import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
 import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
 import { setOptionalRandomNumber } from "@/utilities/mathUtils";
+import { Sprite } from "../rendering/sprite";
 
 const MIN_TRAVEL_SPEED = 1;
 const MAX_TRAVEL_SPEED = 2.5;
@@ -26,9 +26,16 @@ export class BoltSpell extends Spell{
     newCast(source: Wizard): Projectile | null {
         if (!source.attackTarget) return null
         return new Projectile({
+            engine: source.engine,
+            physics: false,
             startingPosition: source.position,
-            image: this.image,
-            width: this.width,
+            sprite: new Sprite({
+                canvas: source.engine.canvas,
+                startingPosition: source.position,
+                image: this.sprite.image,
+                width: this.sprite.width,
+                height: this.sprite.height,
+            }),
             startingVelocity: new Vector({startPos: source.position, endPos: source.attackTarget.position, magnitude: this.travelSpeed}),
             source: source,
             knockback: this.knockback,

@@ -7,18 +7,3 @@ export type moveOptions = {
     targetPosition?: Position | undefined,
     dt: number
 }
-
-export type projectileOptions = entityOptions & {
-    source: Entity;
-    knockback: number;
-    travelSpeed: number;
-    startingVelocity: Vector;
-    damage: number;
-}
-
-export type spellOptions = {
-    image: HTMLImageElement,
-    knockback?: number,
-    castTime?: number,
-    damage?: number
-}
