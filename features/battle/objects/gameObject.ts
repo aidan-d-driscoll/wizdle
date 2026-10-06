@@ -8,6 +8,8 @@ import { Collidable } from "../collisions/collidable";
 const FRICTION = 0.00015
 
 export type objectOptions = {
+    scene: Engine,
+
     position: Position;
 
     static?: boolean;

@@ -32,6 +32,7 @@ export class Engine{
 
     private objects = new Map<number, GameObject>
     private destructionQueue: GameObject[] = []
+    readonly _teams = new Map<number, Map<number,Combatant>>
 
     private animationFrameId: number | null = null;
     
@@ -76,13 +77,36 @@ export class Engine{
             const tombstone = new Image();
             tombstone.src = "/assets/tombstone.png";
 
-            const wizard = new GameObject({
-                position: {x:0, y:0},
+            const wizard1 = new Combatant({
+                scene: this,
+                team: 1, 
+                position: {x:0.5, y:-0.5},
                 visible: true,
                 velocity: new Vector({dx: 0, dy: 0}),
+                maxHP: 100,
+                moveSpeed: 0.2,
+                prefferedPosition: {x:0, y:0},
                 sprites: [
                     new Sprite({
                         image: grapeWizardArt,
+                        width: 0.2,
+                        height: 0.2
+                    })
+                ]
+            })
+
+            const wizard2 = new Combatant({
+                scene: this,
+                team: 2, 
+                position: {x:-0.5, y:0.5},
+                visible: true,
+                velocity: new Vector({dx: 0, dy: 0}),
+                maxHP: 100,
+                moveSpeed: 0.3,
+                prefferedPosition: {x:0, y:0},
+                sprites: [
+                    new Sprite({
+                        image: goldWizardArt,
                         width: 0.2,
                         height: 0.2
                     })
@@ -95,7 +119,8 @@ export class Engine{
                 width: 0.2
             }), {x: 0.5, y: 0.5})
             
-            this.addObject(wizard)
+            this.addObject(wizard1)
+            this.addObject(wizard2)
 
             // this.addEntity(new Platform({
             //     engine: this,
@@ -251,9 +276,9 @@ export class Engine{
     }
 
     private update(args: updateOptions) {
-        for(const b of this.objects){
+        for(const obj of this.objects){
             // every entity will have an update function meant to manage frame-by-frame logic
-            b[1].update(args)
+            obj[1].update(args)
         }
 
         this.cm.update()
@@ -285,32 +310,64 @@ export class Engine{
         }
     }
 
-    addObject(b: GameObject){
-        this.objects.set(b.id, b)
+    addObject(obj: GameObject){
+        this.objects.set(obj.id, obj)
 
+        if (obj instanceof Combatant){
+            let allyTeam = this._teams.get(obj.team)
+
+            if (!allyTeam){
+                this._teams.set(obj.team, new Map<number, Combatant>)
+                allyTeam = this._teams.get(obj.team)
+            }
+
+            if (allyTeam){
+                allyTeam.set(obj.id, obj)
+                obj.allies = allyTeam
+            }
+
+            this.updateTeams()
+        }
+
+        
         // if(e.collisionBody) {
         //     this.cm.add(e.collisionBody)
         // }
     }
 
+    updateTeams() {
+        for (const obj of this.objects.values()){
+            if(obj instanceof Combatant){
+                for (const team of this._teams){
+                    if(team[0] !== obj.team) { 
+                        
+                        obj.enemies = new Map([...obj.enemies, ...team[1]])
+                    }
+                    else { obj.allies = team[1] }
+                }
+            }
+        }
+    }
+
     addStaticSprite(sp: Sprite, pos: Position){
         this.addObject(new GameObject({
+            scene: this,
             position: pos,
             sprites: sp
         }))
     }
 
-    markForDestruction(b: GameObject){
-        if (!b.dead){
-            b.dead = true;
-            this.destructionQueue.push(b)
+    markForDestruction(obj: GameObject){
+        if (!obj.dead){
+            obj.dead = true;
+            this.destructionQueue.push(obj)
         }
     }
 
     private processDestruction(){
         if (this.destructionQueue.length === 0) return;
 
-        for (const b of this.destructionQueue){
+        for (const obj of this.destructionQueue){
 
 
             // if (e.sprite) this.sprites.delete(e.sprite.id)
