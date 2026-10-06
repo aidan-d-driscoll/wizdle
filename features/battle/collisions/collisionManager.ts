@@ -14,36 +14,36 @@ interface Handle {
     maxEp: Endpoint
 }
 
-function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody){
-    if(bodyA.tight instanceof Circle && bodyB.tight instanceof Circle){
-        const push = new Vector({startPos: bodyA.tight.position, endPos: bodyB.tight.position})
+function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody) {
+    if (bodyA.tight instanceof Circle && bodyB.tight instanceof Circle) {
+        const push = new Vector({ startPos: bodyA.tight.position, endPos: bodyB.tight.position })
         const overlap = bodyA.tight.radius + bodyB.tight.radius - push.magnitude;
 
         push.magnitude = overlap;
 
         bodyA.owner.position = {
-            x: bodyA.owner.position.x - push.dx/2,
-            y: bodyA.owner.position.y - push.dy/2
+            x: bodyA.owner.position.x - push.dx / 2,
+            y: bodyA.owner.position.y - push.dy / 2
         }
 
         bodyB.owner.position = {
-            x: bodyB.owner.position.x + push.dx/2,
-            y: bodyB.owner.position.y + push.dy/2
+            x: bodyB.owner.position.x + push.dx / 2,
+            y: bodyB.owner.position.y + push.dy / 2
         }
     }
 }
 
-export default class CollisionManager{
+export default class CollisionManager {
     endpoints: Endpoint[] = [];
     handles = new Map<CollisionBody, Handle>();
-    collisionCandidates = new Map<number, {bodyA: CollisionBody, bodyB: CollisionBody}>
-    activeCollisions = new Map<number, {bodyA: CollisionBody, bodyB: CollisionBody}>
+    collisionCandidates = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
+    activeCollisions = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
 
     update(): void {
 
-        for (const cb of this.handles.keys()){
+        for (const cb of this.handles.keys()) {
             cb.update()
-            if(cb.dirty){
+            if (cb.dirty) {
                 this.repositionCollisionBody(cb)
             }
         }
@@ -57,43 +57,43 @@ export default class CollisionManager{
             bodyA = candidate[1].bodyA
             bodyB = candidate[1].bodyB
             key = this.pairKey(bodyA, bodyB)
-            if (this.activeCollisions.has(key)){
+            if (this.activeCollisions.has(key)) {
                 // The collsion was happening on the last update
-                if(tightBoxCollision){
+                if (tightBoxCollision) {
                     // The Collision bodys are still overlapping -> collision continues -> Emit collision STAY
                     // console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
-                    if(bodyA.owner.physics && bodyB.owner.physics) handlePhysicsOverlap(bodyA, bodyB)
+                    if (bodyA.owner.physics && bodyB.owner.physics) handlePhysicsOverlap(bodyA, bodyB)
 
-                    if(bodyA.owner.onCollisionStay) bodyA.owner.onCollisionStay(bodyB.owner);
-                    if(bodyB.owner.onCollisionStay) bodyB.owner.onCollisionStay(bodyA.owner);
+                    if (bodyA.owner.onCollisionStay) bodyA.owner.onCollisionStay(bodyB.owner);
+                    if (bodyB.owner.onCollisionStay) bodyB.owner.onCollisionStay(bodyA.owner);
                 } else {
                     // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
                     // console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                     this.activeCollisions.delete(key)
-                    if(bodyA.owner.onCollisionExit) bodyA.owner.onCollisionExit(bodyB.owner);
-                    if(bodyB.owner.onCollisionExit) bodyB.owner.onCollisionExit(bodyA.owner);
+                    if (bodyA.owner.onCollisionExit) bodyA.owner.onCollisionExit(bodyB.owner);
+                    if (bodyB.owner.onCollisionExit) bodyB.owner.onCollisionExit(bodyA.owner);
                 }
-            } else if(tightBoxCollision) {
+            } else if (tightBoxCollision) {
                 // The objects are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
                 // console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
 
-                if(bodyA.owner.onCollisionEnter) bodyA.owner.onCollisionEnter(bodyB.owner);
-                if(bodyB.owner.onCollisionEnter) bodyB.owner.onCollisionEnter(bodyA.owner);
+                if (bodyA.owner.onCollisionEnter) bodyA.owner.onCollisionEnter(bodyB.owner);
+                if (bodyB.owner.onCollisionEnter) bodyB.owner.onCollisionEnter(bodyA.owner);
             }
         }
-        
-        // console.log("----------------------------------------------------------------------------------")
-    }    
 
-    add(cb: CollisionBody){
-        const newMinEp: Endpoint = {cb: cb, isMin: true, xPos: cb.fat.xMin, slot: -1};
-        const newMaxEp: Endpoint = {cb: cb, isMin: false, xPos: cb.fat.xMax, slot: -1};
+        // console.log("----------------------------------------------------------------------------------")
+    }
+
+    add(cb: CollisionBody) {
+        const newMinEp: Endpoint = { cb: cb, isMin: true, xPos: cb.fat.xMin, slot: -1 };
+        const newMaxEp: Endpoint = { cb: cb, isMin: false, xPos: cb.fat.xMax, slot: -1 };
 
         let numSlots = this.endpoints.length;
 
         let i = 0;
-        while(i < numSlots){
+        while (i < numSlots) {
             if (newMinEp.slot == -1 && cb.fat.xMin < this.endpoints[i].xPos) {
                 newMinEp.slot = i
                 this.endpoints.splice(i, 0, newMinEp)
@@ -107,12 +107,12 @@ export default class CollisionManager{
             }
             i++;
         }
-        if (newMinEp.slot == -1){
+        if (newMinEp.slot == -1) {
             this.endpoints.push(newMinEp)
             newMinEp.slot = i
             i++;
         }
-        if (newMaxEp.slot == -1){
+        if (newMaxEp.slot == -1) {
             this.endpoints.push(newMaxEp)
             newMaxEp.slot = i
             i++;
@@ -120,34 +120,34 @@ export default class CollisionManager{
 
         const activeBodyes = new Set<CollisionBody>
         let inAddedBody = false;
-        for (const ep of this.endpoints){
-            if (ep === newMaxEp){
+        for (const ep of this.endpoints) {
+            if (ep === newMaxEp) {
                 break;
-            } else if (ep === newMinEp){
+            } else if (ep === newMinEp) {
                 inAddedBody = true;
                 for (const other of activeBodyes) this.registerCollisionCandidate(cb, other)
                 continue;
             }
-            if (ep.isMin){
+            if (ep.isMin) {
                 if (inAddedBody) this.registerCollisionCandidate(cb, ep.cb)
                 activeBodyes.add(ep.cb)
             } else if (!inAddedBody) {
                 activeBodyes.delete(ep.cb)
             }
         }
-        
-        this.handles.set(cb, {minEp: newMinEp, maxEp: newMaxEp})
+
+        this.handles.set(cb, { minEp: newMinEp, maxEp: newMaxEp })
 
         this.correctEndpointSlots();
 
         // this.logEndpoints()
     }
 
-    remove(cb: CollisionBody): void{
+    remove(cb: CollisionBody): void {
         const handle = this.handles.get(cb)
-        if (handle){
-            for (const cand of this.collisionCandidates){
-                if ((cand[1].bodyA == cb) || (cand[1].bodyB == cb)){
+        if (handle) {
+            for (const cand of this.collisionCandidates) {
+                if ((cand[1].bodyA == cb) || (cand[1].bodyB == cb)) {
                     this.collisionCandidates.delete(cand[0])
                 }
             }
@@ -161,7 +161,7 @@ export default class CollisionManager{
         }
     }
 
-    private pairKey(cbA: CollisionBody, cbB: CollisionBody){
+    private pairKey(cbA: CollisionBody, cbB: CollisionBody) {
         const x = cbA.id < cbB.id ? cbA.id : cbB.id;
         const y = cbA.id < cbB.id ? cbB.id : cbA.id;
         return x + y * y;
@@ -182,18 +182,18 @@ export default class CollisionManager{
         const maxEp = epA.isMin ? epB : epA;
         const key = this.pairKey(minEp.cb, maxEp.cb);
 
-        if (minEp.slot < maxEp.slot){
-            this.collisionCandidates.set(key, {bodyA: minEp.cb, bodyB: maxEp.cb})
+        if (minEp.slot < maxEp.slot) {
+            this.collisionCandidates.set(key, { bodyA: minEp.cb, bodyB: maxEp.cb })
         } else this.collisionCandidates.delete(key);
     }
 
     private registerCollisionCandidate(cbA: CollisionBody, cbB: CollisionBody): void {
         const key = this.pairKey(cbA, cbB);
-        this.collisionCandidates.set(key, {bodyA: cbA, bodyB: cbB});
+        this.collisionCandidates.set(key, { bodyA: cbA, bodyB: cbB });
     }
 
     // On a breach, after cb has created its new fatBody
-    private repositionCollisionBody(cb: CollisionBody): void{
+    private repositionCollisionBody(cb: CollisionBody): void {
 
         const handle = this.handles.get(cb)
         if (!handle) {
@@ -204,11 +204,11 @@ export default class CollisionManager{
         const minEndpoint = handle.minEp;
         const maxEndpoint = handle.maxEp;
         const oldMin = minEndpoint.xPos;
-        
+
         minEndpoint.xPos = cb.fat.xMin;
         maxEndpoint.xPos = cb.fat.xMax;
 
-        if (cb.fat.xMin >= oldMin){
+        if (cb.fat.xMin >= oldMin) {
             this.repositionEndpoint(maxEndpoint)
             this.repositionEndpoint(minEndpoint)
         } else {
@@ -221,7 +221,7 @@ export default class CollisionManager{
         // this.logHandles();
     }
 
-    private repositionEndpoint(ep: Endpoint){
+    private repositionEndpoint(ep: Endpoint) {
         this.walkEndpointLeft(ep);
         this.walkEndpointRight(ep);
     }
@@ -243,7 +243,7 @@ export default class CollisionManager{
     }
 
     private correctEndpointSlots() {
-        for(let i = 0; i < this.endpoints.length; i++){
+        for (let i = 0; i < this.endpoints.length; i++) {
             this.endpoints[i].slot = i
         }
     }
@@ -258,7 +258,7 @@ export default class CollisionManager{
 
     private logEndpoints() {
         let endpoints = "Endpoints: "
-        for(const ep of this.endpoints){
+        for (const ep of this.endpoints) {
             endpoints += ep.isMin ? `|${ep.xPos.toFixed(2)}(${ep.cb.id})` : ` (${ep.cb.id})${ep.xPos.toFixed(2)}|`
         }
 

@@ -1,4 +1,4 @@
-import { Position, positionObject } from "@/types/position";
+import { Position, Positionable } from "@/types/position";
 import Vector from "@/types/vector";
 import { Sprite } from "@/features/battle/rendering/sprite";
 import { CollisionBody } from "../collisions/collisionBody";
@@ -16,7 +16,7 @@ export type entityOptions =  {
     collisionBody?: CollisionBody
 }
 
-export default abstract class Entity extends positionObject implements Collidable {
+export default abstract class Entity extends Positionable implements Collidable {
     static nextId = 0;
     readonly id: number;
 

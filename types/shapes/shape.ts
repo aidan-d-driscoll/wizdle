@@ -1,10 +1,10 @@
-import Position, { positionObject } from "@/types/position"
+import Position, { Positionable } from "@/types/position"
 
 export type shapeOptions = {
     startingPosition: Position
 }
 
-export abstract class Shape extends positionObject{
+export abstract class Shape implements Positionable{
     abstract xMax: number;
     abstract xMin: number;
     abstract yMax: number;

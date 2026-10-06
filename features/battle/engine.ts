@@ -1,9 +1,9 @@
-import { Wizard } from "@/features/battle/entities/wizard";
 import Entity from "@/features/battle/entities/entity";
 import Position from "@/types/position";
 import CollisionManager from "./collisions/collisionManager";
-import { Platform } from "./collisions/platform";
 import { Sprite } from "./rendering/sprite";
+import { BattleObject } from "./objects/battleObject";
+import Vector from "@/types/vector";
 
 const MIN_WATER_WIDTH = 40
 
@@ -21,14 +21,13 @@ const INITIAL_BATTLE_SPEED = 1;
 
 export class Engine{
     private running: boolean = false;
-    private ctx!: CanvasRenderingContext2D;
-    private centerRingPosition!: Position;
+    readonly ctx!: CanvasRenderingContext2D;
 
     private cm: CollisionManager = new CollisionManager();
 
-    private entities: Entity[] = []
-    private destructionQueue: Entity[] = []
-    private sprites = new Map<Entity, Sprite>
+    private objects = new Map<number, BattleObject>
+    private destructionQueue: BattleObject[] = []
+    private sprites = new Map<number, Sprite>
 
     private animationFrameId: number | null = null;
     
@@ -70,46 +69,68 @@ export class Engine{
             const hollowPurpleText = new Image();
             hollowPurpleText.src = "/assets/hollow-purple.png";
 
-            const deathArt = new Image();
-            deathArt.src = "/assets/tombstone.png";
+            const tombstone = new Image();
+            tombstone.src = "/assets/tombstone.png";
 
-            this.addEntity(new Platform({
-                engine: this,
-                startingPosition: {x:0, y:0}
+            const wizard = new BattleObject({
+                position: {x:0, y:0},
+                visible: true,
+                velocity: new Vector({dx: 0.01, dy: 0}),
+                sprites: [
+                    new Sprite({
+                        image: grapeWizardArt,
+                        width: 0.2,
+                        height: 0.2
+                    })
+                ]
+            })
+            
+            this.addObject(wizard)
+
+            this.addSprite(new Sprite({
+                position: {x: 0.5, y:0.5},
+                image: tombstone,
+                width: 0.2,
+                height: 0.2
             }))
 
-            this.addEntity(new Wizard({
-                engine: this,
-                startingPosition: {x: 0.5, y: 0.5},   
-                spells: [], 
-                name: "Grandpa Grape", 
-                prefferedPosition: {x:0, y:0},
-                sprite: new Sprite({
-                    startingPosition: {x: 0.5, y: 0.5},
-                    image: grapeWizardArt,
-                    width: 96,
-                    height: 96,
-                    canvas: this.canvas,
-                })
-            }))
+            // this.addEntity(new Platform({
+            //     engine: this,
+            //     startingPosition: {x:0, y:0}
+            // }))
 
-            this.addEntity(new Wizard({
-                engine: this,
-                startingPosition: {x: -0.5, y: -0.5},
-                spells: [], 
-                name: "General Goldie", 
-                prefferedPosition: {x:0, y:0},
-                sprite: new Sprite({
-                    startingPosition: {x: -0.5, y: -0.5},
-                    image: goldWizardArt,
-                    width: 96,
-                    height: 96,
-                    canvas: this.canvas,
-                })
-            }))
+            // this.addEntity(new Wizard({
+            //     engine: this,
+            //     startingPosition: {x: 0.5, y: 0.5},   
+            //     spells: [], 
+            //     name: "Grandpa Grape", 
+            //     prefferedPosition: {x:0, y:0},
+            //     sprite: new Sprite({
+            //         position: {x: 0.5, y: 0.5},
+            //         image: grapeWizardArt,
+            //         width: 96,
+            //         height: 96,
+            //         canvas: this.canvas,
+            //     })
+            // }))
 
-            this.entities[1].attackTarget = this.entities[2]
-            this.entities[2].attackTarget = this.entities[1]
+            // this.addEntity(new Wizard({
+            //     engine: this,
+            //     startingPosition: {x: -0.5, y: -0.5},
+            //     spells: [], 
+            //     name: "General Goldie", 
+            //     prefferedPosition: {x:0, y:0},
+            //     sprite: new Sprite({
+            //         startingPosition: {x: -0.5, y: -0.5},
+            //         image: goldWizardArt,
+            //         width: 96,
+            //         height: 96,
+            //         canvas: this.canvas,
+            //     })
+            // }))
+
+            // this.entities[1].attackTarget = this.entities[2]
+            // this.entities[2].attackTarget = this.entities[1]
 
             // const spell1 = new BoltSpell({image: blueBlastArt})
             // const wizard1 = new Wizard({
@@ -158,7 +179,7 @@ export class Engine{
                             break;
                         case ' ':
                             if (this.battlePaused) {
-                                this.update(1/60)
+                                this.update({dt: 1/60, scene: this})
                                 this.render()
                             }
                         default:
@@ -217,7 +238,7 @@ export class Engine{
 
         if(!this.battlePaused){
             dt *= this.battleSpeed;
-            this.update(dt);
+            this.update({dt: dt, scene: this});
             this.render();
         } else {
             dt = 0
@@ -226,14 +247,10 @@ export class Engine{
         this.animationFrameId = requestAnimationFrame(this.frame)
     }
 
-    private update(dt: number) {
-        for(let i = 0; i < this.entities.length; i++){
-            const e = this.entities[i]
-            if (e.dead) this.entities.splice(i, 1)
-            else {
-                // every entity will have an update function meant to manage frame-by-frame logic
-                e.update(dt)
-            }
+private update(args: {dt:number, scene: Engine}) {
+        for(const b of this.objects){
+            // every entity will have an update function meant to manage frame-by-frame logic
+            b[1].update(args)
         }
 
         this.cm.update()
@@ -265,31 +282,40 @@ export class Engine{
         }
     }
 
-    addEntity(e: Entity){
-        this.entities.push(e);
-        if (e.sprite) this.sprites.set(e, e.sprite)
-
-        if(e.collisionBody) {
-            this.cm.add(e.collisionBody)
+    addObject(b: BattleObject){
+        this.objects.set(b.id, b)
+        
+        if (b.sprites) {
+            for (const sp of b.sprites) this.addSprite(sp)
         }
+
+        // if(e.collisionBody) {
+        //     this.cm.add(e.collisionBody)
+        // }
     }
 
-    markForDestruction(e: Entity){
-        if (!e.dead){
-            e.dead = true;
-            this.destructionQueue.push(e)
+    addSprite(s: Sprite){
+        this.sprites.set(s.id, s)
+    }
+
+    markForDestruction(b: BattleObject){
+        if (!b.dead){
+            b.dead = true;
+            this.destructionQueue.push(b)
         }
     }
 
     private processDestruction(){
         if (this.destructionQueue.length === 0) return;
 
-        for (const e of this.destructionQueue){
-            if (e.sprite) this.sprites.delete(e)
+        for (const b of this.destructionQueue){
 
-            if(e.collisionBody) {
-                this.cm.remove(e.collisionBody)
-            }
+
+            // if (e.sprite) this.sprites.delete(e.sprite.id)
+
+            // if(e.collisionBody) {
+            //     this.cm.remove(e.collisionBody)
+            // }
         }
     }
 }

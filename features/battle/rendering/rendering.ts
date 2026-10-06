@@ -37,7 +37,7 @@ export function sprite(ctx: CanvasRenderingContext2D, image: HTMLImageElement, p
     ctx.restore();
 }
 
-export function getScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
+export function toScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return {
         x: (position.x + 1) / 2 * canvas.width,
         y: (1 - (position.y + 1) / 2) * canvas.height
