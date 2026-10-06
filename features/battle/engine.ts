@@ -1,8 +1,8 @@
-import Entity from "@/features/battle/entities/entity";
+import Combatant from "@/features/battle/entities/combatant";
 import Position from "@/types/position";
 import CollisionManager from "./collisions/collisionManager";
 import { Sprite } from "./rendering/sprite";
-import { BattleObject } from "./objects/battleObject";
+import { GameObject } from "./objects/gameObject";
 import Vector from "@/types/vector";
 
 const MIN_WATER_WIDTH = 40
@@ -19,15 +19,19 @@ const DEV_TOOLS_ENABLED = true;
 const VISIBLE_COLLISION_BOXES = false;
 const INITIAL_BATTLE_SPEED = 1;
 
+export type updateOptions = {
+    dt: number,
+    scene: Engine
+}
+
 export class Engine{
     private running: boolean = false;
     readonly ctx!: CanvasRenderingContext2D;
 
     private cm: CollisionManager = new CollisionManager();
 
-    private objects = new Map<number, BattleObject>
-    private destructionQueue: BattleObject[] = []
-    private sprites = new Map<number, Sprite>
+    private objects = new Map<number, GameObject>
+    private destructionQueue: GameObject[] = []
 
     private animationFrameId: number | null = null;
     
@@ -72,10 +76,10 @@ export class Engine{
             const tombstone = new Image();
             tombstone.src = "/assets/tombstone.png";
 
-            const wizard = new BattleObject({
+            const wizard = new GameObject({
                 position: {x:0, y:0},
                 visible: true,
-                velocity: new Vector({dx: 0.01, dy: 0}),
+                velocity: new Vector({dx: 0, dy: 0}),
                 sprites: [
                     new Sprite({
                         image: grapeWizardArt,
@@ -84,15 +88,14 @@ export class Engine{
                     })
                 ]
             })
+
+            this.addStaticSprite(new Sprite({
+                image: tombstone,
+                height: 0.2,
+                width: 0.2
+            }), {x: 0.5, y: 0.5})
             
             this.addObject(wizard)
-
-            this.addSprite(new Sprite({
-                position: {x: 0.5, y:0.5},
-                image: tombstone,
-                width: 0.2,
-                height: 0.2
-            }))
 
             // this.addEntity(new Platform({
             //     engine: this,
@@ -247,7 +250,7 @@ export class Engine{
         this.animationFrameId = requestAnimationFrame(this.frame)
     }
 
-private update(args: {dt:number, scene: Engine}) {
+    private update(args: updateOptions) {
         for(const b of this.objects){
             // every entity will have an update function meant to manage frame-by-frame logic
             b[1].update(args)
@@ -270,8 +273,8 @@ private update(args: {dt:number, scene: Engine}) {
         this.ctx.fillStyle = "#66645e";    // Set fill color
         this.ctx.fill();               // Render the filled shape
 
-        for(const sp of this.sprites){
-            sp[1].renderOnto(this.canvas, this.ctx)
+        for(const sp of this.objects){
+            sp[1].render(this)
         }
 
         if(VISIBLE_COLLISION_BOXES){
@@ -282,23 +285,22 @@ private update(args: {dt:number, scene: Engine}) {
         }
     }
 
-    addObject(b: BattleObject){
+    addObject(b: GameObject){
         this.objects.set(b.id, b)
-        
-        if (b.sprites) {
-            for (const sp of b.sprites) this.addSprite(sp)
-        }
 
         // if(e.collisionBody) {
         //     this.cm.add(e.collisionBody)
         // }
     }
 
-    addSprite(s: Sprite){
-        this.sprites.set(s.id, s)
+    addStaticSprite(sp: Sprite, pos: Position){
+        this.addObject(new GameObject({
+            position: pos,
+            sprites: sp
+        }))
     }
 
-    markForDestruction(b: BattleObject){
+    markForDestruction(b: GameObject){
         if (!b.dead){
             b.dead = true;
             this.destructionQueue.push(b)

@@ -1,8 +1,8 @@
 import { Circle } from "@/types/shapes/circle";
-import Entity, { entityOptions } from "../entities/entity";
+import Combatant, { entityOptions } from "../entities/combatant";
 import { CollisionBody } from "./collisionBody";
 
-export class Platform extends Entity{
+export class Platform extends Combatant{
     constructor(args: entityOptions){
         super(args)
 

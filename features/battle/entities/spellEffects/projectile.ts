@@ -1,4 +1,4 @@
-import Entity, {entityOptions} from "@/features/battle/entities/entity";
+import Combatant, {entityOptions} from "@/features/battle/entities/combatant";
 import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
 import { Collidable } from "../../collisions/collidable";
@@ -7,7 +7,7 @@ import { Circle } from "@/types/shapes/circle";
 import { Sprite } from "../../rendering/sprite";
 
 export type projectileOptions = entityOptions & {
-    source: Entity;
+    source: Combatant;
     knockback: number;
     travelSpeed: number;
     startingVelocity: Vector;
@@ -15,9 +15,9 @@ export type projectileOptions = entityOptions & {
     sprite: Sprite;
 }
 
-export class Projectile extends Entity{
+export class Projectile extends Combatant{
     knockback: Vector;
-    source: Entity;
+    source: Combatant;
     damage: number;
 
     constructor(args: projectileOptions){

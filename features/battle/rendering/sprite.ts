@@ -1,30 +1,24 @@
 import Position, { Positionable } from "@/types/position";
 import { toScreenPosition } from "./rendering";
 import { toScreenValue } from "@/utilities/renderingUtils";
-import { BattleObject } from "../objects/battleObject";
+import { Engine } from "../engine";
 
-type BaseSpriteOptions = {
+export type SpriteOptions = {
     image: HTMLImageElement
     width: number
     height: number
+    offset?: Position
 
     visible?: boolean
 }
-
-export type SpriteOptions = BaseSpriteOptions & (
-    { owner: BattleObject, position?: Position }
-    | { owner?: BattleObject, position: Position }
-    | { owner?: undefined, position?: undefined}
-)
 
 
 export class Sprite implements Positionable{
     private static nextId: number = 0;
     readonly id: number;
 
-    owner: BattleObject | undefined = undefined;
+    private _position!: Position;
 
-    private _position: Position;
     private _xOffset = 0;
     private _yOffset = 0;
 
@@ -40,21 +34,9 @@ export class Sprite implements Positionable{
 
         console.log(this.id)
 
-        this.owner = args.owner
-
-        if(args.owner){
-            this._position = args.owner.position;
-            if(args.position){
-                this._xOffset = args.position.x;
-                this._yOffset = args.position.y;
-
-                this._position.x += this._xOffset;
-                this._position.y += this._yOffset;
-            }
-        } else if (args.position) {
-            this._position = args.position;
-        } else {
-            this._position = {x:0, y:0};
+        if (args.offset){
+            this._xOffset = args.offset.x;
+            this._yOffset = args.offset.y;
         }
 
         this.image = args.image;
@@ -77,17 +59,15 @@ export class Sprite implements Positionable{
         this._position.y += this._yOffset;
     }
 
-    renderOnto(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D){
-        if(this.owner){ this.position = this.owner.position }
-
+    render(scene: Engine){
         if(this.visible){
-            const screenPosition = toScreenPosition(this._position, canvas)
-            const screenWidth = toScreenValue(this.width, canvas)
-            const screenHeight = toScreenValue(this.height, canvas);
+            const screenPosition = toScreenPosition(this._position, scene.canvas)
+            const screenWidth = toScreenValue(this.width, scene.canvas)
+            const screenHeight = toScreenValue(this.height, scene.canvas);
             
-            ctx.save();
+            scene.ctx.save();
 
-            ctx.drawImage(
+            scene.ctx.drawImage(
                 this.image,
                 screenPosition.x - screenWidth / 2,
                 screenPosition.y - screenHeight / 2,
@@ -95,7 +75,7 @@ export class Sprite implements Positionable{
                 screenHeight
             );
 
-            ctx.restore();
+            scene.ctx.restore();
         }
         
     }

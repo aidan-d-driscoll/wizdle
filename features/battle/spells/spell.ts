@@ -1,5 +1,5 @@
 import { setOptionalRandomNumber } from "@/utilities/mathUtils";
-import Entity from "@/features/battle/entities/entity";
+import Combatant from "@/features/battle/entities/combatant";
 import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
 import { Sprite } from "../rendering/sprite";
 
@@ -15,7 +15,7 @@ const MIN_DAMAGE = 10;
 const MAX_DAMAGE = MIN_DAMAGE*5;
 
 export type spellOptions = {
-    owner: Entity;
+    owner: Combatant;
     sprite: Sprite,
     knockback?: number,
     castTime?: number,
@@ -23,7 +23,7 @@ export type spellOptions = {
 }
 
 export default abstract class Spell{
-    owner: Entity;
+    owner: Combatant;
 
     sprite: Sprite;
     knockback: number;
@@ -48,5 +48,5 @@ export default abstract class Spell{
         this.damage = setOptionalRandomNumber({value: args.damage, min: MIN_DAMAGE, max: MAX_DAMAGE})
     }
 
-    abstract newCast(source: Entity): Projectile | null;
+    abstract newCast(source: Combatant): Projectile | null;
 }

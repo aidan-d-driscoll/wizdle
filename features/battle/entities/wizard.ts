@@ -1,4 +1,4 @@
-import Entity, { entityOptions } from "@/features/battle/entities/entity";
+import Combatant, { entityOptions } from "@/features/battle/entities/combatant";
 import { getDistance, setOptionalRandomNumber } from "@/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
 import Position from "@/types/position";
@@ -27,7 +27,7 @@ type wizardOptions = entityOptions & {
     name: string
 }
 
-export class Wizard extends Entity{
+export class Wizard extends Combatant{
     castTimers: number[] = [];
     spells: Spell[] = [];
     attackTarget: Wizard | null = null;
