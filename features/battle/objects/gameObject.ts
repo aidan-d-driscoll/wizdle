@@ -8,7 +8,7 @@ import { Collidable } from "../collisions/collidable";
 const FRICTION = 0.00015
 
 export type objectOptions = {
-    scene: Engine,
+    engine: Engine,
 
     position: Position;
 
@@ -85,9 +85,9 @@ export class GameObject implements Positionable, Collidable{
         
     }
 
-    render(scene: Engine) {
+    render(engine: Engine) {
         for (const sp of this.sprites){
-            sp[1].render(scene)
+            sp[1].render(engine)
         }
     }
 

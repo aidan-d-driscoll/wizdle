@@ -21,7 +21,7 @@ const INITIAL_BATTLE_SPEED = 1;
 
 export type updateOptions = {
     dt: number,
-    scene: Engine
+    engine: Engine
 }
 
 export class Engine{
@@ -78,7 +78,7 @@ export class Engine{
             tombstone.src = "/assets/tombstone.png";
 
             const wizard1 = new Combatant({
-                scene: this,
+                engine: this,
                 team: 1, 
                 position: {x:0.5, y:-0.5},
                 visible: true,
@@ -96,7 +96,7 @@ export class Engine{
             })
 
             const wizard2 = new Combatant({
-                scene: this,
+                engine: this,
                 team: 2, 
                 position: {x:-0.5, y:0.5},
                 visible: true,
@@ -198,23 +198,30 @@ export class Engine{
                 });
     
                 window.addEventListener('keydown', (event) => {
-                    switch (event.key) {
-                        case 'ArrowLeft':
-                            this.battleSpeed = Math.max(0.1, this.battleSpeed-0.1);
+                    const k = event.key.toLowerCase();
+
+                    switch (k) {
+                        case 'arrowleft':
+                            if (this.battlePaused) {
+                                this.update({dt: -1/60, engine: this})
+                                this.render()
+                            } else {
+                                this.battleSpeed = Math.max(0.001, this.battleSpeed-0.25);
+                            }
                             break;
-                        case 'ArrowRight':
-                            this.battleSpeed = Math.min(5, this.battleSpeed+0.1);
+                        case 'arrowright':
+                            if (this.battlePaused) {
+                                this.update({dt: 1/60, engine: this})
+                                this.render()
+                            } else {
+                                this.battleSpeed = Math.min(2, this.battleSpeed+0.25);
+                            }
                             break;
                         case ' ':
-                            if (this.battlePaused) {
-                                this.update({dt: 1/60, scene: this})
-                                this.render()
-                            }
+                            this.battlePaused = !this.battlePaused; 
                         default:
-                            return; // Quit when other keys are pressed
+                            return; 
                     }
-                
-                    // Optional: Prevent default browser behavior (like scrolling)
                     event.preventDefault(); 
                 });
             }
@@ -266,7 +273,7 @@ export class Engine{
 
         if(!this.battlePaused){
             dt *= this.battleSpeed;
-            this.update({dt: dt, scene: this});
+            this.update({dt: dt, engine: this});
             this.render();
         } else {
             dt = 0
@@ -351,7 +358,7 @@ export class Engine{
 
     addStaticSprite(sp: Sprite, pos: Position){
         this.addObject(new GameObject({
-            scene: this,
+            engine: this,
             position: pos,
             sprites: sp
         }))
