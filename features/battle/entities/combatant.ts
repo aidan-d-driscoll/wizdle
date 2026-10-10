@@ -1,6 +1,6 @@
 import Position from "@/types/position";
 import { GameObject, objectOptions } from "../objects/gameObject";
-import { Engine, updateOptions } from "../engine";
+import { updateOptions } from "../engine";
 import { getDistance } from "@/utilities/mathUtils";
 import Vector from "@/types/vector";
 
@@ -18,9 +18,10 @@ export type combatantOptions = objectOptions & {
 export default class Combatant extends GameObject {
     private _team: number;
 
-    enemies = new Map<number, Combatant>;
-    allies = new Map<number, Combatant>;
-    attackTarget: Combatant | null = null;
+    enemies: Combatant[] = [];
+    allies: Combatant[] = [];
+    nearestEnemy: Combatant | null = null;
+    nearestAlly: Combatant | null = null;
     moveTarget: Position = {x:0, y:0};
     private prefferedPosition: Position;
 
@@ -52,27 +53,27 @@ export default class Combatant extends GameObject {
     }
 
     update(args: updateOptions){
-        console.log(this.id + "->" + this.attackTarget?.id)
+        console.log(this.id + "->" + this.nearestEnemy?.id)
         console.log(this.enemies)
 
         this.moveTarget = this.prefferedPosition;
         let circling = false;
 
-        if(!this.attackTarget){
+        if(!this.nearestEnemy){
             const value = this.enemies.entries().next().value;
-            if (value) this.attackTarget = value[1];
-        } else if (this.enemies.size > 1) {
+            if (value) this.nearestEnemy = value[1];
+        } else if (this.enemies.length > 1) {
             for (const enemy of this.enemies.values()){
-                if (enemy.id !== this.attackTarget.id 
-                    && Math.abs(getDistance({from: this.position, to: enemy.position})) < Math.abs(getDistance({from: this.position, to: this.attackTarget.position}))
+                if (enemy.id !== this.nearestEnemy.id 
+                    && Math.abs(getDistance({from: this.position, to: enemy.position})) < Math.abs(getDistance({from: this.position, to: this.nearestEnemy.position}))
                 ){
-                    this.attackTarget = enemy
+                    this.nearestEnemy = enemy
                 }
             }
         }
 
-        if (this.attackTarget && (Math.abs(getDistance({from: this.attackTarget.position, to:this.prefferedPosition})) < Math.abs(getDistance({from: this.position, to:this.prefferedPosition})))) {
-            this.moveTarget = this.attackTarget.position;
+        if (this.nearestEnemy && (Math.abs(getDistance({from: this.nearestEnemy.position, to:this.prefferedPosition})) < Math.abs(getDistance({from: this.position, to:this.prefferedPosition})))) {
+            this.moveTarget = this.nearestEnemy.position;
             circling = true;
         }
         

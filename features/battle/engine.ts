@@ -157,8 +157,8 @@ export class Engine{
             //     })
             // }))
 
-            // this.entities[1].attackTarget = this.entities[2]
-            // this.entities[2].attackTarget = this.entities[1]
+            // this.entities[1].nearestEnemy = this.entities[2]
+            // this.entities[2].nearestEnemy = this.entities[1]
 
             // const spell1 = new BoltSpell({image: blueBlastArt})
             // const wizard1 = new Wizard({
@@ -179,8 +179,8 @@ export class Engine{
             //     prefferedPosition: this.centerRingPosition
             // });
 
-            // wizard1.attackTarget = wizard2
-            // wizard2.attackTarget = wizard1
+            // wizard1.nearestEnemy = wizard2
+            // wizard2.nearestEnemy = wizard1
 
             // this.entities.push(wizard1)
             // this.entities.push(wizard2)

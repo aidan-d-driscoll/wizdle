@@ -1,6 +1,7 @@
 import { CollisionBody } from "./collisionBody";
 import Vector from "@/types/vector";
 import { Circle } from "@/types/shapes/circle";
+import { TargetManager } from "../targetting/targetManager";
 
 interface Endpoint {
     readonly cb: CollisionBody
@@ -38,6 +39,8 @@ export default class CollisionManager {
     handles = new Map<CollisionBody, Handle>();
     collisionCandidates = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
     activeCollisions = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
+
+    tm = new TargetManager();
 
     update(): void {
 

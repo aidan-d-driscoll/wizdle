@@ -22,7 +22,7 @@ type wizardOptions = entityOptions & {
     spells: Spell[],
     speed?: number,
     prefferedPosition: Position,
-    attackTarget?: Wizard,
+    nearestEnemy?: Wizard,
     maxHitPoints?: number
     name: string
 }
@@ -30,7 +30,7 @@ type wizardOptions = entityOptions & {
 export class Wizard extends Combatant{
     castTimers: number[] = [];
     spells: Spell[] = [];
-    attackTarget: Wizard | null = null;
+    nearestEnemy: Wizard | null = null;
     prefferedPosition: Position;
     moveTarget: Position;
     private _circling = false;
@@ -87,7 +87,7 @@ export class Wizard extends Combatant{
         })]
 
         this._speed = setOptionalRandomNumber({value: args.speed, min: MIN_SPEED, max: MAX_SPEED})
-        if (args.attackTarget) this.attackTarget = args.attackTarget;
+        if (args.nearestEnemy) this.nearestEnemy = args.nearestEnemy;
         this.prefferedPosition = args.prefferedPosition; 
         this.moveTarget = this.prefferedPosition;
         this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
@@ -108,8 +108,8 @@ export class Wizard extends Combatant{
         this.moveTarget = this.prefferedPosition;
         this._circling = false;
 
-        if (this.attackTarget && (Math.abs(getDistance({from: this.attackTarget.position, to:this.prefferedPosition})) < Math.abs(getDistance({from: this.position, to:this.prefferedPosition})))) {
-            this.moveTarget = this.attackTarget.position;
+        if (this.nearestEnemy && (Math.abs(getDistance({from: this.nearestEnemy.position, to:this.prefferedPosition})) < Math.abs(getDistance({from: this.position, to:this.prefferedPosition})))) {
+            this.moveTarget = this.nearestEnemy.position;
             this._circling = true;
         }
         
@@ -131,7 +131,7 @@ export class Wizard extends Combatant{
         if (!this.dead && this._currentHitPoints <= 0) { 
             this.engine.markForDestruction(this)
         }
-        if (!this.attackTarget?.dead) {
+        if (!this.nearestEnemy?.dead) {
             for(let i = 0; i < this.castTimers.length; i++){
                 this.castTimers[i] += dt
                 if (this.castTimers[i] >= this.spells[i].castTime){

@@ -24,7 +24,7 @@ export class BoltSpell extends Spell{
     }
 
     newCast(source: Wizard): Projectile | null {
-        if (!source.attackTarget) return null
+        if (!source.nearestEnemy) return null
         return new Projectile({
             engine: source.engine,
             physics: false,
@@ -36,7 +36,7 @@ export class BoltSpell extends Spell{
                 width: this.sprite.width,
                 height: this.sprite.height,
             }),
-            startingVelocity: new Vector({startPos: source.position, endPos: source.attackTarget.position, magnitude: this.travelSpeed}),
+            startingVelocity: new Vector({startPos: source.position, endPos: source.nearestEnemy.position, magnitude: this.travelSpeed}),
             source: source,
             knockback: this.knockback,
             travelSpeed: this.travelSpeed,

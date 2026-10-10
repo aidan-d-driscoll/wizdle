@@ -100,5 +100,70 @@ export class GameObject implements Positionable, Collidable{
         }
     }
 
+
+    /**
+     * Gets the true in-game space between this and othert. Always positive. Does not indicate 
+     * direction.
+     * @param other Any GameObject in the scene
+     * @returns The total length of the space between this and other
+     */
+    distanceTo(other: GameObject): number{
+        return Math.sqrt(this.compDistanceTo(other))
+    }
+
+    /**
+     * Get a distance that can be used to compare non-directional distance between this GameObject 
+     * and other Objects. Faster than getDistance or distanceTo, but information is useless for 
+     * anything other than comparisons.
+     * @param other Any GameObject in the scene
+     * @returns The non-square-rooted pythagorean distance to other
+     */
+    compDistanceTo(other: GameObject): number{
+        const dx = this.x - other.x
+        const dy = this.y - other.y
+        
+        return dx * dx + dy * dy
+    }
+
+    closest(otherA: GameObject[]): GameObject;
+    closest(otherA: GameObject, otherB: GameObject): GameObject;
+
+    closest(otherA: GameObject | GameObject[], otherB?: GameObject): GameObject | null{
+        let minDistance = Infinity
+        let out: GameObject | null = null
+
+        if(otherA instanceof GameObject){
+            if (otherB){
+                const dxA = this.x - otherA.x
+                const dyA = this.y - otherA.y
+                
+                const distanceA  = dxA * dxA + dyA * dyA
+
+                const dxB = this.x - otherB.x
+                const dyB = this.y - otherB.y
+                
+                const distanceB  = dxB * dxB + dyB * dyB
+
+                out = (distanceA > distanceB) ? otherB : otherA
+            }
+        } else {
+            for (const obj of otherA){
+                if(obj === this) continue;
+    
+                const dx = this.x - obj.x
+                const dy = this.y - obj.y
+                
+                const distance  = dx * dx + dy * dy
+                if (distance < minDistance){ 
+                    minDistance = distance;
+                    out = obj;
+                }
+            }
+        }
+
+        
+        
+        return out;
+    }
     
 }
