@@ -1,7 +1,8 @@
 import { CollisionBody } from "./collisionBody";
 import Vector from "@/types/vector";
 import { Circle } from "@/types/shapes/circle";
-import { TargetManager } from "../targetting/targetManager";
+import { TargetManager } from "../targeting/targetManager";
+import Combatant from "../entities/combatant";
 
 interface Endpoint {
     readonly cb: CollisionBody
@@ -45,9 +46,10 @@ export default class CollisionManager {
     update(): void {
 
         for (const cb of this.handles.keys()) {
-            cb.update()
+            cb.update();
             if (cb.dirty) {
-                this.repositionCollisionBody(cb)
+                if (cb.owner instanceof Combatant) { this.tm.repositionCombatant(cb.owner) }
+                this.repositionCollisionBody(cb);
             }
         }
 
@@ -90,6 +92,8 @@ export default class CollisionManager {
     }
 
     add(cb: CollisionBody) {
+        if (cb.owner instanceof Combatant) this.tm.add(cb.owner)
+
         const newMinEp: Endpoint = { cb: cb, isMin: true, xPos: cb.fat.xMin, slot: -1 };
         const newMaxEp: Endpoint = { cb: cb, isMin: false, xPos: cb.fat.xMax, slot: -1 };
 
@@ -142,11 +146,11 @@ export default class CollisionManager {
         this.handles.set(cb, { minEp: newMinEp, maxEp: newMaxEp })
 
         this.correctEndpointSlots();
-
-        // this.logEndpoints()
     }
 
     remove(cb: CollisionBody): void {
+        if (cb.owner instanceof Combatant) this.tm.remove(cb.owner)
+
         const handle = this.handles.get(cb)
         if (handle) {
             for (const cand of this.collisionCandidates) {

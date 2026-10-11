@@ -1,10 +1,12 @@
-import Position from "@/types/position"
+import { Position } from "@/types/position"
 
-export function getDistance({from, to}:{from: Position, to: Position}){
+export function getDistance({from, to}:{from: Position, to: Position}){ return Math.sqrt(getRawDistance({from, to})) }
+
+export function getRawDistance({from, to}:{from: Position, to: Position}){
     const dx = to.x - from.x;
     const dy = to.y - from.y;
 
-    return Math.sqrt(dx * dx + dy * dy);
+    return dx * dx + dy * dy;
 }
 
 export function absMin(a: number, b: number){

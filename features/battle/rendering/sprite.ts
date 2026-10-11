@@ -32,7 +32,7 @@ export class Sprite implements Positionable{
         this.id = Sprite.nextId;
         Sprite.nextId++;
 
-        console.log(this.id)
+        // console.log(this.id)
 
         if (args.offset){
             this._xOffset = args.offset.x;

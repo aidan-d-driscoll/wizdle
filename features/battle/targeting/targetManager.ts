@@ -5,31 +5,40 @@ export class TargetManager{
     combatants: Combatant[] = []
 
     add(cmb: Combatant){
-        this.combatants.push(cmb)
+        this.combatants.push(cmb);
 
         for (const other of this.combatants){
             if(cmb.team === other.team){
-                cmb.allies.push(other)
-                other.allies.push(cmb)
+                cmb.allies.push(other);
+                other.allies.push(cmb);
             } else {
-                cmb.enemies.push(other)
-                other.enemies.push(cmb)
+                cmb.enemies.push(other);
+                other.enemies.push(cmb);
             }
         }
 
-        this.repositionCombatant(cmb)
+        this.repositionCombatant(cmb);
     }
 
     remove(cmb: Combatant){
+        const c = this.combatants.indexOf(cmb);
+        if (c !== -1) this.combatants.splice(c, 1);
 
+        for(const other of this.combatants){
+            const idx = other.allies.indexOf(cmb);
+            if(idx !== -1) other.allies.splice(idx, 1);
+        }
     }
 
     repositionCombatant(cmb: Combatant){
-        cmb.allies = insertionSorted(cmb.allies, (peer) => cmb.compDistanceTo(peer))
-        cmb.enemies = insertionSorted(cmb.enemies, (peer) => cmb.compDistanceTo(peer))
+        cmb.allies = insertionSorted(cmb.allies, (peer) => cmb.rawDistanceTo(peer));
+        cmb.enemies = insertionSorted(cmb.enemies, (peer) => cmb.rawDistanceTo(peer));
 
-        this.reposition(cmb, cmb.allies, o => o.allies)
-        this.reposition(cmb, cmb.enemies, o => o.enemies)
+        cmb.nearestEnemy = cmb.enemies[0]
+        cmb.nearestAlly = cmb.allies[0]
+
+        this.reposition(cmb, cmb.allies, o => o.allies);
+        this.reposition(cmb, cmb.enemies, o => o.enemies);
     }
 
     private reposition(cmb: Combatant, peers: Combatant[], listOf: (o:Combatant) => Combatant[]){

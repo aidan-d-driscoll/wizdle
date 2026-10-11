@@ -1,16 +1,15 @@
-import Position, { Positionable } from "@/types/position";
+import { Position, Positionable, PositionableOptions } from "@/types/position";
 import { Sprite } from "../rendering/sprite";
 import Vector from "@/types/vector";
 import { Engine, updateOptions } from "../engine";
 import { CollisionBody } from "../collisions/collisionBody";
 import { Collidable } from "../collisions/collidable";
+import { getRawDistance, getDistance } from "@/utilities/mathUtils";
+import { Physics } from "../physics/physics";
+import { Ground } from "../collisions/ground";
 
-const FRICTION = 0.00015
-
-export type objectOptions = {
+export type objectOptions = PositionableOptions & {
     engine: Engine,
-
-    position: Position;
 
     static?: boolean;
     
@@ -21,66 +20,79 @@ export type objectOptions = {
     physics?: boolean;
 
     velocity?: Vector;
+
+    children?: Positionable[];
 }
 
-export class GameObject implements Positionable, Collidable{
+export class GameObject extends Positionable implements Collidable, Physics{
     private static nextId = 0;
     readonly id: number;
 
-    protected _position: Position;
+    children: Positionable[] = [];
 
     static = false;
 
     readonly sprites = new Map<number, Sprite>
 
-    readonly cb: CollisionBody | null = null;
+    private _cb: CollisionBody | null = null;
+    get cb(): CollisionBody | null { return this._cb }
+    set cb(value: CollisionBody) {
+        this._cb = value;
+        this._cb.owner = this;
+        this.addChildren(this._cb.tight);
+    }
+
+    private _velocity: Vector = new Vector({dx: 0, dy: 0});
+    get velocity(): Vector { return this._velocity };
+    set velocity(value: Vector) { this._velocity = new Vector({dx: value.dx, dy: value.dy}) };
+    get vx(): number { return this._velocity.dx };
+    get vy(): number { return this._velocity.dy };
+
     physics = false;
 
-    protected velocity: Vector = new Vector({dx: 0, dy: 0});
+    flying = false;
+    forces = new Vector({dx: 0, dy: 0})
+    grounds: Ground[] = [];
 
     dead = false;
 
-    get x(): number { return this._position.x }
-    set x(value: number) { this._position.x = value }
-
-    get y(): number { return this._position.y }
-    set y(value: number) { this._position.y = value }
-
-    get position(): Position { return this._position }
-    set position(value: Position) { this._position = value }
-
-    get vx(): number { return this.velocity.dx }
-
-    get vy(): number { return this.velocity.dy }
-
     constructor(args:objectOptions){
+        super(args)
+
         this.id = GameObject.nextId;
         GameObject.nextId++;
-
-        this._position = args.position;
 
         if(args.static) this.static = args.static;
 
         if(args.velocity) this.velocity = args.velocity;
         
         if(args.sprites) this.addSprites(args.sprites);
-            
 
+        if(args.children) this.addChildren(args.children);
+            
         if(args.collisionBody) {
-            this.cb = args.collisionBody
-            if(args.physics) this.physics = args.physics
-        }
-        else this.physics = false
+            this.cb = args.collisionBody;
+            if(args.physics) this.physics = args.physics;
+        } else this.physics = false
     }
 
     update(args: updateOptions){
+        console.log(this._cb?.toString())
         if (!this.static){
-            for (const sp of this.sprites){
-                sp[1].position = this.position
+            for (const child of this.children){
+                child.position = this.position;
             }
 
-            this._position.x += this.velocity.dx * args.dt
-            this._position.y += this.velocity.dy * args.dt
+            for (const sp of this.sprites){
+                sp[1].position = this.position;
+            }
+
+            if (this._cb) {
+                this._cb.tight.position = this.position
+            }
+
+            this.position.x += this.velocity.dx * args.dt
+            this.position.y += this.velocity.dy * args.dt
         }
         
     }
@@ -91,6 +103,7 @@ export class GameObject implements Positionable, Collidable{
         }
     }
 
+
     addSprites(sprites: Sprite | Sprite[]){
         if (sprites instanceof Sprite) this.sprites.set(sprites.id, sprites)
         else {
@@ -100,15 +113,28 @@ export class GameObject implements Positionable, Collidable{
         }
     }
 
+    addChildren(children: Positionable | Positionable[]){
+        if (children instanceof Positionable) {
+            children.parent = this
+            this.children.push(children)
+        }
+        else {
+            for (const child of children){
+                this.addChildren(child)
+            }
+        }
+    }
 
     /**
-     * Gets the true in-game space between this and othert. Always positive. Does not indicate 
+     * Gets the true in-game space between this and other. Always positive. Does not indicate 
      * direction.
      * @param other Any GameObject in the scene
      * @returns The total length of the space between this and other
      */
-    distanceTo(other: GameObject): number{
-        return Math.sqrt(this.compDistanceTo(other))
+    distanceTo(other: GameObject | Position): number{
+        if (other instanceof GameObject){ other = other.position }
+
+        return getDistance({from: this.position, to: other})
     }
 
     /**
@@ -118,11 +144,10 @@ export class GameObject implements Positionable, Collidable{
      * @param other Any GameObject in the scene
      * @returns The non-square-rooted pythagorean distance to other
      */
-    compDistanceTo(other: GameObject): number{
-        const dx = this.x - other.x
-        const dy = this.y - other.y
-        
-        return dx * dx + dy * dy
+    rawDistanceTo(other: GameObject | Position): number{
+        if (other instanceof GameObject){ other = other.position }
+
+        return getRawDistance({from: this.position, to: other})
     }
 
     closest(otherA: GameObject[]): GameObject;
@@ -161,9 +186,10 @@ export class GameObject implements Positionable, Collidable{
             }
         }
 
-        
-        
         return out;
     }
     
+    applyForce(newForce: Vector): void {
+        this.forces = this.forces.add(newForce)
+    }
 }

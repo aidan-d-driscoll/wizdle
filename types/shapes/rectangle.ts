@@ -1,7 +1,12 @@
-import Position from "@/types/position";
-import { Shape } from "@/types/shapes/shape";
+import { Engine } from "@/features/battle/engine";
+import { Shape, ShapeOptions } from "@/types/shapes/shape";
+import { toScreenPosition, toScreenValue } from "@/utilities/renderingUtils";
 
-export type rectangleOptions = {startingPosition: Position, width: number, height: number}
+
+export type rectangleOptions = ShapeOptions & {
+    width: number, 
+    height: number
+}
 
 export class Rectangle extends Shape{
     xMin: number;
@@ -13,7 +18,7 @@ export class Rectangle extends Shape{
     protected _height: number;
 
     constructor(args:rectangleOptions) {
-        super(args.startingPosition)
+        super(args)
 
         this._width = args.width
         this._height = args.height
@@ -49,22 +54,21 @@ export class Rectangle extends Shape{
         }
     }
 
-    renderOnto(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, color: string){
-        ctx.restore();
+    render(engine: Engine, color: string){
+        const screenPosition = toScreenPosition(this.position, engine.canvas)
 
-        const screenPosition = this.getScreenPosition(canvas)
-        const bodyWidth = this.width*canvas.width/2
-        const bodyHeight = this.height*canvas.height/2
-        screenPosition.x -= 0.5*bodyWidth
-        screenPosition.y -= 0.5*bodyHeight
+        const width = toScreenValue(this.width, engine.canvas)
+        const height = toScreenValue(this.height, engine.canvas)
+        screenPosition.x -= 0.5*width
+        screenPosition.y -= 0.5*height
         
-        ctx.save();
+        engine.ctx.save()
 
-        ctx.fillStyle = color
-        ctx.fillRect(screenPosition.x, screenPosition.y, bodyWidth, bodyHeight)
+        engine.ctx.fillStyle = color
+        engine.ctx.fillRect(screenPosition.x, screenPosition.y, width, height)
 
-        ctx.restore();
-
+        engine.ctx.restore()
+        
     }
 
     

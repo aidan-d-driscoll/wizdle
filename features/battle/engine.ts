@@ -1,22 +1,17 @@
 import Combatant from "@/features/battle/entities/combatant";
-import Position from "@/types/position";
+import { Position } from "@/types/position";
 import CollisionManager from "./collisions/collisionManager";
 import { Sprite } from "./rendering/sprite";
 import { GameObject } from "./objects/gameObject";
 import Vector from "@/types/vector";
+import { CollisionBody } from "./collisions/collisionBody";
+import { Circle } from "@/types/shapes/circle";
 
 const MIN_WATER_WIDTH = 40
 
 const DEV_TOOLS_ENABLED = true;
-/*
- * Dev tool options:
- * * Click the canvas: Pause game
- * * Left arrow: reduce playback speed
- * * Right arrow: increase playback speed
- * * Spacebar: play 1 frame (can be used to start new playback)
- */
 
-const VISIBLE_COLLISION_BOXES = false;
+const VISIBLE_COLLISION_BOXES = true;
 const INITIAL_BATTLE_SPEED = 1;
 
 export type updateOptions = {
@@ -32,7 +27,6 @@ export class Engine{
 
     private objects = new Map<number, GameObject>
     private destructionQueue: GameObject[] = []
-    readonly _teams = new Map<number, Map<number,Combatant>>
 
     private animationFrameId: number | null = null;
     
@@ -92,7 +86,12 @@ export class Engine{
                         width: 0.2,
                         height: 0.2
                     })
-                ]
+                ],
+                collisionBody: new CollisionBody({
+                    shape: new Circle({
+                        radius: 0.1
+                    })
+                })
             })
 
             const wizard2 = new Combatant({
@@ -102,7 +101,7 @@ export class Engine{
                 visible: true,
                 velocity: new Vector({dx: 0, dy: 0}),
                 maxHP: 100,
-                moveSpeed: 0.3,
+                moveSpeed: 0.201,
                 prefferedPosition: {x:0, y:0},
                 sprites: [
                     new Sprite({
@@ -110,85 +109,16 @@ export class Engine{
                         width: 0.2,
                         height: 0.2
                     })
-                ]
+                ],
+                collisionBody: new CollisionBody({
+                    shape: new Circle({
+                        radius: 0.1
+                    })
+                })
             })
-
-            this.addStaticSprite(new Sprite({
-                image: tombstone,
-                height: 0.2,
-                width: 0.2
-            }), {x: 0.5, y: 0.5})
             
             this.addObject(wizard1)
             this.addObject(wizard2)
-
-            // this.addEntity(new Platform({
-            //     engine: this,
-            //     startingPosition: {x:0, y:0}
-            // }))
-
-            // this.addEntity(new Wizard({
-            //     engine: this,
-            //     startingPosition: {x: 0.5, y: 0.5},   
-            //     spells: [], 
-            //     name: "Grandpa Grape", 
-            //     prefferedPosition: {x:0, y:0},
-            //     sprite: new Sprite({
-            //         position: {x: 0.5, y: 0.5},
-            //         image: grapeWizardArt,
-            //         width: 96,
-            //         height: 96,
-            //         canvas: this.canvas,
-            //     })
-            // }))
-
-            // this.addEntity(new Wizard({
-            //     engine: this,
-            //     startingPosition: {x: -0.5, y: -0.5},
-            //     spells: [], 
-            //     name: "General Goldie", 
-            //     prefferedPosition: {x:0, y:0},
-            //     sprite: new Sprite({
-            //         startingPosition: {x: -0.5, y: -0.5},
-            //         image: goldWizardArt,
-            //         width: 96,
-            //         height: 96,
-            //         canvas: this.canvas,
-            //     })
-            // }))
-
-            // this.entities[1].nearestEnemy = this.entities[2]
-            // this.entities[2].nearestEnemy = this.entities[1]
-
-            // const spell1 = new BoltSpell({image: blueBlastArt})
-            // const wizard1 = new Wizard({
-            //     name: "grandpa grape",
-            //     startingPosition: {x:0.55, y:-0.55}, 
-            //     image: grapeWizardArt, spells: [spell1], 
-            //     width: 0.10, 
-            //     prefferedPosition: this.centerRingPosition
-            // });
-
-            // const spell2 = new BoltSpell({image: redRayArt})
-            // const wizard2 = new Wizard({
-            //     name: "general goldie",
-            //     startingPosition: {x:-0.55, y:0.55}, 
-            //     image: goldWizardArt, 
-            //     spells: [spell2],
-            //     width: 0.10,
-            //     prefferedPosition: this.centerRingPosition
-            // });
-
-            // wizard1.nearestEnemy = wizard2
-            // wizard2.nearestEnemy = wizard1
-
-            // this.entities.push(wizard1)
-            // this.entities.push(wizard2)
-
-            // this lets wizards "access" the engine to create the spell effect entities without exporting the engine class
-            // events.on("castSpell", ({spell, caster}) => {
-            //     this.createSpellEffect(spell, caster)
-            // })
 
             if (DEV_TOOLS_ENABLED){
                 this.battlePaused = true;
@@ -284,7 +214,7 @@ export class Engine{
 
     private update(args: updateOptions) {
         for(const obj of this.objects){
-            // every entity will have an update function meant to manage frame-by-frame logic
+            // every object has an update function meant to manage frame-by-frame logic
             obj[1].update(args)
         }
 
@@ -311,7 +241,7 @@ export class Engine{
 
         if(VISIBLE_COLLISION_BOXES){
             for(const cb of this.cm.handles.keys()){
-                cb.renderOnto(this.canvas, this.ctx)
+                cb.render(this)
                 //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
             }
         }
@@ -320,40 +250,7 @@ export class Engine{
     addObject(obj: GameObject){
         this.objects.set(obj.id, obj)
 
-        if (obj instanceof Combatant){
-            let allyTeam = this._teams.get(obj.team)
-
-            if (!allyTeam){
-                this._teams.set(obj.team, new Map<number, Combatant>)
-                allyTeam = this._teams.get(obj.team)
-            }
-
-            if (allyTeam){
-                allyTeam.set(obj.id, obj)
-                obj.allies = allyTeam
-            }
-
-            this.updateTeams()
-        }
-
-        
-        // if(e.collisionBody) {
-        //     this.cm.add(e.collisionBody)
-        // }
-    }
-
-    updateTeams() {
-        for (const obj of this.objects.values()){
-            if(obj instanceof Combatant){
-                for (const team of this._teams){
-                    if(team[0] !== obj.team) { 
-                        
-                        obj.enemies = new Map([...obj.enemies, ...team[1]])
-                    }
-                    else { obj.allies = team[1] }
-                }
-            }
-        }
+        if (obj.cb) { this.cm.add(obj.cb) }
     }
 
     addStaticSprite(sp: Sprite, pos: Position){

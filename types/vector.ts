@@ -1,5 +1,5 @@
 import { getDistance } from "@/utilities/mathUtils";
-import Position from "./position";
+import { Position } from "./position";
 
 export default class Vector{
     private _originalMagnitude: number;
@@ -19,7 +19,6 @@ export default class Vector{
 
         this._originalMagnitude = getDistance({from:{x:0,y:0}, to:{x:this._dx, y: this._dy}})
         
-
         if (args.magnitude) {
             this._magnitude = this._originalMagnitude * args.magnitude
             this._dx = args.magnitude/this._originalMagnitude * this._dx
@@ -46,6 +45,10 @@ export default class Vector{
     get dx(): number { return this._dx }
 
     get dy(): number { return this._dy }
+
+    add(other: Vector): Vector {
+        return new Vector({dx: this.dx + other.dx, dy: this.dy + other.dy})
+    }
     
     toString(): string {
         return `Vector(dx:${this._dx}, dy:${this._dy}, magnitude: ${this._magnitude})`;

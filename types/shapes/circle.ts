@@ -1,9 +1,9 @@
-import Position from "@/types/position"
-import { Shape } from "@/types/shapes/shape"
+import { Shape, ShapeOptions } from "@/types/shapes/shape"
 import { Rectangle } from "@/types/shapes/rectangle"
+import { Engine } from "@/features/battle/engine";
+import { toScreenPosition, toScreenValue } from "@/utilities/renderingUtils";
 
-export type circleOptions = {
-    startingPosition: Position
+export type circleOptions = ShapeOptions & {
     radius: number
 }
 
@@ -19,7 +19,7 @@ export class Circle extends Shape{
     protected _radius: number;
 
     constructor(args:circleOptions){
-        super(args.startingPosition)
+        super(args)
 
         this._radius = args.radius
 
@@ -27,6 +27,7 @@ export class Circle extends Shape{
         this.xMin = this.position.x - this._radius;
         this.yMax = this.position.y + this._radius;
         this.yMin = this.position.y - this._radius;
+        
 
         this._width = 2*this._radius;
         this._height = 2*this._radius;
@@ -67,19 +68,20 @@ export class Circle extends Shape{
         return false
     }
 
-    renderOnto(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, color: string): void {
-        const screenPosition = this.getScreenPosition(canvas)
+    render(engine: Engine, color: string){
+        const screenPosition = toScreenPosition(this.position, engine.canvas)
 
-        const radiusX = this.radius * canvas.width / 2
-        const radiusY = this.radius * canvas.height / 2
+        const radiusX = toScreenValue(this.radius, engine.canvas)
+        const radiusY = radiusX
+        
+        engine.ctx.save()
 
-        ctx.save()
+        engine.ctx.fillStyle = color
+        engine.ctx.beginPath()
+        engine.ctx.ellipse(screenPosition.x, screenPosition.y, radiusX, radiusY, 0, 0, Math.PI * 2)
+        engine.ctx.fill()
 
-        ctx.fillStyle = color
-        ctx.beginPath()
-        ctx.ellipse(screenPosition.x, screenPosition.y, radiusX, radiusY, 0, 0, Math.PI * 2)
-        ctx.fill()
-
-        ctx.restore()
-    }
+        engine.ctx.restore()
+        
+    }   
 }
