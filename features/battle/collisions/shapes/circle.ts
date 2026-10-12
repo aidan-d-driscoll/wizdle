@@ -1,6 +1,6 @@
-import { Shape, ShapeOptions } from "@/types/shapes/shape"
-import { Rectangle } from "@/types/shapes/rectangle"
-import { Engine } from "@/features/battle/engine";
+import { Shape, ShapeOptions } from "./shape";
+import { Rectangle } from "./rectangle";
+import { Scene } from "@/features/battle/scene";
 import { toScreenPosition, toScreenValue } from "@/utilities/renderingUtils";
 
 export type circleOptions = ShapeOptions & {
@@ -68,20 +68,20 @@ export class Circle extends Shape{
         return false
     }
 
-    render(engine: Engine, color: string){
-        const screenPosition = toScreenPosition(this.position, engine.canvas)
+    render(scene: Scene, color: string){
+        const screenPosition = toScreenPosition(this.position, scene.canvas)
 
-        const radiusX = toScreenValue(this.radius, engine.canvas)
+        const radiusX = toScreenValue(this.radius, scene.canvas)
         const radiusY = radiusX
         
-        engine.ctx.save()
+        scene.ctx.save()
 
-        engine.ctx.fillStyle = color
-        engine.ctx.beginPath()
-        engine.ctx.ellipse(screenPosition.x, screenPosition.y, radiusX, radiusY, 0, 0, Math.PI * 2)
-        engine.ctx.fill()
+        scene.ctx.fillStyle = color
+        scene.ctx.beginPath()
+        scene.ctx.ellipse(screenPosition.x, screenPosition.y, radiusX, radiusY, 0, 0, Math.PI * 2)
+        scene.ctx.fill()
 
-        engine.ctx.restore()
+        scene.ctx.restore()
         
     }   
 }

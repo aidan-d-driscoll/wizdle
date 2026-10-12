@@ -1,7 +1,8 @@
-import { Rectangle } from "@/types/shapes/rectangle";
-import { Shape } from "@/types/shapes/shape";
-import { Engine } from "../engine";
-import { GameObject } from "../objects/gameObject";
+import { Rectangle } from "./shapes/rectangle";
+import { Shape } from "./shapes/shape";
+import { Scene, UpdateOptions } from "../scene";
+import { GameObject } from "../entities/gameObject";
+import Combatant from "../entities/combatant";
 
 export type collisionBodyOptions = {
     shape: Shape;
@@ -19,6 +20,8 @@ export class CollisionBody {
     fat: Rectangle;
     dirty: boolean = false;
 
+    physics = false;
+
     constructor(args: collisionBodyOptions) {
         this.id = CollisionBody.nextId;
         CollisionBody.nextId++;
@@ -28,9 +31,11 @@ export class CollisionBody {
         this.fat = this.newFatbox()
     }
 
-    update(): void {
+    update(args: UpdateOptions): void {
         if (this.tight.breaches(this.fat)) {
             this.dirty = true;
+            args.scene.cm.markDirty(this);
+            if(this.owner instanceof Combatant) args.scene.tm.markDirty(this.owner)
             this.fat.position = {x: this.tight.x, y: this.tight.y}
         }
     }
@@ -39,9 +44,9 @@ export class CollisionBody {
         return (`|${this.fat.xMin.toFixed(2)} |${this.tight.xMin.toFixed(2)} (${this.id}) ${this.tight.xMax.toFixed(2)}| ${this.fat.xMax.toFixed(2)}| @ (${this.fat.position.x.toFixed(2)}, ${this.fat.position.y.toFixed(2)})`)
     }
 
-    render(engine:Engine) {
-        this.fat.render(engine, "#03ff2d56")
-        this.tight.render(engine, "#4603ff4f")
+    render(scene:Scene) {
+        this.fat.render(scene, "#03cdff2a")
+        this.tight.render(scene, "#4603ff4f")
     }
 
     newFatbox(): Rectangle{

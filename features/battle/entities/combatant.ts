@@ -1,12 +1,15 @@
 import { Position } from "@/types/position";
-import { GameObject, objectOptions } from "../objects/gameObject";
-import { updateOptions } from "../engine";
-import { getRawDistance,  } from "@/utilities/mathUtils";
+import { GameObject, ObjectOptions } from "../entities/gameObject";
+import { UpdateOptions } from "../scene";
+import { getRawDistance, setOptionalRandomNumber,  } from "@/utilities/mathUtils";
 import Vector from "@/types/vector";
+import { CollisionBody } from "../collisions/collisionBody";
 
 const CIRCLING_SPEED = 1.2
 
-export type combatantOptions = objectOptions & {
+export type CombatantOptions = ObjectOptions & {
+    cb: CollisionBody;
+
     team: number,
 
     maxHP: number,
@@ -14,7 +17,7 @@ export type combatantOptions = objectOptions & {
     prefferedPosition: Position
 }
 
-export default class Combatant extends GameObject {
+export default class Combatant extends GameObject{
     private _team: number;
 
     enemies: Combatant[] = [];
@@ -34,7 +37,7 @@ export default class Combatant extends GameObject {
     get currentHP(): number { return this._currentHP }
     set currentHP(value: number) { 
         this._currentHP = Math.max(0, Math.min(value, this._maxHP))
-        if(this._currentHP <= 0) this.dead = true;
+        if(this._currentHP <= 0) this.destroy();
     }
 
     get moveSpeed(): number { return this._moveSpeed }
@@ -42,8 +45,10 @@ export default class Combatant extends GameObject {
 
     get team(): number { return this._team }
 
-    constructor(args: combatantOptions){
+    constructor(args: CombatantOptions){
         super(args)
+
+        args.scene.tm.add(this)
 
         this._team = args.team
         
@@ -54,16 +59,12 @@ export default class Combatant extends GameObject {
         this._maxHP = args.maxHP;
         this._currentHP = args.maxHP;
 
-        this._moveSpeed = args.moveSpeed;
+        this._moveSpeed = setOptionalRandomNumber({value: args.moveSpeed, min: 0.15, max: 0.25 })
     }
 
-    update(args: updateOptions){
-        super.update(args)
-        
-        if (this.dead) args.engine.markForDestruction(this)
-        else{
-            console.log(this.id + "->" + this.nearestEnemy?.id)
-            console.log(this.enemies)
+    update(args: UpdateOptions){
+        if(!this.dead) {
+            if (this._cb?.dirty) args.scene.tm.markDirty(this)
 
             this.moveTarget = this.prefferedPosition;
             let circling = false;
@@ -73,7 +74,7 @@ export default class Combatant extends GameObject {
                 circling = true;
             }
             
-            if (this.distanceTo(this.moveTarget) > 0.1){
+            if (this.distanceTo(this.moveTarget) > 0.08){
                 this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._moveSpeed})
 
                 if (circling){
@@ -85,6 +86,7 @@ export default class Combatant extends GameObject {
                 }
             }
         }
+        super.update(args)
     }
 
     takeDamage(dmg: number) {

@@ -1,9 +1,9 @@
-import { Engine } from "@/features/battle/engine";
-import { Position, Positionable, PositionableOptions } from "@/types/position"
+import { Position } from "@/types/position"
+import { Entity, EntityOptions } from "@/features/battle/entities/entity";
 
-export type ShapeOptions = PositionableOptions;
+export type ShapeOptions = EntityOptions;
 
-export abstract class Shape extends Positionable{
+export abstract class Shape extends Entity{
     abstract xMax: number;
     abstract xMin: number;
     abstract yMax: number;
@@ -32,8 +32,6 @@ export abstract class Shape extends Positionable{
     }
 
     abstract overlaps(target: Shape): boolean;
-
-    abstract render(engine: Engine, color: string): void;
 
     breaches(outer: Shape): boolean {
         return (this.xMin < outer.xMin) ||

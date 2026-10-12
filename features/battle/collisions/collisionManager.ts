@@ -1,6 +1,7 @@
 import { CollisionBody } from "./collisionBody";
 import Vector from "@/types/vector";
-import { Circle } from "@/types/shapes/circle";
+import { Circle } from "./shapes/circle";
+import { UpdateOptions } from "../scene";
 import { TargetManager } from "../targeting/targetManager";
 import Combatant from "../entities/combatant";
 
@@ -18,6 +19,8 @@ interface Handle {
 
 function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody) {
     if (bodyA.tight instanceof Circle && bodyB.tight instanceof Circle) {
+        console.log("PHYSICS")
+
         const push = new Vector({ startPos: bodyA.tight.position, endPos: bodyB.tight.position })
         const overlap = bodyA.tight.radius + bodyB.tight.radius - push.magnitude;
 
@@ -41,17 +44,16 @@ export default class CollisionManager {
     collisionCandidates = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
     activeCollisions = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
 
-    tm = new TargetManager();
+    // tm = new TargetManager();
 
-    update(): void {
+    dirtyQueue: CollisionBody[] = []
 
-        for (const cb of this.handles.keys()) {
-            cb.update();
-            if (cb.dirty) {
-                if (cb.owner instanceof Combatant) { this.tm.repositionCombatant(cb.owner) }
-                this.repositionCollisionBody(cb);
-            }
+    update(args:UpdateOptions): void {
+
+        for (const cb of this.dirtyQueue) {
+            this.repositionCollisionBody(cb);
         }
+        this.dirtyQueue.length = 0
 
         let key: number;
         let tightBoxCollision: boolean;
@@ -92,7 +94,7 @@ export default class CollisionManager {
     }
 
     add(cb: CollisionBody) {
-        if (cb.owner instanceof Combatant) this.tm.add(cb.owner)
+        // if (cb.owner instanceof Combatant) this.tm.add(cb.owner)
 
         const newMinEp: Endpoint = { cb: cb, isMin: true, xPos: cb.fat.xMin, slot: -1 };
         const newMaxEp: Endpoint = { cb: cb, isMin: false, xPos: cb.fat.xMax, slot: -1 };
@@ -149,7 +151,7 @@ export default class CollisionManager {
     }
 
     remove(cb: CollisionBody): void {
-        if (cb.owner instanceof Combatant) this.tm.remove(cb.owner)
+        // if (cb.owner instanceof Combatant) this.tm.remove(cb.owner)
 
         const handle = this.handles.get(cb)
         if (handle) {
@@ -253,6 +255,10 @@ export default class CollisionManager {
         for (let i = 0; i < this.endpoints.length; i++) {
             this.endpoints[i].slot = i
         }
+    }
+
+    markDirty(cb: CollisionBody) {
+        this.dirtyQueue.push(cb)
     }
 
     private logHandles() {

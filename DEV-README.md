@@ -32,19 +32,19 @@ Open [http://localhost:3000](http://localhost:3000) with your browser or VSCodet
 
 The UI entry point is `app/page.tsx`. You can kinda just start building off of that if you wanna do UI stuff.
 
-The enitre battle replay/sim/game-engine in contained in every instance of HTML canvas element that can be ported around the App using the `/app/features/battle/Battle.tsx` react element.
+The enitre battle replay/sim/game in contained in every instance of HTML canvas element that can be ported around the App using the `/app/features/battle/Battle.tsx` react element.
 
 ## Learning the Battle Replay/Sim system
 
-So you wanna learn the battle/sim engine, huh? Fair warning that at the time writing this README, my code is all over the dang place and I still have at least 2-3 re-factors planned so swim at your own risk.
+So you wanna learn the battle/sim, huh? Fair warning that at the time writing this README, my code is all over the dang place and I still have at least 1-2 major re-factors planned so swim at your own risk.
 
-However, if you REALLY want to work on the battle simulation/game engine stuff (and you're more than welcome to), the main loop is managed by `app/features/battle/engine.ts` right now and the best way to find anything in the nested classes is likely by tracing through that file unfortunately.
+However, if you REALLY want to work on the battle simulation stuff (and you're more than welcome to), the main loop is managed by `app/features/battle/scene.ts` right now and the best way to find anything in the nested classes is likely by tracing through that file unfortunately.
 
 If you have a specific thing you wanna work on, just shoot me a message and I can likely save you an hour or so of stumbling around.
 
 ### Replay dev Controls
 
-When the wizard battle is running, you can use the following keyboard controls to check in on development stuff.
+When the wizard battle is running, you can use the following keyboard controls to check in on development stuff. The only thing that actually does what you expectit to is pausing. Speeding up/advancing by one frame cause weird results with the physics engine BUT can be used to look at console.logs in real time.
 
 - **Click:** Clicking the canvas element (gray square before the battle starts) where the battle happens will pause/unpause the battle.
 - **Spacebar:** Pauses the battle.

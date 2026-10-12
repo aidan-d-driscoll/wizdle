@@ -1,12 +1,15 @@
 import Spell, { spellOptions } from "@/features/battle/spells/spell";
 import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
-import { Wizard } from "@/features/battle/entities/wizard";
 import Vector from "@/types/vector";
 import { setOptionalRandomNumber } from "@/utilities/mathUtils";
 import { Sprite } from "../rendering/sprite";
+import { Scene } from "../scene";
+import { CollisionBody } from "../collisions/collisionBody";
+import { Circle } from "../collisions/shapes/circle";
+import Combatant from "../entities/combatant";
 
-const MIN_TRAVEL_SPEED = 1;
-const MAX_TRAVEL_SPEED = 2.5;
+const MIN_TRAVEL_SPEED = 0.7;
+const MAX_TRAVEL_SPEED = 1.8;
 
 
 type boltSpellOptions = spellOptions & {
@@ -20,28 +23,30 @@ export class BoltSpell extends Spell{
     constructor(args: boltSpellOptions){
         super(args)
 
-        this.travelSpeed = setOptionalRandomNumber({value: args.travelSpeed, min: MIN_TRAVEL_SPEED, max: MAX_TRAVEL_SPEED})
+        this.travelSpeed = setOptionalRandomNumber({value: args.travelSpeed, min: MIN_TRAVEL_SPEED, max: MAX_TRAVEL_SPEED}) * this.spellQuality
     }
 
-    newCast(source: Wizard): Projectile | null {
-        if (!source.nearestEnemy) return null
-        return new Projectile({
-            engine: source.engine,
-            physics: false,
-            startingPosition: source.position,
-            sprite: new Sprite({
-                canvas: source.engine.canvas,
-                startingPosition: source.position,
-                image: this.sprite.image,
-                width: this.sprite.width,
-                height: this.sprite.height,
-            }),
-            startingVelocity: new Vector({startPos: source.position, endPos: source.nearestEnemy.position, magnitude: this.travelSpeed}),
-            source: source,
-            knockback: this.knockback,
-            travelSpeed: this.travelSpeed,
-            damage: this.damage
-        })
+    newCast(source: Combatant, scene: Scene): void {
+        if(source.nearestEnemy){
+            scene.add(new Projectile({
+                scene: scene,
+                physics: false,
+                position: source.position,
+                children: [new Sprite({
+                    image: this.sprite.image,
+                    width: this.sprite.width,
+                    height: this.sprite.height,
+                })],
+                velocity: new Vector({startPos: source.position, endPos: source.nearestEnemy.position, magnitude: this.travelSpeed}),
+                source: source,
+                knockback: this.knockback,
+                travelSpeed: this.travelSpeed,
+                damage: this.damage,
+                cb: new CollisionBody({
+                    shape: new Circle({ radius: 0.04 })
+                })
+            }))
+        }
     }
 
     toString(): string{

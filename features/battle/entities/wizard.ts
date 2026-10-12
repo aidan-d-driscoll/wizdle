@@ -1,24 +1,13 @@
-import Combatant, { entityOptions } from "@/features/battle/entities/combatant";
-import { getDistance, setOptionalRandomNumber } from "@/utilities/mathUtils";
+import Combatant, { CombatantOptions } from "./combatant";
+import { setOptionalRandomNumber } from "@/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
-import Position from "@/types/position";
-import Vector from "@/types/vector";
-import { Collidable } from "../collisions/collidable";
-import { CollisionBody } from "../collisions/collisionBody";
-import { Circle } from "@/types/shapes/circle";
+import { UpdateOptions } from "../scene";
 import { BoltSpell } from "../spells/boltSpell";
 import { Sprite } from "../rendering/sprite";
-import { Platform } from "../collisions/ground";
 
 const CIRCLING_SPEED = 1.2
 
-const MIN_MAX_HP = 200
-const MAX_MAX_HP = 250
-
-const MIN_SPEED = 0.20
-const MAX_SPEED = 0.40
-
-type wizardOptions = entityOptions & {
+type WizardOptions = CombatantOptions & {
     spells: Spell[],
     name: string
 }
@@ -27,18 +16,16 @@ export class Wizard extends Combatant{
     castTimers: number[] = [];
     spells: Spell[] = [];
 
-    private _circling = false;
-
     name: string;
 
     radius = 0.1;
 
-    constructor(args: wizardOptions) {
+    constructor(args: WizardOptions) {
         super(args)
 
         this.name = args.name;
 
-        const spellArtNum = setOptionalRandomNumber({min: 0, max: 600})
+        const spellArtNum = setOptionalRandomNumber({min: 0, max: 3.03})
         let spellArt = new Image();
         spellArt.src = "/assets/red-ray.png";
 
@@ -56,21 +43,18 @@ export class Wizard extends Combatant{
             spellArt.src = "/assets/grape-shot.png";
         }
 
-        // this.spells = [new BoltSpell({
-        //     owner: this,
-        //     knockback: (spellArtNum > 3) ? 50 : undefined,
-        //     travelSpeed: (spellArtNum > 3) ? 2 : undefined,
-        //     sprite: new Sprite({
-        //         canvas: this.engine.canvas,
-        //         startingPosition: this.position,
-        //         image: spellArt,
-        //         width: 96,
-        //         height: 96
-        //     })
-        // })]
+        this.spells = [new BoltSpell({
+            caster: this,
+            knockback: (spellArtNum > 3) ? 50 : undefined,
+            travelSpeed: (spellArtNum > 3) ? 2 : undefined,
+            sprite: new Sprite({
+                image: spellArt,
+                width: 0.2,
+                height: 0.2
+            })
+        })]
 
         
-        this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
         for (let i=0; i<this.spells.length; i++){
             this.castTimers.push(0)
         }
@@ -81,39 +65,14 @@ export class Wizard extends Combatant{
 
     }
 
-    move(): void{
-        this.moveTarget = this.prefferedPosition;
-        this._circling = false;
+    update(args: UpdateOptions){
+        super.update(args)
 
-        if (this.nearestEnemy && (Math.abs(getDistance({from: this.nearestEnemy.position, to:this.prefferedPosition})) < Math.abs(getDistance({from: this.position, to:this.prefferedPosition})))) {
-            this.moveTarget = this.nearestEnemy.position;
-            this._circling = true;
-        }
-        
-        if (Math.abs(getDistance({from: this.position, to: this.moveTarget})) > 0.1){
-            this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._speed})
-
-            if (this._circling){
-                this.velocity = new Vector({
-                    dx: this.velocity.dx + this.velocity.dy * -1 * CIRCLING_SPEED,
-                    dy: this.velocity.dy + this.velocity.dx * CIRCLING_SPEED,
-                    magnitude: this._speed
-                })
-            }
-        }
-    }
-
-    update(dt: number){
-        super.update(dt)
-        if (!this.dead && this._currentHitPoints <= 0) { 
-            this.engine.markForDestruction(this)
-        }
-        if (!this.nearestEnemy?.dead) {
+        if (!this.dead){
             for(let i = 0; i < this.castTimers.length; i++){
-                this.castTimers[i] += dt
+                this.castTimers[i] += args.dt
                 if (this.castTimers[i] >= this.spells[i].castTime){
-                    const newCast = this.spells[i].newCast(this)
-                    if(newCast) this.engine.addEntity(newCast)
+                    this.spells[i].newCast(this, args.scene)
                     this.castTimers[i] -= this.spells[i].castTime
                 }
             }
@@ -121,15 +80,9 @@ export class Wizard extends Combatant{
     }
 
     toString(){
-        let out = this.name + "\n > Max HP = " + this._maxHitPoints + "\n > speed: " + this._speed + "\n > spells:"
+        let out = this.name + "\n > Max HP = " + this.currentHP + "\n > speed: " + this.moveSpeed + "\n > spells:"
         for(const spell of this.spells)
             out += "\n   > " +spell.toString()
         return out
-    }
-    
-    onCollisionExit(other: Collidable){
-        if (other instanceof Platform){
-            this.engine.markForDestruction(this)
-        }
     }
 }

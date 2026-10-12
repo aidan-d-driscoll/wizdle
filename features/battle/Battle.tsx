@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Engine } from "./engine";
+import { Scene } from "./scene";
 
 export function Battle() {
   const battleRef = useRef<HTMLCanvasElement>(null);
@@ -10,11 +10,11 @@ export function Battle() {
     const battle = battleRef.current;
     if (!battle) return;
 
-    const engine = new Engine(battle);
-    engine.start();
+    const scene = new Scene(battle);
+    scene.start();
 
     return () => {
-      engine.stop();
+      scene.stop();
     };
   }, []);
 

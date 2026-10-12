@@ -1,21 +1,21 @@
 import { setOptionalRandomNumber } from "@/utilities/mathUtils";
 import Combatant from "@/features/battle/entities/combatant";
-import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
 import { Sprite } from "../rendering/sprite";
+import { Scene } from "../scene";
 
-const CAST_TIME_INFLUENCE = 0.6
+const CAST_TIME_INFLUENCE = 0.5
 
-const MIN_KNOCKBACK = 0.5;
-const MAX_KNOCKBACK = MIN_KNOCKBACK*3;
+const MIN_KNOCKBACK = 0.4;
+const MAX_KNOCKBACK = 1.2;
 
-const MIN_CAST_TIME = 0.05;
-const MAX_CAST_TIME = MIN_CAST_TIME*40;
+const MIN_CAST_TIME = 0.5;
+const MAX_CAST_TIME = 2;
 
-const MIN_DAMAGE = 10;
+const MIN_DAMAGE = 5;
 const MAX_DAMAGE = MIN_DAMAGE*5;
 
 export type spellOptions = {
-    owner: Combatant;
+    caster: Combatant;
     sprite: Sprite,
     knockback?: number,
     castTime?: number,
@@ -23,7 +23,7 @@ export type spellOptions = {
 }
 
 export default abstract class Spell{
-    owner: Combatant;
+    caster: Combatant;
 
     sprite: Sprite;
     knockback: number;
@@ -34,7 +34,7 @@ export default abstract class Spell{
     dead = false;
 
     constructor(args:spellOptions){
-        this.owner = args.owner
+        this.caster = args.caster;
 
         this.sprite = args.sprite;
 
@@ -43,10 +43,10 @@ export default abstract class Spell{
         // scales other values based on cast time. Higher cast time = more powerful
         this.spellQuality = Math.pow((this.castTime / MIN_CAST_TIME), CAST_TIME_INFLUENCE);
 
-        this.knockback = setOptionalRandomNumber({value: args.knockback, min: MIN_KNOCKBACK, max: MAX_KNOCKBACK})
+        this.knockback = setOptionalRandomNumber({value: args.knockback, min: MIN_KNOCKBACK, max: MAX_KNOCKBACK}) * this.spellQuality
 
-        this.damage = setOptionalRandomNumber({value: args.damage, min: MIN_DAMAGE, max: MAX_DAMAGE})
+        this.damage = setOptionalRandomNumber({value: args.damage, min: MIN_DAMAGE, max: MAX_DAMAGE}) * this.spellQuality
     }
 
-    abstract newCast(source: Combatant): Projectile | null;
+    abstract newCast(source: Combatant, scene: Scene): void;
 }
