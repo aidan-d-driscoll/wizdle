@@ -45,8 +45,8 @@ export class CollisionBody {
     }
 
     render(scene:Scene) {
-        this.fat.render(scene, "#03cdff2a")
-        this.tight.render(scene, "#4603ff4f")
+        this.fat.render(scene, "#ff03031f")
+        this.tight.render(scene, "#ff200327")
     }
 
     newFatbox(): Rectangle{

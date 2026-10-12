@@ -32,8 +32,11 @@ export class TargetManager{
         this.combatants.delete(cmb)
 
         for(const other of this.combatants){
-            const idx = other.allies.indexOf(cmb);
+            let idx = other.allies.indexOf(cmb);
             if(idx !== -1) other.allies.splice(idx, 1);
+
+            idx = other.enemies.indexOf(cmb);
+            if(idx !== -1) other.enemies.splice(idx, 1);
         }
     }
 

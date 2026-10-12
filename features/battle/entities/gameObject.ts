@@ -19,8 +19,6 @@ export type ObjectOptions = EntityOptions & {
     children?: Entity[];
 }
 
-const FRICTION = 0.0005
-
 export class GameObject extends Entity{
     static = false;
 

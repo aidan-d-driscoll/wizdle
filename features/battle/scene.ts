@@ -9,11 +9,9 @@ import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
 import { GroundManager, GroundTexture } from "./physics/ground";
 
-const MIN_WATER_WIDTH = 40
-
 const DEV_TOOLS_ENABLED = true;
 
-const VISIBLE_COLLISION_BOXES = true;
+const VISIBLE_COLLISION_BOXES = false;
 const INITIAL_BATTLE_SPEED = 1;
 
 export type UpdateOptions = {
@@ -45,6 +43,9 @@ export class Scene{
 
         this.ctx.imageSmoothingEnabled = false;
 
+        const arenaArt = new Image();
+        arenaArt.src = "/assets/arena.jpg";
+
         const grapeWizardArt = new Image();
         grapeWizardArt.src = "/assets/grape-omancer.png";
 
@@ -72,6 +73,13 @@ export class Scene{
         const tombstone = new Image();
         tombstone.src = "/assets/tombstone.png";
 
+        this.add(new Sprite({
+            position: {x: 0, y: 0},
+            image: arenaArt,
+            width: 3.1,
+            height: 3.1
+        }))
+
         this.gm.add(
             new GroundTexture({
                 scene: this,
@@ -79,7 +87,7 @@ export class Scene{
                 friction: 0.0005,
                 cb: new CollisionBody({
                     shape: new Circle({
-                        radius: 0.88
+                        radius: 0.84
                     })
                 })
             })
@@ -236,14 +244,8 @@ export class Scene{
     private render() {
         this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-        this.ctx.fillStyle = "#049c9c"
+        this.ctx.fillStyle = "#0731b9"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-
-        // --- DRAW A FILLED CIRCLE ---
-        this.ctx.beginPath();          // Reset path for the next shape
-        this.ctx.arc(0.5*this.canvas.width, 0.5*this.canvas.width, (0.5*this.canvas.width-MIN_WATER_WIDTH), 0, 2 * Math.PI);
-        this.ctx.fillStyle = "#66645e";    // Set fill color
-        this.ctx.fill();               // Render the filled shape
 
         for(const e of this.entities){
             e.render(this)
