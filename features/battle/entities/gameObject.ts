@@ -2,6 +2,7 @@ import { Entity, EntityOptions } from "../entities/entity";
 import Vector from "@/types/vector";
 import { Scene, UpdateOptions } from "../scene";
 import { CollisionBody } from "../collisions/collisionBody";
+import { GroundTexture } from "../physics/ground";
 
 export type ObjectOptions = EntityOptions & {
     scene: Scene,
@@ -37,10 +38,10 @@ export class GameObject extends Entity{
     get vy(): number { return this._velocity.dy };
 
     physics = false;
+    flying = false;
+    ground: GroundTexture | null = null;
+
     totalForces = new Vector({dx: 0.0, dy: 0})
-    get frictionForce(): Vector {
-        return new Vector({dx: -1 * this.vx, dy: -1 * this.vy, magnitude: FRICTION})
-    }
 
     constructor(args:ObjectOptions){
         super(args)
@@ -54,6 +55,8 @@ export class GameObject extends Entity{
             if(args.physics) this.physics = args.physics;
             args.scene.cm.add(this.cb)
         } else this.physics = false
+
+        this.ground = args.scene.gm.highestGroundAt(this.position)
     }
 
     update(args: UpdateOptions){
@@ -61,11 +64,22 @@ export class GameObject extends Entity{
 
         if (!this.dead){
             if (this.physics) {
-                if(this.totalForces.magnitude > FRICTION) {
-                    this.velocity = this.velocity.add(this.totalForces)
-                    this.totalForces.magnitude -= FRICTION
+                if(!this.ground) {
+                    console.log("BING")
+                    this.ground = args.scene.gm.highestGroundAt(this.position);
                 }
-                else this.totalForces = new Vector({dx: 0, dy: 0})
+
+                if(!this.flying){
+                    if(this.ground){
+                        if(this.totalForces.magnitude > this.ground.friction) {
+                            this.velocity = this.velocity.add(this.totalForces);
+                            this.totalForces.magnitude -= this.ground.friction;
+                        }
+                        else this.totalForces = new Vector({dx: 0, dy: 0});
+                    } else {
+                        this.destroy()
+                    }
+                }
             }
             
             this.position = {
@@ -90,6 +104,10 @@ export class GameObject extends Entity{
 
     applyForce(newForce: Vector){
         this.totalForces = this.totalForces.add(newForce)
+    }
+
+    findNewGround(){
+        this.ground = null;
     }
 
     onCollisionEnter?(other: GameObject): void;

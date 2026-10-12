@@ -33,6 +33,8 @@ export abstract class Shape extends Entity{
 
     abstract overlaps(target: Shape): boolean;
 
+    abstract contains(target: Position): boolean;
+
     breaches(outer: Shape): boolean {
         return (this.xMin < outer.xMin) ||
                 (this.xMax > outer.xMax) ||

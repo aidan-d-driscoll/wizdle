@@ -1,6 +1,7 @@
 import { Scene } from "@/features/battle/scene";
 import { Shape, ShapeOptions } from "./shape";
 import { toScreenPosition, toScreenValue } from "@/utilities/renderingUtils";
+import { Position } from "@/types/position";
 
 
 export type RectangleOptions = ShapeOptions & {
@@ -27,6 +28,13 @@ export class Rectangle extends Shape{
         this.xMax = this.x + 0.5 * this._width
         this.yMin = this.y - 0.5 * this._height
         this.yMax = this.y + 0.5 * this._height
+    }
+
+    contains(target: Position){
+        return (this.xMin <= target.x) && 
+           (this.xMax >= target.x) && 
+           (this.yMin <= target.y) && 
+           (this.yMax >= target.y);
     }
 
     overlaps(target: Shape): boolean {

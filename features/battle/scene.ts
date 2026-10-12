@@ -1,23 +1,24 @@
 import Combatant from "@/features/battle/entities/combatant";
 import CollisionManager from "./collisions/collisionManager";
 import { Sprite } from "./rendering/sprite";
-import Vector from "@/types/vector";
 import { CollisionBody } from "./collisions/collisionBody";
 import { Circle } from "./collisions/shapes/circle";
 import { Entity } from "./entities/entity";
 import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
+import { GroundManager, GroundTexture } from "./physics/ground";
 
 const MIN_WATER_WIDTH = 40
 
 const DEV_TOOLS_ENABLED = true;
 
-const VISIBLE_COLLISION_BOXES = false;
+const VISIBLE_COLLISION_BOXES = true;
 const INITIAL_BATTLE_SPEED = 1;
 
 export type UpdateOptions = {
     dt: number,
+
     scene: Scene
 }
 
@@ -27,6 +28,7 @@ export class Scene{
 
     readonly cm: CollisionManager = new CollisionManager();
     readonly tm = new TargetManager();
+    readonly gm = new GroundManager();
 
     private entities = new Set<Entity>
     private destructionQueue: Entity[] = []
@@ -69,6 +71,19 @@ export class Scene{
 
         const tombstone = new Image();
         tombstone.src = "/assets/tombstone.png";
+
+        this.gm.add(
+            new GroundTexture({
+                scene: this,
+                position: {x:0, y:0},
+                friction: 0.0005,
+                cb: new CollisionBody({
+                    shape: new Circle({
+                        radius: 0.88
+                    })
+                })
+            })
+        )
 
         this.add(new Wizard({
             scene: this,
@@ -169,7 +184,7 @@ export class Scene{
         this.prevTimestamp = null
     }
 
-    // runs every frame of the animation
+    
     private frame = (timestamp:number) => {
         
         if (!this.running) return
@@ -199,7 +214,14 @@ export class Scene{
         this.animationFrameId = requestAnimationFrame(this.frame)
     }
 
+    /**
+     * Performs sim logic that happens between updates
+     * 
+     * @param dt - Time passed since last update
+     * @param scene - {@link Scene} instance that is being updated
+     */
     private update(args: UpdateOptions) {
+        console.log(this.gm.groundTextures)
         for(const e of this.entities){
             // every entity has an update function meant to manage frame-by-frame logic
             e.update(args)

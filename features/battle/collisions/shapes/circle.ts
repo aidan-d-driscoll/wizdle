@@ -2,6 +2,8 @@ import { Shape, ShapeOptions } from "./shape";
 import { Rectangle } from "./rectangle";
 import { Scene } from "@/features/battle/scene";
 import { toScreenPosition, toScreenValue } from "@/utilities/renderingUtils";
+import { Position } from "@/types/position";
+import { getDistance } from "@/utilities/mathUtils";
 
 export type circleOptions = ShapeOptions & {
     radius: number
@@ -42,6 +44,10 @@ export class Circle extends Shape{
 
         this._width = 2*this._radius;
         this._height = 2*this._radius;
+    }
+
+    contains(target: Position): boolean{
+        return (getDistance({to: target, from: this.position}) <= this.radius)
     }
 
     overlaps(target: Shape): boolean {
