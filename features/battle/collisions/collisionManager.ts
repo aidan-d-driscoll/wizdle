@@ -2,8 +2,6 @@ import { CollisionBody } from "./collisionBody";
 import Vector from "@/types/vector";
 import { Circle } from "./shapes/circle";
 import { UpdateOptions } from "../scene";
-import { TargetManager } from "../targeting/targetManager";
-import Combatant from "../entities/combatant";
 
 interface Endpoint {
     readonly cb: CollisionBody

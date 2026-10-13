@@ -103,11 +103,11 @@ export class Scene{
             })
         )
 
-        const iceWidth = setOptionalRandomNumber({min: 0.3, max: 0.5})
+        const iceWidth = setOptionalRandomNumber({min: 0.25, max: 0.55})
         const icePond = new GroundTexture({
             scene: this,
-            position: {x:setOptionalRandomNumber({min:-0.05, max: 0.05}), y:setOptionalRandomNumber({min:-0.05, max: 0.05})},
-            friction: 0.0000001,
+            position: {x:setOptionalRandomNumber({min:-0.1, max: 0.1}), y:setOptionalRandomNumber({min:-0.1, max: 0.1})},
+            friction: 0.2,
             cb: new CollisionBody({
                 shape: new Circle({
                     radius: iceWidth
