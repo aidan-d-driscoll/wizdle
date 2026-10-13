@@ -35,6 +35,7 @@ export class CollisionBody {
         if (this.tight.breaches(this.fat)) {
             this.dirty = true;
             args.scene.cm.markDirty(this);
+            args.scene.gm.markDirty(this.owner);
             if(this.owner instanceof Combatant) args.scene.tm.markDirty(this.owner)
             this.fat.position = {x: this.tight.x, y: this.tight.y}
         }

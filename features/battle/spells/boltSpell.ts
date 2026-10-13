@@ -8,8 +8,8 @@ import { CollisionBody } from "../collisions/collisionBody";
 import { Circle } from "../collisions/shapes/circle";
 import Combatant from "../entities/combatant";
 
-const MIN_TRAVEL_SPEED = 0.7;
-const MAX_TRAVEL_SPEED = 1.8;
+const MIN_TRAVEL_SPEED = 1;
+const MAX_TRAVEL_SPEED = 2;
 
 
 type boltSpellOptions = spellOptions & {

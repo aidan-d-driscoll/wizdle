@@ -8,6 +8,7 @@ import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
 import { GroundManager, GroundTexture } from "./physics/ground";
+import { setOptionalRandomNumber } from "@/utilities/mathUtils";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -52,6 +53,12 @@ export class Scene{
         const goldWizardArt = new Image();
         goldWizardArt.src = "/assets/gilded-wizard.png";
 
+        const redWizardArt = new Image();
+        redWizardArt.src = "/assets/red-sorcerer.png"
+
+        const blueWizardArt = new Image();
+        blueWizardArt.src = "/assets/rain-mage.png"
+
         const grapeShotArt = new Image();
         grapeShotArt.src = "/assets/grape-shot.png";
 
@@ -73,6 +80,9 @@ export class Scene{
         const tombstone = new Image();
         tombstone.src = "/assets/tombstone.png";
 
+        const iceCircle = new Image();
+        iceCircle.src = "/assets/ice_circle.png";
+
         this.add(new Sprite({
             position: {x: 0, y: 0},
             image: arenaArt,
@@ -84,34 +94,82 @@ export class Scene{
             new GroundTexture({
                 scene: this,
                 position: {x:0, y:0},
-                friction: 0.0005,
+                friction: 1.5,
                 cb: new CollisionBody({
                     shape: new Circle({
-                        radius: 0.84
+                        radius: 0.9
                     })
                 })
             })
         )
+
+        const iceWidth = setOptionalRandomNumber({min: 0.3, max: 0.5})
+        const icePond = new GroundTexture({
+            scene: this,
+            position: {x:setOptionalRandomNumber({min:-0.05, max: 0.05}), y:setOptionalRandomNumber({min:-0.05, max: 0.05})},
+            friction: 0.0000001,
+            cb: new CollisionBody({
+                shape: new Circle({
+                    radius: iceWidth
+                })
+            }),
+            children: [
+                new Sprite({
+                    image: iceCircle,
+                    width: iceWidth*2.1,
+                    height: iceWidth*2.1
+                })
+            ]
+        })
+
+        this.add(icePond)
+
+        this.gm.add(icePond)
+
+        // const icePond2 = new GroundTexture({
+        //     scene: this,
+        //     position: {x:-0.4, y:-0.4},
+        //     friction: 0.0001,
+        //     cb: new CollisionBody({
+        //         shape: new Circle({
+        //             radius: iceWidth
+        //         })
+        //     }),
+        //     children: [
+        //         new Sprite({
+        //             image: iceCircle,
+        //             width: iceWidth*2.1,
+        //             height: iceWidth*2.1
+        //         })
+        //     ]
+        // })
+
+        
+
+        // this.add(icePond2)
+
+        // this.gm.add(icePond2)
 
         this.add(new Wizard({
             scene: this,
             position: {x: 0.5, y: 0.5},
             team: 1,
             maxHP: 100,
-            moveSpeed: 0.3,
+            moveSpeed: 1,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
                 shape: new Circle({radius: 0.1})
             }),
             children: [
                 new Sprite({
-                    image: goldWizardArt,
+                    image: blueWizardArt,
                     width: 0.2,
-                    height: 0.2
+                    height: 0.2,
+                    offset: {x: 0, y: 0.05}
                 })
             ],
             spells: [],
-            name: "General Goldie"
+            name: "Radical Randy"
         }))
 
         this.add(new Wizard({
@@ -119,20 +177,21 @@ export class Scene{
             position: {x: -0.5, y: -0.5},
             team: 2,
             maxHP: 100,
-            moveSpeed: 0.3,
+            moveSpeed: 1,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
                 shape: new Circle({radius: 0.1})
             }),
             children: [
                 new Sprite({
-                    image: grapeWizardArt,
+                    image: redWizardArt,
                     width: 0.2,
-                    height: 0.2
+                    height: 0.2,
+                    offset: {x: 0, y: 0.05}
                 })
             ],
             spells: [],
-            name: "Grandpa Grape"
+            name: "Mr. Blue"
         }))
 
         if (DEV_TOOLS_ENABLED){
@@ -229,7 +288,6 @@ export class Scene{
      * @param scene - {@link Scene} instance that is being updated
      */
     private update(args: UpdateOptions) {
-        console.log(this.gm.groundTextures)
         for(const e of this.entities){
             // every entity has an update function meant to manage frame-by-frame logic
             e.update(args)
@@ -237,6 +295,7 @@ export class Scene{
 
         this.cm.update(args)
         this.tm.update(args)
+        this.gm.update(args)
 
         this.processDestruction()
     }

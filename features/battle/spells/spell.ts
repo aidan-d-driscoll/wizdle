@@ -5,14 +5,14 @@ import { Scene } from "../scene";
 
 const CAST_TIME_INFLUENCE = 0.5
 
-const MIN_KNOCKBACK = 0.4;
-const MAX_KNOCKBACK = 1.2;
+const MIN_CAST_TIME = 0.8;
+const MAX_CAST_TIME = 3;
 
-const MIN_CAST_TIME = 0.5;
-const MAX_CAST_TIME = 2;
+const MIN_KNOCKBACK = 0.5 * MIN_CAST_TIME;
+const MAX_KNOCKBACK = 1 * MIN_CAST_TIME;
 
-const MIN_DAMAGE = 5;
-const MAX_DAMAGE = MIN_DAMAGE*5;
+const MIN_DAMAGE = 4 * MIN_CAST_TIME;
+const MAX_DAMAGE = MIN_DAMAGE * 5 * MIN_CAST_TIME;
 
 export type spellOptions = {
     caster: Combatant;

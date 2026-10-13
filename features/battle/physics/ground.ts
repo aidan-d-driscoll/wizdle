@@ -1,6 +1,7 @@
 import { Position } from "@/types/position";
 import { GameObject, ObjectOptions } from "../entities/gameObject";
 import { CollisionBody } from "../collisions/collisionBody";
+import { UpdateOptions } from "../scene";
 
 export type GroundTextureOptions = ObjectOptions & {
     friction: number;
@@ -18,22 +19,11 @@ export class GroundTexture extends GameObject{
 
         this.friction = args.friction;
     }
-
-    onCollisionEnter(other: GameObject): void {
-        if (other.physics) {
-            other.findNewGround()
-        }
-    }
-
-    onCollisionExit(other: GameObject): void {
-        if (other.physics) {
-            other.findNewGround()
-        }
-    }
 }
 
 export class GroundManager{
     groundTextures: GroundTexture[] = [];
+    dirtyQueue: GameObject[] = [];
 
     add(gt: GroundTexture){
         this.groundTextures.push(gt)
@@ -44,10 +34,24 @@ export class GroundManager{
         if(idx > -1){ this.groundTextures.splice(idx, 1) }
     }
 
-    highestGroundAt(position: Position): GroundTexture | null {
-        for(let i = this.groundTextures.length-1; i >= 0; i--){
-            if (this.groundTextures[i].cb?.tight.contains(position)) return this.groundTextures[i]
+    update(args: UpdateOptions){
+        for (const obj of this.dirtyQueue){
+            obj.ground = this.highestGroundAt(obj.position)
         }
-        return null;
+
+        this.dirtyQueue.length = 0
+    }
+
+    highestGroundAt(position: Position): GroundTexture | null{
+        for(let i = this.groundTextures.length-1; i >= 0; i--){
+            if (this.groundTextures[i].cb?.tight.contains(position)) {
+                return this.groundTextures[i];
+            }  
+        }
+        return null
+    }
+
+    markDirty(obj: GameObject){
+        this.dirtyQueue.push(obj)
     }
 }

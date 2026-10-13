@@ -35,11 +35,17 @@ export class GameObject extends Entity{
     get vx(): number { return this._velocity.dx };
     get vy(): number { return this._velocity.dy };
 
+    maxVelocity: number | null = null;
+
+    movementForce = new Vector({dx: 0, dy: 0})
+    movementVelocity = new Vector({dx: 0, dy: 0})
+
+    knockbackForce = new Vector({dx: 0, dy: 0})
+    knockbackVelocity = new Vector({dx: 0, dy: 0})
+
     physics = false;
     flying = false;
     ground: GroundTexture | null = null;
-
-    totalForces = new Vector({dx: 0.0, dy: 0})
 
     constructor(args:ObjectOptions){
         super(args)
@@ -54,7 +60,11 @@ export class GameObject extends Entity{
             args.scene.cm.add(this.cb)
         } else this.physics = false
 
+        
+        console.log(args.scene.gm.groundTextures)
         this.ground = args.scene.gm.highestGroundAt(this.position)
+        console.log(this.ground)
+        
     }
 
     update(args: UpdateOptions){
@@ -62,23 +72,48 @@ export class GameObject extends Entity{
 
         if (!this.dead){
             if (this.physics) {
-                if(!this.ground) {
-                    console.log("BING")
-                    this.ground = args.scene.gm.highestGroundAt(this.position);
-                }
-
                 if(!this.flying){
                     if(this.ground){
-                        if(this.totalForces.magnitude > this.ground.friction) {
-                            this.velocity = this.velocity.add(this.totalForces);
-                            this.totalForces.magnitude -= this.ground.friction;
+
+                        this.movementVelocity = new Vector({
+                            dx: this.movementVelocity.dx + this.movementForce.dx * args.dt * this.ground.friction,
+                            dy: this.movementVelocity.dy + this.movementForce.dy * args.dt * this.ground.friction,
+                        })
+
+                        const frictionFactor = Math.max(0, 1 - (this.ground.friction * args.dt));
+                        const highFrictionMod = 0.999
+
+                        this.knockbackVelocity = new Vector({
+                            dx: this.knockbackVelocity.dx * frictionFactor,
+                            dy: this.knockbackVelocity.dy * frictionFactor
+                        })
+
+                        let dxFrictionFactor = frictionFactor;
+                        if ((this.movementForce.dx > 0) !== (this.movementVelocity.dx > 0)) {
+                            dxFrictionFactor *= highFrictionMod;
                         }
-                        else this.totalForces = new Vector({dx: 0, dy: 0});
+
+                        let dyFrictionFactor = frictionFactor;
+                        if ((this.movementForce.dy > 0) !== (this.movementVelocity.dy > 0)) {
+                            dyFrictionFactor *= highFrictionMod;
+                        }
+
+                        this.movementVelocity = new Vector({
+                            dx: this.movementVelocity.dx * dxFrictionFactor,
+                            dy: this.movementVelocity.dy * dyFrictionFactor
+                        })
+                        
+                        if(this.maxVelocity && this.movementVelocity.magnitude > this.maxVelocity) this.movementVelocity.magnitude = this.maxVelocity
+
+                        this.velocity = this.movementVelocity.add(this.knockbackVelocity)
                     } else {
                         this.destroy()
                     }
                 }
             }
+
+            
+            
             
             this.position = {
                 x: this.position.x + this.velocity.dx * args.dt,
@@ -100,12 +135,12 @@ export class GameObject extends Entity{
         }
     }
 
-    applyForce(newForce: Vector){
-        this.totalForces = this.totalForces.add(newForce)
-    }
-
-    findNewGround(){
-        this.ground = null;
+    applyKnockback(newForce: Vector){
+        this.movementForce = new Vector({dx: 0, dy: 0});
+        this.knockbackVelocity = new Vector({
+            dx: this.knockbackVelocity.dx + newForce.dx,
+            dy: this.knockbackVelocity.dy + newForce.dy,
+        })
     }
 
     onCollisionEnter?(other: GameObject): void;

@@ -27,7 +27,7 @@ export class Projectile extends GameObject{
 
     onCollisionEnter(other: GameObject){
         if (other instanceof Combatant && other !== this.source){
-            other.applyForce(this.knockback)
+            other.applyKnockback(this.knockback)
             other.takeDamage(this.damage)
             this.destroy()
         }

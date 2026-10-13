@@ -19,8 +19,6 @@ interface Handle {
 
 function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody) {
     if (bodyA.tight instanceof Circle && bodyB.tight instanceof Circle) {
-        console.log("PHYSICS")
-
         const push = new Vector({ startPos: bodyA.tight.position, endPos: bodyB.tight.position })
         const overlap = bodyA.tight.radius + bodyB.tight.radius - push.magnitude;
 

@@ -5,7 +5,7 @@ import { getRawDistance, setOptionalRandomNumber,  } from "@/utilities/mathUtils
 import Vector from "@/types/vector";
 import { CollisionBody } from "../collisions/collisionBody";
 
-const CIRCLING_SPEED = 1.2
+const CIRCLING_SPEED = 0.45
 
 export type CombatantOptions = ObjectOptions & {
     cb: CollisionBody;
@@ -59,7 +59,8 @@ export default class Combatant extends GameObject{
         this._maxHP = args.maxHP;
         this._currentHP = args.maxHP;
 
-        this._moveSpeed = setOptionalRandomNumber({value: args.moveSpeed, min: 0.15, max: 0.25 })
+        this._moveSpeed = setOptionalRandomNumber({value: args.moveSpeed, min: 0.9, max: 1.35 })
+        this.maxVelocity = this.moveSpeed;
     }
 
     update(args: UpdateOptions){
@@ -74,18 +75,19 @@ export default class Combatant extends GameObject{
                 circling = true;
             }
             
-            if (this.distanceTo(this.moveTarget) > 0.08){
-                this.velocity = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._moveSpeed})
+            if (this.distanceTo(this.moveTarget) > 0.06){
+                this.movementForce = new Vector({startPos: this.position, endPos: this.prefferedPosition, magnitude: this._moveSpeed})
 
                 if (circling){
-                    this.velocity = new Vector({
-                        dx: this.velocity.dx + this.velocity.dy * -1 * CIRCLING_SPEED,
-                        dy: this.velocity.dy + this.velocity.dx * CIRCLING_SPEED,
+                    this.movementForce = new Vector({
+                        dx: this.movementForce.dx * (1-CIRCLING_SPEED) + this.movementForce.dy * -1 * CIRCLING_SPEED,
+                        dy: this.movementForce.dy * (1-CIRCLING_SPEED) + this.movementForce.dx * CIRCLING_SPEED,
                         magnitude: this._moveSpeed
                     })
                 }
             }
         }
+
         super.update(args)
     }
 
