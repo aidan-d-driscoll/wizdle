@@ -1,15 +1,14 @@
-import { insertionSorted } from "@/utilities/sortUtils";
+import { insertionSorted } from "@/features/battle/utilities/sortUtils";
 import Combatant from "../entities/combatant";
 import { UpdateOptions } from "../scene";
 
 export class TargetManager{
     combatants = new Set<Combatant>
 
-    dirtyQueue: Combatant[] = []
-
     update(args: UpdateOptions){
-        for (const cmb of this.dirtyQueue){ this.repositionCombatant(cmb) }
-        this.dirtyQueue.length = 0
+        for (const cmb of args.scene.dirtyQueue){
+            if(cmb instanceof Combatant && this.combatants.has(cmb)) this.repositionCombatant(cmb)
+        }
     }
 
     add(cmb: Combatant){
@@ -49,10 +48,6 @@ export class TargetManager{
 
         this.reposition(cmb, cmb.allies, o => o.allies);
         this.reposition(cmb, cmb.enemies, o => o.enemies);
-    }
-
-    markDirty(cmb: Combatant) {
-        this.dirtyQueue.push(cmb)
     }
 
     private reposition(cmb: Combatant, peers: Combatant[], listOf: (o:Combatant) => Combatant[]){

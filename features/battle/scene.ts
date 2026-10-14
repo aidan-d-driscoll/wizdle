@@ -8,7 +8,7 @@ import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
 import { GroundManager, GroundTexture } from "./physics/ground";
-import { setOptionalRandomNumber } from "@/utilities/mathUtils";
+import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -24,6 +24,8 @@ export type UpdateOptions = {
 export class Scene{
     private running: boolean = false;
     readonly ctx!: CanvasRenderingContext2D;
+
+    readonly dirtyQueue: GameObject[] = [];
 
     readonly cm: CollisionManager = new CollisionManager();
     readonly tm = new TargetManager();
@@ -296,6 +298,7 @@ export class Scene{
         this.cm.update(args)
         this.tm.update(args)
         this.gm.update(args)
+        this.dirtyQueue.length = 0;
 
         this.processDestruction()
     }
@@ -324,6 +327,10 @@ export class Scene{
 
     markForDestruction(e: Entity){
         this.destructionQueue.push(e)
+    }
+
+    markDirty(obj: GameObject){
+        this.dirtyQueue.push(obj)
     }
 
     private processDestruction(){

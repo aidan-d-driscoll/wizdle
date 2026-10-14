@@ -1,4 +1,4 @@
-import { setOptionalRandomNumber } from "@/utilities/mathUtils";
+import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import Combatant from "@/features/battle/entities/combatant";
 import { Sprite } from "../rendering/sprite";
 import { Scene } from "../scene";

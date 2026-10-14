@@ -1,4 +1,4 @@
-import Position from "@/types/position";
+import Position from "@/features/battle/types/position";
 
 export function toScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return {

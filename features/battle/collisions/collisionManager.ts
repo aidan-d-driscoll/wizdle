@@ -1,5 +1,5 @@
 import { CollisionBody } from "./collisionBody";
-import Vector from "@/types/vector";
+import Vector from "@/features/battle/types/vector";
 import { Circle } from "./shapes/circle";
 import { UpdateOptions } from "../scene";
 
@@ -42,14 +42,12 @@ export default class CollisionManager {
 
     // tm = new TargetManager();
 
-    dirtyQueue: CollisionBody[] = []
-
     update(args:UpdateOptions): void {
 
-        for (const cb of this.dirtyQueue) {
-            this.repositionCollisionBody(cb);
+        for (const obj of args.scene.dirtyQueue) {
+            if (obj.cb && this.handles.has(obj.cb))
+            this.repositionCollisionBody(obj.cb);
         }
-        this.dirtyQueue.length = 0
 
         let key: number;
         let tightBoxCollision: boolean;
@@ -251,10 +249,6 @@ export default class CollisionManager {
         for (let i = 0; i < this.endpoints.length; i++) {
             this.endpoints[i].slot = i
         }
-    }
-
-    markDirty(cb: CollisionBody) {
-        this.dirtyQueue.push(cb)
     }
 
     private logHandles() {

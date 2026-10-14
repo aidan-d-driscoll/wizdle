@@ -1,5 +1,5 @@
 import Combatant, { CombatantOptions } from "./combatant";
-import { setOptionalRandomNumber } from "@/utilities/mathUtils";
+import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
 import { UpdateOptions } from "../scene";
 import { BoltSpell } from "../spells/boltSpell";

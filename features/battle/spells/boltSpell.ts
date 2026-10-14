@@ -1,7 +1,7 @@
 import Spell, { spellOptions } from "@/features/battle/spells/spell";
 import { Projectile } from "@/features/battle/entities/spellEffects/projectile";
-import Vector from "@/types/vector";
-import { setOptionalRandomNumber } from "@/utilities/mathUtils";
+import Vector from "@/features/battle/types/vector";
+import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import { Sprite } from "../rendering/sprite";
 import { Scene } from "../scene";
 import { CollisionBody } from "../collisions/collisionBody";

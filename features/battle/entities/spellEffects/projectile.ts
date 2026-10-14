@@ -1,4 +1,4 @@
-import Vector from "@/types/vector";
+import Vector from "@/features/battle/types/vector";
 import { GameObject, ObjectOptions } from "../gameObject";
 import Combatant from "../combatant";
 

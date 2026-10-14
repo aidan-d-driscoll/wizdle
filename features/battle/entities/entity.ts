@@ -1,6 +1,6 @@
-import { Position } from "@/types/position";
+import { Position } from "@/features/battle/types/position";
 import { Scene, UpdateOptions } from "../scene";
-import { getDistance, getRawDistance } from "@/utilities/mathUtils";
+import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
 
 export type EntityOptions = {children?: Entity[]} & (
     | { position: Position, parent?: never, offset?: never }

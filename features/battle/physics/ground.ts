@@ -1,4 +1,4 @@
-import { Position } from "@/types/position";
+import { Position } from "@/features/battle/types/position";
 import { GameObject, ObjectOptions } from "../entities/gameObject";
 import { CollisionBody } from "../collisions/collisionBody";
 import { UpdateOptions } from "../scene";
@@ -23,7 +23,6 @@ export class GroundTexture extends GameObject{
 
 export class GroundManager{
     groundTextures: GroundTexture[] = [];
-    dirtyQueue: GameObject[] = [];
 
     add(gt: GroundTexture){
         this.groundTextures.push(gt)
@@ -35,11 +34,9 @@ export class GroundManager{
     }
 
     update(args: UpdateOptions){
-        for (const obj of this.dirtyQueue){
+        for (const obj of args.scene.dirtyQueue){
             obj.ground = this.highestGroundAt(obj.position)
         }
-
-        this.dirtyQueue.length = 0
     }
 
     highestGroundAt(position: Position): GroundTexture | null{
@@ -49,9 +46,5 @@ export class GroundManager{
             }  
         }
         return null
-    }
-
-    markDirty(obj: GameObject){
-        this.dirtyQueue.push(obj)
     }
 }

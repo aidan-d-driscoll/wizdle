@@ -1,5 +1,5 @@
 import { Entity, EntityOptions } from "../entities/entity";
-import Vector from "@/types/vector";
+import Vector from "@/features/battle/types/vector";
 import { Scene, UpdateOptions } from "../scene";
 import { CollisionBody } from "../collisions/collisionBody";
 import { GroundTexture } from "../physics/ground";

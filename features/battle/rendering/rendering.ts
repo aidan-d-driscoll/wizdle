@@ -1,4 +1,4 @@
-import { Position } from "@/types/position";
+import { Position } from "@/features/battle/types/position";
 
 export function clear(ctx: CanvasRenderingContext2D | null, canvas: HTMLCanvasElement, background: string) { // clear the getScreenPosition before rendering each frame
     if (!ctx){

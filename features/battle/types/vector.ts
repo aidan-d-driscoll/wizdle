@@ -1,4 +1,4 @@
-import { getDistance } from "@/utilities/mathUtils";
+import { getDistance } from "@/features/battle/utilities/mathUtils";
 import { Position } from "./position";
 
 export default class Vector{

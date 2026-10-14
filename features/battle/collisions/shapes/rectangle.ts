@@ -1,7 +1,7 @@
 import { Scene } from "@/features/battle/scene";
 import { Shape, ShapeOptions } from "./shape";
-import { toScreenPosition, toScreenValue } from "@/utilities/renderingUtils";
-import { Position } from "@/types/position";
+import { toScreenPosition, toScreenValue } from "@/features/battle/utilities/renderingUtils";
+import { Position } from "@/features/battle/types/position";
 
 
 export type RectangleOptions = ShapeOptions & {

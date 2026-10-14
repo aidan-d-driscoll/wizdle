@@ -1,4 +1,4 @@
-import { Position } from "@/types/position"
+import { Position } from "@/features/battle/types/position"
 
 export function getDistance({from, to}:{from: Position, to: Position}){ return Math.sqrt(getRawDistance({from, to})) }
 

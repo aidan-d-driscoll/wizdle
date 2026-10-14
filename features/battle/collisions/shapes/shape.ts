@@ -1,4 +1,4 @@
-import { Position } from "@/types/position"
+import { Position } from "@/features/battle/types/position"
 import { Entity, EntityOptions } from "@/features/battle/entities/entity";
 
 export type ShapeOptions = EntityOptions;
