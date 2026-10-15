@@ -65,8 +65,8 @@ export class Wizard extends Combatant{
                     castBarColor: castColor,
                     sprite: new Sprite({
                         image: spellArt,
-                        width: 0.2,
-                        height: 0.2
+                        width: 0.15,
+                        height: 0.15
                     })
                 })
             )

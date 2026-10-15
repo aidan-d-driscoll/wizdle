@@ -71,6 +71,7 @@ export default class CollisionManager {
                     // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
                     // console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                     this.activeCollisions.delete(key)
+                    
                     if (bodyA.owner.onCollisionExit) bodyA.owner.onCollisionExit(bodyB.owner);
                     if (bodyB.owner.onCollisionExit) bodyB.owner.onCollisionExit(bodyA.owner);
                 }

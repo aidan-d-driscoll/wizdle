@@ -6,7 +6,7 @@ import Vector from "@/features/battle/types/vector";
 import { CollisionBody } from "../collisions/collisionBody";
 import { Fillbar } from "../ui_elements/fillbar";
 
-const CIRCLING_SPEED = 0.45
+const CIRCLING_SPEED = 0.4
 
 export type CombatantOptions = ObjectOptions & {
     cb: CollisionBody;
@@ -15,7 +15,10 @@ export type CombatantOptions = ObjectOptions & {
 
     maxHP?: number,
     moveSpeed?: number,
-    prefferedPosition: Position
+    prefferedPosition?: Position,
+
+    bumpDamage?: number,
+    bumpKnockback?: number
 }
 
 export default class Combatant extends GameObject{
@@ -28,7 +31,7 @@ export default class Combatant extends GameObject{
     nearestAlly: Combatant | null = null;
     
     moveTarget: Position = {x:0, y:0};
-    private prefferedPosition: Position;
+    private prefferedPosition: Position | null = null;
 
     protected _maxHP: number;
     protected _currentHP: number;
@@ -48,6 +51,10 @@ export default class Combatant extends GameObject{
 
     get team(): number { return this._team }
 
+    private _bumpDamage = 0;
+    private _bumpKnockback = 0.5;
+
+
     constructor(args: CombatantOptions){
         super(args)
 
@@ -55,8 +62,7 @@ export default class Combatant extends GameObject{
 
         this._team = args.team
         
-        this.prefferedPosition = args.prefferedPosition;
-        this.moveTarget = this.prefferedPosition;
+        if(args.prefferedPosition) this.prefferedPosition = args.prefferedPosition;
 
         this.physics = true;
 
@@ -75,20 +81,29 @@ export default class Combatant extends GameObject{
             height: 0.02
         })
         this.addChild(this._healthbar)
+
+        if(args.bumpDamage) this._bumpDamage = args.bumpDamage
+        if(args.bumpKnockback) this._bumpKnockback = args.bumpKnockback
     }
 
     update(args: UpdateOptions){
         if(!this.dead) {
-            this.moveTarget = this.prefferedPosition;
             let circling = false;
+            if(this.prefferedPosition){
+                this.moveTarget = this.prefferedPosition;
+                
 
-            if (this.nearestEnemy && (getRawDistance({from: this.nearestEnemy.position, to:this.prefferedPosition}) < this.rawDistanceTo(this.prefferedPosition))) {
-                this.moveTarget = this.nearestEnemy.position;
-                circling = true;
+                if (this.nearestEnemy && (getRawDistance({from: this.nearestEnemy.position, to:this.prefferedPosition}) < this.rawDistanceTo(this.prefferedPosition))) {
+                    this.moveTarget = this.nearestEnemy.position;
+                    circling = true;
+                }
+            } else {
+                if(this.nearestEnemy) this.moveTarget = this.nearestEnemy.position
+                else this.moveTarget = {x:0, y: 0}
             }
-            
-            if (this.distanceTo(this.moveTarget) > 0.06){
-                this.movementForce = new Vector({startPos: this.position, endPos: this.prefferedPosition, magnitude: this._moveSpeed})
+
+            if (this.distanceTo(this.moveTarget) > 0){
+                this.movementForce = new Vector({startPos: this.position, endPos: this.moveTarget, magnitude: this._moveSpeed})
 
                 if (circling){
                     this.movementForce = new Vector({
@@ -98,6 +113,7 @@ export default class Combatant extends GameObject{
                     })
                 }
             }
+            
         }
 
         super.update(args)
@@ -108,10 +124,15 @@ export default class Combatant extends GameObject{
         this._healthbar.value = this._currentHP
     }
 
-    // onCollisionExit(other: Collidable){
-    //     if (other instanceof Platform){
-    //         this.dead = true;
-    //     }
-    // }
+    bumpAttack(other: Combatant) {
+        other.takeDamage(this._bumpDamage)
+        other.applyKnockback(new Vector({startPos: this.position, endPos: other.position, magnitude: this._bumpKnockback}))
+    }
+
+    onCollisionEnter(other: GameObject){
+        if(other instanceof Combatant){
+            this.bumpAttack(other)
+        }
+    }
 }
 

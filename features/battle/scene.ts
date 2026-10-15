@@ -129,14 +129,14 @@ export class Scene{
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
-                shape: new Circle({radius: 0.1})
+                shape: new Circle({radius: 0.075})
             }),
             children: [
                 new Sprite({
                     image: wizardArt1,
-                    width: 0.2,
-                    height: 0.2,
-                    offset: {x: 0, y: 0.05}
+                    width: 0.15,
+                    height: 0.15,
+                    offset: {x: 0, y: 0.035}
                 })
             ],
             spells: [],
@@ -163,18 +163,55 @@ export class Scene{
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
-                shape: new Circle({radius: 0.1})
+                shape: new Circle({radius: 0.075})
             }),
             children: [
                 new Sprite({
                     image: wizardArt2,
-                    width: 0.2,
-                    height: 0.2,
-                    offset: {x: 0, y: 0.05}
+                    width: 0.15,
+                    height: 0.15,
+                    offset: {x: 0, y: 0.035}
                 })
             ],
             spells: [],
             name: "Larry of the Left"
+        }))
+
+        wizardArtNum = getRandomFloat(0, 4)
+        const wizardArt3 = new Image();
+        
+        if (wizardArtNum < 1){
+            wizardArt3.src = "/assets/testing-assets/blood-sorcerer.png"
+        } else if (wizardArtNum < 2){
+            wizardArt3.src = "/assets/testing-assets/grass-druid.png"
+        } else if (wizardArtNum < 3){
+            wizardArt3.src = "/assets/testing-assets/rain-mage.png"
+        } else{
+            wizardArt3.src = "/assets/testing-assets/grape-omancer.png"
+        }
+
+        wizardArt3.src = "/assets/testing-assets/skeleton.png"
+
+        this.add(new Combatant({
+            scene: this,
+            position: {x: 0, y: 0},
+            team: 3,
+            renderHeight: 0.9,
+            moveSpeed: 1.8,
+            bumpDamage: 15,
+            bumpKnockback: 1,
+            maxHP: 130,
+            cb: new CollisionBody({
+                shape: new Circle({radius: 0.075})
+            }),
+            children: [
+                new Sprite({
+                    image: wizardArt3,
+                    width: 0.15,
+                    height: 0.15,
+                    offset: {x: 0, y: 0.035}
+                })
+            ]
         }))
 
         if (DEV_TOOLS_ENABLED){

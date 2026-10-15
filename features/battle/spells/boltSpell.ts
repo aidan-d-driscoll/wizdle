@@ -18,7 +18,6 @@ type boltSpellOptions = spellOptions & {
 
 export class BoltSpell extends Spell{
     travelSpeed: number;
-    width = 0.07;
 
     constructor(args: boltSpellOptions){
         super(args)
@@ -44,7 +43,7 @@ export class BoltSpell extends Spell{
                 travelSpeed: this.travelSpeed,
                 damage: this.damage,
                 cb: new CollisionBody({
-                    shape: new Circle({ radius: 0.04 })
+                    shape: new Circle({ radius: 0.03 })
                 })
             }))
         }
