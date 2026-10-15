@@ -67,10 +67,12 @@ export default class Combatant extends GameObject{
         this.maxVelocity = this.moveSpeed;
 
         this._healthbar = new Fillbar({
-            maxHP: this._maxHP,
+            maxValue: this._maxHP,
             renderHeight: 1,
             offset: {x:0, y: 0.17},
-            color: "#99FF99"
+            color: "#99FF99",
+            width: 0.2,
+            height: 0.02
         })
         this.addChild(this._healthbar)
     }
@@ -103,7 +105,7 @@ export default class Combatant extends GameObject{
 
     takeDamage(dmg: number) {
         this.currentHP -= dmg
-        this._healthbar.setHealth(this._currentHP)
+        this._healthbar.value = this._currentHP
     }
 
     // onCollisionExit(other: Collidable){

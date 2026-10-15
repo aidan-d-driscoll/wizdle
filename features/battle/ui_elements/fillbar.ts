@@ -4,51 +4,71 @@ import { Scene } from "../scene";
 import { HexColor } from "../utilities/renderingUtils";
 
 export type HealthbarOptions = EntityOptions & {
-    maxHP: number;
-    color?: HexColor;
+    maxValue: number;
+    startingValue?: number;
+
+    width: number;
+    height: number;
+
+    color: HexColor;
+    emptyColor?: HexColor;
 }
 
 export class Fillbar extends Entity{
-    maxHP: number;
+    maxValue: number;
+    _value: number;
+    set value(value: number){
+        const new_width = this.emptyRect.width * Math.min(value, this.maxValue) / this.maxValue
+        const dw = this.currentRect.width - new_width
 
-    empty_rect: Rectangle;
-    current_rect: Rectangle;
+        this.currentRect.width = new_width
+        this.currentRect.offset = {
+            x: this.currentRect.offset.x - (dw/2),
+            y: this.currentRect.offset.y
+        }
+    }
+    get value(): number {
+        return this._value
+    }
 
-    color?: HexColor;
+    emptyRect: Rectangle;
+    currentRect: Rectangle;
+
+    get color(): HexColor {
+        return this.currentRect.color
+    }
+    set color(value: HexColor) {
+        this.currentRect.color = value
+    }
+
+    get emptyColor(): HexColor {
+        return this.emptyRect.color
+    }
+    set emptyColor(value: HexColor) {
+        this.emptyRect.color = value
+    }
 
     constructor(args: HealthbarOptions){
         super(args)
-        this.maxHP = args.maxHP
-        this.color = args.color ? args.color : "#2320ff"
+        this.maxValue = args.maxValue;
+        this._value = args.startingValue ? args.startingValue : this.maxValue;
 
-        this.empty_rect = new Rectangle({
-            width: 0.2,
-            height: 0.02
+        this.emptyRect = new Rectangle({
+            width: args.width,
+            height: args.height,
+            color: args.emptyColor ? args.emptyColor : "#222222",
         })
-        this.addChild(this.empty_rect)
+        this.addChild(this.emptyRect)
 
-        this.current_rect = new Rectangle({
-            width: 0.2,
-            height: 0.02,
-            color: this.color,
+        this.currentRect = new Rectangle({
+            width: args.width,
+            height: args.height,
+            color: args.color,
             renderHeight: 0.01
         })
-        this.addChild(this.current_rect)
-
-        console.log(this.current_rect.offset)
-    }
-
-    setHealth(current: number){
-        const new_width = 0.2 * Math.min(current, this.maxHP) / this.maxHP
-        const dw = this.current_rect.width - new_width
-
-        console.log(this.current_rect.offset)
-
-        this.current_rect.width = new_width
-        this.current_rect.offset = {
-            x: this.current_rect.offset.x - (dw/2),
-            y: this.current_rect.offset.y
-        }
+        this.addChild(this.currentRect)
+        
+        this.value = this.value
     }
 
     render(scene: Scene) {
