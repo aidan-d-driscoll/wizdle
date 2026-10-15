@@ -65,7 +65,6 @@ export default class Combatant extends GameObject{
 
     update(args: UpdateOptions){
         if(!this.dead) {
-            if (this._cb?.dirty) args.scene.tm.markDirty(this)
 
             this.moveTarget = this.prefferedPosition;
             let circling = false;

@@ -31,7 +31,7 @@ export class Scene{
     readonly tm = new TargetManager();
     readonly gm = new GroundManager();
 
-    private entities = new Set<Entity>
+    private entities: Entity[] = []
     private destructionQueue: Entity[] = []
 
     private animationFrameId: number | null = null;
@@ -89,7 +89,8 @@ export class Scene{
             position: {x: 0, y: 0},
             image: arenaArt,
             width: 3.1,
-            height: 3.1
+            height: 3.1,
+            renderHeight: -1
         }))
 
         this.gm.add(
@@ -110,6 +111,7 @@ export class Scene{
             scene: this,
             position: {x:setOptionalRandomNumber({min:-0.1, max: 0.1}), y:setOptionalRandomNumber({min:-0.1, max: 0.1})},
             friction: 0.2,
+            renderHeight: -0.1,
             cb: new CollisionBody({
                 shape: new Circle({
                     radius: iceWidth
@@ -158,6 +160,7 @@ export class Scene{
             team: 1,
             maxHP: 100,
             moveSpeed: 1,
+            renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
                 shape: new Circle({radius: 0.1})
@@ -180,6 +183,7 @@ export class Scene{
             team: 2,
             maxHP: 100,
             moveSpeed: 1,
+            renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
                 shape: new Circle({radius: 0.1})
@@ -310,8 +314,11 @@ export class Scene{
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         for(const e of this.entities){
+            console.log(e.renderHeight)
+            
             e.render(this)
         }
+        console.log("-------------------------------------")
 
         if(VISIBLE_COLLISION_BOXES){
             for(const cb of this.cm.handles.keys()){
@@ -322,7 +329,8 @@ export class Scene{
     }
 
     add(e: Entity){
-        this.entities.add(e)
+        this.entities.push(e)
+        this.entities.sort((a,b) => {return a.renderHeight - b.renderHeight})
     }
 
     markForDestruction(e: Entity){
@@ -337,10 +345,11 @@ export class Scene{
         if (this.destructionQueue.length === 0) return;
 
         for (const e of this.destructionQueue){
+            const idx = this.entities.indexOf(e)
             if(e.parent) e.parent.children.delete(e)
             if(e instanceof GameObject && e.cb) this.cm.remove(e.cb)
             if(e instanceof Combatant) this.tm.remove(e)
-            this.entities.delete(e)
+            this.entities.splice(idx, 1)
         }
 
         this.destructionQueue.length = 0

@@ -1,7 +1,9 @@
 import { Position } from "@/features/battle/types/position"
 import { Entity, EntityOptions } from "@/features/battle/entities/entity";
 
-export type ShapeOptions = EntityOptions;
+export type ShapeOptions = EntityOptions & {
+    color?: string
+}
 
 export abstract class Shape extends Entity{
     abstract xMax: number;
@@ -12,6 +14,8 @@ export abstract class Shape extends Entity{
     protected abstract _width: number;
     protected abstract _height: number;
 
+    color: string;
+
     get position(): Position { return super.position }
     set position(value: Position) {
         this.xMin += value.x - this.x
@@ -20,7 +24,6 @@ export abstract class Shape extends Entity{
         this.yMax += value.y - this.y
 
         super.position = {x: value.x, y: value.y};
-        
     }
 
     get width(): number {
@@ -29,6 +32,12 @@ export abstract class Shape extends Entity{
 
     get height(): number {
         return this._height
+    }
+
+    constructor(args: ShapeOptions){
+        super(args)
+
+        this.color = args.color ? args.color : "#000000"
     }
 
     abstract overlaps(target: Shape): boolean;

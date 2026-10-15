@@ -33,6 +33,7 @@ export class BoltSpell extends Spell{
                 physics: false,
                 position: source.position,
                 children: [new Sprite({
+                    position: source.position,
                     image: this.sprite.image,
                     width: this.sprite.width,
                     height: this.sprite.height,

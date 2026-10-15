@@ -31,18 +31,18 @@ export class Rectangle extends Shape{
     }
 
     contains(target: Position){
-        return (this.xMin <= target.x) && 
-           (this.xMax >= target.x) && 
-           (this.yMin <= target.y) && 
+        return (this.xMin <= target.x) &&
+           (this.xMax >= target.x) &&
+           (this.yMin <= target.y) &&
            (this.yMax >= target.y);
     }
 
     overlaps(target: Shape): boolean {
         if (!(target instanceof Rectangle)) return target.overlaps(this)
 
-        return (this.xMin <= target.xMax) && 
-           (this.xMax >= target.xMin) && 
-           (this.yMin <= target.yMax) && 
+        return (this.xMin <= target.xMax) &&
+           (this.xMax >= target.xMin) &&
+           (this.yMin <= target.yMax) &&
            (this.yMax >= target.yMin);
     }
 
@@ -62,17 +62,20 @@ export class Rectangle extends Shape{
         }
     }
 
-    render(scene: Scene, color: string){
+    render(scene: Scene){
+        console.log("Rendering Rectangle")
+        console.log(this.position)
+
         const screenPosition = toScreenPosition(this.position, scene.canvas)
 
         const width = toScreenValue(this.width, scene.canvas)
         const height = toScreenValue(this.height, scene.canvas)
-        screenPosition.x -= 0.5*width
-        screenPosition.y -= 0.5*height
+        screenPosition.x -= 0.5 * width
+        screenPosition.y -= 0.5 * height
         
         scene.ctx.save()
 
-        scene.ctx.fillStyle = color
+        scene.ctx.fillStyle = this.color
         scene.ctx.fillRect(screenPosition.x, screenPosition.y, width, height)
 
         scene.ctx.restore()

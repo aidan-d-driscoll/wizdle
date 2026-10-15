@@ -60,11 +60,7 @@ export class GameObject extends Entity{
             args.scene.cm.add(this.cb)
         } else this.physics = false
 
-        
-        console.log(args.scene.gm.groundTextures)
         this.ground = args.scene.gm.highestGroundAt(this.position)
-        console.log(this.ground)
-        
     }
 
     update(args: UpdateOptions){

@@ -2,7 +2,7 @@ import { Position } from "@/features/battle/types/position";
 import { Scene, UpdateOptions } from "../scene";
 import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
 
-export type EntityOptions = {children?: Entity[]} & (
+export type EntityOptions = {children?: Entity[], renderHeight?: number} & (
     | { position: Position, parent?: never, offset?: never }
     | { position?: never, parent?: Entity, offset?: Position}
 )
@@ -23,8 +23,10 @@ export abstract class Entity{
     private _position: Position = {x: 0, y: 0}
     private _offset: Position = {x: 0, y: 0}
 
-    get x(): number { return this.position.x } 
-    get y(): number { return this.position.y }
+    get x(): number { return this._position.x } 
+    get y(): number { return this._position.y }
+
+    renderHeight = 0
 
     // private _velocity: Vector = new Vector({dx: 0, dy: 0})
     // get velocity(): Vector { return this._velocity }
@@ -48,6 +50,8 @@ export abstract class Entity{
     constructor(args:EntityOptions){
         this.id = Entity.nextId;
         Entity.nextId++;
+
+        if(args.renderHeight) this.renderHeight =  args.renderHeight
         
         if(args.position){
             this._position = args.position;
@@ -60,6 +64,7 @@ export abstract class Entity{
             for (const child of args.children){
                 this.children.add(child)
                 child.parent = this
+                child.renderHeight += this.renderHeight
             }
         }
     }
@@ -141,5 +146,5 @@ export abstract class Entity{
         return out;
     }
 
-    abstract render(scene: Scene, color?: string): void;
+    abstract render(scene: Scene): void;
 }

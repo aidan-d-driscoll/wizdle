@@ -74,7 +74,7 @@ export class Circle extends Shape{
         return false
     }
 
-    render(scene: Scene, color: string){
+    render(scene: Scene){
         const screenPosition = toScreenPosition(this.position, scene.canvas)
 
         const radiusX = toScreenValue(this.radius, scene.canvas)
@@ -82,7 +82,7 @@ export class Circle extends Shape{
         
         scene.ctx.save()
 
-        scene.ctx.fillStyle = color
+        scene.ctx.fillStyle = this.color
         scene.ctx.beginPath()
         scene.ctx.ellipse(screenPosition.x, screenPosition.y, radiusX, radiusY, 0, 0, Math.PI * 2)
         scene.ctx.fill()
