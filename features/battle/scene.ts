@@ -8,7 +8,7 @@ import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
 import { GroundManager, GroundTexture } from "./physics/ground";
-import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
+import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -47,43 +47,22 @@ export class Scene{
         this.ctx.imageSmoothingEnabled = false;
 
         const arenaArt = new Image();
-        arenaArt.src = "/assets/arena.jpg";
+        arenaArt.src = "/assets/testing-assets/arena.jpg";
 
-        const grapeWizardArt = new Image();
-        grapeWizardArt.src = "/assets/grape-omancer.png";
-
-        const goldWizardArt = new Image();
-        goldWizardArt.src = "/assets/gilded-wizard.png";
+        const purpleWizardArt = new Image();
+        purpleWizardArt.src = "/assets/testing-assets/grape-omancer.png";
 
         const redWizardArt = new Image();
-        redWizardArt.src = "/assets/red-sorcerer.png"
+        redWizardArt.src = "/assets/testing-assets/blood-sorcerer.png"
 
         const blueWizardArt = new Image();
-        blueWizardArt.src = "/assets/rain-mage.png"
-
-        const grapeShotArt = new Image();
-        grapeShotArt.src = "/assets/grape-shot.png";
-
-        const goldBoltArt = new Image();
-        goldBoltArt.src = "/assets/gold-bolt.png";
-        
-        const blueBlastArt = new Image();
-        blueBlastArt.src = "/assets/blue-blast.png";
-
-        const redRayArt = new Image();
-        redRayArt.src = "/assets/red-ray.png";
-
-        const aura1Art = new Image();
-        aura1Art.src = "/assets/aura-of-death.png";
-
-        const hollowPurpleText = new Image();
-        hollowPurpleText.src = "/assets/hollow-purple.png";
+        blueWizardArt.src = "/assets/testing-assets/rain-mage.png"
 
         const tombstone = new Image();
-        tombstone.src = "/assets/tombstone.png";
+        tombstone.src = "/assets/testing-assets/tombstone.png";
 
         const iceCircle = new Image();
-        iceCircle.src = "/assets/ice_circle.png";
+        iceCircle.src = "/assets/testing-assets/ice_circle.png";
 
         this.add(new Sprite({
             position: {x: 0, y: 0},
@@ -130,36 +109,23 @@ export class Scene{
 
         this.gm.add(icePond)
 
-        // const icePond2 = new GroundTexture({
-        //     scene: this,
-        //     position: {x:-0.4, y:-0.4},
-        //     friction: 0.0001,
-        //     cb: new CollisionBody({
-        //         shape: new Circle({
-        //             radius: iceWidth
-        //         })
-        //     }),
-        //     children: [
-        //         new Sprite({
-        //             image: iceCircle,
-        //             width: iceWidth*2.1,
-        //             height: iceWidth*2.1
-        //         })
-        //     ]
-        // })
-
+        let wizardArtNum = getRandomFloat(0, 4)
+        const wizardArt1 = new Image();
         
-
-        // this.add(icePond2)
-
-        // this.gm.add(icePond2)
+        if (wizardArtNum < 1){
+            wizardArt1.src = "/assets/testing-assets/blood-sorcerer.png"
+        } else if (wizardArtNum < 2){
+            wizardArt1.src = "/assets/testing-assets/grass-druid.png"
+        } else if (wizardArtNum < 3){
+            wizardArt1.src = "/assets/testing-assets/rain-mage.png"
+        } else{
+            wizardArt1.src = "/assets/testing-assets/grape-omancer.png"
+        }
 
         this.add(new Wizard({
             scene: this,
             position: {x: 0.5, y: 0.5},
             team: 1,
-            maxHP: 100,
-            moveSpeed: 1,
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
@@ -167,22 +133,33 @@ export class Scene{
             }),
             children: [
                 new Sprite({
-                    image: blueWizardArt,
+                    image: wizardArt1,
                     width: 0.2,
                     height: 0.2,
                     offset: {x: 0, y: 0.05}
                 })
             ],
             spells: [],
-            name: "Radical Randy"
+            name: "Right-side Randy"
         }))
+
+        wizardArtNum = getRandomFloat(0, 4)
+        const wizardArt2 = new Image();
+        
+        if (wizardArtNum < 1){
+            wizardArt2.src = "/assets/testing-assets/blood-sorcerer.png"
+        } else if (wizardArtNum < 2){
+            wizardArt2.src = "/assets/testing-assets/grass-druid.png"
+        } else if (wizardArtNum < 3){
+            wizardArt2.src = "/assets/testing-assets/rain-mage.png"
+        } else{
+            wizardArt2.src = "/assets/testing-assets/grape-omancer.png"
+        }
 
         this.add(new Wizard({
             scene: this,
             position: {x: -0.5, y: -0.5},
             team: 2,
-            maxHP: 100,
-            moveSpeed: 1,
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
@@ -190,14 +167,14 @@ export class Scene{
             }),
             children: [
                 new Sprite({
-                    image: redWizardArt,
+                    image: wizardArt2,
                     width: 0.2,
                     height: 0.2,
                     offset: {x: 0, y: 0.05}
                 })
             ],
             spells: [],
-            name: "Mr. Blue"
+            name: "Larry of the Left"
         }))
 
         if (DEV_TOOLS_ENABLED){

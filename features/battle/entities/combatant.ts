@@ -4,6 +4,7 @@ import { UpdateOptions } from "../scene";
 import { getRawDistance, setOptionalRandomNumber,  } from "@/features/battle/utilities/mathUtils";
 import Vector from "@/features/battle/types/vector";
 import { CollisionBody } from "../collisions/collisionBody";
+import { Fillbar } from "../ui_elements/fillbar";
 
 const CIRCLING_SPEED = 0.45
 
@@ -12,8 +13,8 @@ export type CombatantOptions = ObjectOptions & {
 
     team: number,
 
-    maxHP: number,
-    moveSpeed: number,
+    maxHP?: number,
+    moveSpeed?: number,
     prefferedPosition: Position
 }
 
@@ -33,6 +34,8 @@ export default class Combatant extends GameObject{
     protected _currentHP: number;
 
     protected _moveSpeed: number;
+
+    protected _healthbar: Fillbar;
 
     get currentHP(): number { return this._currentHP }
     set currentHP(value: number) { 
@@ -56,16 +59,24 @@ export default class Combatant extends GameObject{
         this.moveTarget = this.prefferedPosition;
 
         this.physics = true;
-        this._maxHP = args.maxHP;
-        this._currentHP = args.maxHP;
 
-        this._moveSpeed = setOptionalRandomNumber({value: args.moveSpeed, min: 0.9, max: 1.35 })
+        this._maxHP = setOptionalRandomNumber({value: args.maxHP, min: 90, max: 110});
+        this._currentHP = this._maxHP
+
+        this._moveSpeed = setOptionalRandomNumber({value: args.moveSpeed, min: 0.95, max: 1.25 })
         this.maxVelocity = this.moveSpeed;
+
+        this._healthbar = new Fillbar({
+            maxHP: this._maxHP,
+            renderHeight: 1,
+            offset: {x:0, y: 0.17},
+            color: "#99FF99"
+        })
+        this.addChild(this._healthbar)
     }
 
     update(args: UpdateOptions){
         if(!this.dead) {
-
             this.moveTarget = this.prefferedPosition;
             let circling = false;
 
@@ -92,6 +103,7 @@ export default class Combatant extends GameObject{
 
     takeDamage(dmg: number) {
         this.currentHP -= dmg
+        this._healthbar.setHealth(this._currentHP)
     }
 
     // onCollisionExit(other: Collidable){

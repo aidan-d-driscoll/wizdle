@@ -43,6 +43,10 @@ export abstract class Entity{
     set position(value: Position) {
         this._position = {x: value.x + this._offset.x, y: value.y + this._offset.y}
     }
+
+    get offset(): Position {
+        return this._offset;
+    }
     set offset(value: Position) {
         this._offset = {x: value.x, y: value.y}
     }
@@ -64,10 +68,7 @@ export abstract class Entity{
 
         if(args.children) {
             for (const child of args.children){
-                this.children.add(child)
-                child.parent = this
-                child.renderHeight += this.renderHeight
-                child.position = this.position
+                this.addChild(child)
             }
         }
     }
@@ -80,6 +81,13 @@ export abstract class Entity{
             
             for (const child of this.children) child.update(args)
         }
+    }
+
+    addChild(child: Entity){
+        this.children.add(child)
+        child.parent = this
+        child.renderHeight += this.renderHeight
+        child.position = this.position
     }
 
     destroy(){

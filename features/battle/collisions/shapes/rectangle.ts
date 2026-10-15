@@ -16,6 +16,13 @@ export class Rectangle extends Shape{
     yMax: number;
 
     protected _width: number;
+    get width(): number {
+        return this._width
+    }
+    set width(value: number){
+        this.scale(value/this._width, true, false)
+    }
+
     protected _height: number;
 
     constructor(args:RectangleOptions) {

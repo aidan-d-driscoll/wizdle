@@ -1,4 +1,4 @@
-import Position from "@/features/battle/types/position";
+import { Position } from "@/features/battle/types/position";
 
 export function toScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return {
@@ -10,3 +10,5 @@ export function toScreenPosition(position: Position, canvas: HTMLCanvasElement) 
 export function toScreenValue(value: number, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return value * (canvas.width / 2);
 }
+
+export type HexColor = `#${string}`

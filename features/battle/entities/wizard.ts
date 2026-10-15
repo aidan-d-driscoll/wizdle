@@ -25,28 +25,26 @@ export class Wizard extends Combatant{
 
         this.name = args.name;
 
-        const spellArtNum = setOptionalRandomNumber({min: 0, max: 3.03})
-        let spellArt = new Image();
-        spellArt.src = "/assets/red-ray.png";
+        const spellArtNum = setOptionalRandomNumber({min: 0, max: 4.01})
+        const spellArt = new Image();
+        spellArt.src = "/assets/testing-assets/red-ray.png";
 
-        if (spellArtNum < 1){
-            spellArt = new Image();
-            spellArt.src = "/assets/gold-bolt.png";
+        if (spellArtNum < 1) {
+            spellArt.src = "/assets/testing-assets/blue-blast.png";
         } else if (spellArtNum < 2) {
-            spellArt = new Image();
-            spellArt.src = "/assets/blue-blast.png";
+            spellArt.src = "/assets/testing-assets/red-ray.png";
         } else if (spellArtNum < 3) {
-            spellArt = new Image();
-            spellArt.src = "/assets/red-ray.png";
+            spellArt.src = "/assets/testing-assets/purple-power.png";
+        } else if (spellArtNum < 4) {
+            spellArt.src = "/assets/testing-assets/green-glyph.png";
         } else {
-            spellArt = new Image();
-            spellArt.src = "/assets/grape-shot.png";
+            spellArt.src = "/assets/testing-assets/grape-shot.png";
         }
 
         this.spells = [new BoltSpell({
             caster: this,
-            knockback: (spellArtNum > 3) ? 50 : undefined,
-            travelSpeed: (spellArtNum > 3) ? 2 : undefined,
+            knockback: (spellArtNum > 4) ? 50 : undefined,
+            travelSpeed: (spellArtNum > 4) ? 2 : undefined,
             sprite: new Sprite({
                 image: spellArt,
                 width: 0.2,

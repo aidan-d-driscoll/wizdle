@@ -1,8 +1,9 @@
 import { Position } from "@/features/battle/types/position"
 import { Entity, EntityOptions } from "@/features/battle/entities/entity";
+import { HexColor } from "../../utilities/renderingUtils";
 
 export type ShapeOptions = EntityOptions & {
-    color?: string
+    color?: HexColor
 }
 
 export abstract class Shape extends Entity{
@@ -14,7 +15,7 @@ export abstract class Shape extends Entity{
     protected abstract _width: number;
     protected abstract _height: number;
 
-    color: string;
+    color: HexColor;
 
     get position(): Position { return super.position }
     set position(value: Position) {
