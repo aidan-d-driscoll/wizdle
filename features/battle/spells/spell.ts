@@ -67,9 +67,6 @@ export default abstract class Spell{
     }
 
     update(args: UpdateOptions){
-        console.log(this.castTimer + "/" + this.castTime)
-        console.log(this.castBar.value + "/" + this.castBar.maxValue)
-        console.log("---------------------------------------------")
         this.castTimer += args.dt
         if(this.castTimer >= this.castTime){
             if(this.caster.nearestEnemy){

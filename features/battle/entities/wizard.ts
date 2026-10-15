@@ -29,7 +29,7 @@ export class Wizard extends Combatant{
         let numSpells = 1
         let randomNum = getRandomFloat(0, 1)
 
-        while (randomNum < 0.75){
+        while (randomNum < 0.5){
             numSpells++;
             randomNum = getRandomFloat(0, 1)
         }
