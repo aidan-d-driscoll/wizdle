@@ -27,6 +27,7 @@ export class GameObject extends Entity{
     set cb(value: CollisionBody) {
         this._cb = value;
         this._cb.owner = this;
+        this._cb.tight.position = this.position;
     }
 
     private _velocity: Vector = new Vector({dx: 0, dy: 0});

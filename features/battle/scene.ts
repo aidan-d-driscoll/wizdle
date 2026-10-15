@@ -314,11 +314,8 @@ export class Scene{
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         for(const e of this.entities){
-            console.log(e.renderHeight)
-            
             e.render(this)
         }
-        console.log("-------------------------------------")
 
         if(VISIBLE_COLLISION_BOXES){
             for(const cb of this.cm.handles.keys()){

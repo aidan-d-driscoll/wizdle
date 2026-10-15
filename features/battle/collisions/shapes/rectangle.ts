@@ -63,9 +63,6 @@ export class Rectangle extends Shape{
     }
 
     render(scene: Scene){
-        console.log("Rendering Rectangle")
-        console.log(this.position)
-
         const screenPosition = toScreenPosition(this.position, scene.canvas)
 
         const width = toScreenValue(this.width, scene.canvas)

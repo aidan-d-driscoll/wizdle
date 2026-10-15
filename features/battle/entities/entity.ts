@@ -56,7 +56,9 @@ export abstract class Entity{
         if(args.position){
             this._position = args.position;
         } else {
-            if(args.parent) this.parent = args.parent;
+            if(args.parent) {
+                this.parent = args.parent;
+            }
             if(args.offset) this._offset = args.offset;
         }
 
@@ -65,9 +67,11 @@ export abstract class Entity{
                 this.children.add(child)
                 child.parent = this
                 child.renderHeight += this.renderHeight
+                child.position = this.position
             }
         }
     }
+
 
     update(args: UpdateOptions){
         if(this.dead) args.scene.markForDestruction(this)

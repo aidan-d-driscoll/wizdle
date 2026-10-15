@@ -23,6 +23,8 @@ export class Projectile extends GameObject{
 
         this.knockback = new Vector({dx: this.velocity.dx, dy: this.velocity.dy, magnitude: args.knockback})
         this.damage = args.damage
+
+        console.log(this.position)
     }
 
     onCollisionEnter(other: GameObject){
