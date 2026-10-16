@@ -19,6 +19,9 @@ export class Sprite extends Entity{
 
     visible = true;
 
+    protected _flippedVertical = false;
+    protected _flippedHorizontal = false;
+
     constructor(args:SpriteOptions){
         super(args)
 
@@ -30,23 +33,33 @@ export class Sprite extends Entity{
     }
 
     render(scene: Scene){
-        if(this.visible){
-            const screenPosition = toScreenPosition(this.position, scene.canvas)
-            const screenWidth = toScreenValue(this.width, scene.canvas)
+        if (this.visible) {
+            const screenPosition = toScreenPosition(this.position, scene.canvas);
+            const screenWidth = toScreenValue(this.width, scene.canvas);
             const screenHeight = toScreenValue(this.height, scene.canvas);
             
             scene.ctx.save();
-
+    
+            scene.ctx.translate(screenPosition.x, screenPosition.y);
+    
+            const scaleX = this._flippedHorizontal ? -1 : 1;
+            const scaleY = this._flippedVertical ? -1 : 1;
+            scene.ctx.scale(scaleX, scaleY);
+    
             scene.ctx.drawImage(
                 this.image,
-                screenPosition.x - screenWidth / 2,
-                screenPosition.y - screenHeight / 2,
+                -screenWidth / 2,
+                -screenHeight / 2,
                 screenWidth,
                 screenHeight
             );
-
+    
             scene.ctx.restore();
         }
         
     }
+
+    flipHorizontal(): void { this._flippedHorizontal = !this._flippedHorizontal }
+
+    flipVertical(): void { this._flippedVertical = !this._flippedVertical }
 }

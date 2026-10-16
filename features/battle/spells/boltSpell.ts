@@ -7,6 +7,7 @@ import { Scene } from "../scene";
 import { CollisionBody } from "../collisions/collisionBody";
 import { Circle } from "../collisions/shapes/circle";
 import Combatant from "../entities/combatant";
+import { Ellipse } from "../collisions/shapes/ellipse";
 
 const MIN_TRAVEL_SPEED = 1;
 const MAX_TRAVEL_SPEED = 2;
@@ -32,10 +33,10 @@ export class BoltSpell extends Spell{
                 physics: false,
                 position: source.position,
                 children: [new Sprite({
-                    position: source.position,
                     image: this.sprite.image,
                     width: this.sprite.width,
                     height: this.sprite.height,
+                    offset: {x: 0, y: 0.03}
                 })],
                 velocity: new Vector({startPos: source.position, endPos: source.nearestEnemy.position, magnitude: this.travelSpeed}),
                 source: source,
@@ -43,7 +44,10 @@ export class BoltSpell extends Spell{
                 travelSpeed: this.travelSpeed,
                 damage: this.damage,
                 cb: new CollisionBody({
-                    shape: new Circle({ radius: 0.03 })
+                    shape: new Ellipse({ 
+                        radiusX: 0.03,
+                        radiusY: 0.015
+                    })
                 })
             }))
         }

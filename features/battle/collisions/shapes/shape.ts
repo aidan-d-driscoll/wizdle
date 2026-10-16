@@ -51,7 +51,5 @@ export abstract class Shape extends Entity{
                 (this.yMin < outer.yMin) ||
                 (this.yMax > outer.yMax);
     }
-
-
 }
     

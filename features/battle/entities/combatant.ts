@@ -1,12 +1,13 @@
 import { Position } from "@/features/battle/types/position";
 import { GameObject, ObjectOptions } from "../entities/gameObject";
-import { UpdateOptions } from "../scene";
+import { Scene, UpdateOptions } from "../scene";
 import { getRawDistance, setOptionalRandomNumber,  } from "@/features/battle/utilities/mathUtils";
 import Vector from "@/features/battle/types/vector";
 import { CollisionBody } from "../collisions/collisionBody";
 import { Fillbar } from "../ui_elements/fillbar";
+import { Sprite } from "../rendering/sprite";
 
-const CIRCLING_SPEED = 0.4
+const CIRCLING_SPEED = 0.35
 
 export type CombatantOptions = ObjectOptions & {
     cb: CollisionBody;
@@ -18,14 +19,19 @@ export type CombatantOptions = ObjectOptions & {
     prefferedPosition?: Position,
 
     bumpDamage?: number,
-    bumpKnockback?: number
+    bumpKnockback?: number,
+
+    sprite: Sprite,
 }
 
 export default class Combatant extends GameObject{
     private _team: number;
 
+    sprite: Sprite;
+
     enemies: Combatant[] = [];
     nearestEnemy: Combatant | null = null;
+    nearestEnemyDir: Vector | null = null;
     
     allies: Combatant[] = [];
     nearestAlly: Combatant | null = null;
@@ -52,8 +58,7 @@ export default class Combatant extends GameObject{
     get team(): number { return this._team }
 
     private _bumpDamage = 0;
-    private _bumpKnockback = 0.5;
-
+    private _bumpKnockback = 0.0;
 
     constructor(args: CombatantOptions){
         super(args)
@@ -82,6 +87,9 @@ export default class Combatant extends GameObject{
         })
         this.addChild(this._healthbar)
 
+        this.sprite = args.sprite
+        this.addChild(this.sprite)
+
         if(args.bumpDamage) this._bumpDamage = args.bumpDamage
         if(args.bumpKnockback) this._bumpKnockback = args.bumpKnockback
     }
@@ -91,7 +99,6 @@ export default class Combatant extends GameObject{
             let circling = false;
             if(this.prefferedPosition){
                 this.moveTarget = this.prefferedPosition;
-                
 
                 if (this.nearestEnemy && (getRawDistance({from: this.nearestEnemy.position, to:this.prefferedPosition}) < this.rawDistanceTo(this.prefferedPosition))) {
                     this.moveTarget = this.nearestEnemy.position;
@@ -113,10 +120,24 @@ export default class Combatant extends GameObject{
                     })
                 }
             }
-            
+        }
+
+
+        if (!this.nearestEnemy){
+            this.nearestEnemyDir = null;
+        } else {
+            const newDir = new Vector({startPos: this.position, endPos: this.nearestEnemy.position})
+            if(this.nearestEnemyDir && ((newDir.dx > 0) !== (this.nearestEnemyDir.dx > 0)))
+                this.sprite.flipHorizontal()
+            this.nearestEnemyDir = newDir
         }
 
         super.update(args)
+
+        this.velocity = new Vector({
+            dx: this.velocity.dx,
+            dy: this.velocity.dy * 1/2
+        })
     }
 
     takeDamage(dmg: number) {
@@ -126,7 +147,7 @@ export default class Combatant extends GameObject{
 
     bumpAttack(other: Combatant) {
         other.takeDamage(this._bumpDamage)
-        other.applyKnockback(new Vector({startPos: this.position, endPos: other.position, magnitude: this._bumpKnockback}))
+        if (this._bumpKnockback > 0) other.applyKnockback(new Vector({startPos: this.position, endPos: other.position, magnitude: this._bumpKnockback}))
     }
 
     onCollisionEnter(other: GameObject){
@@ -134,5 +155,7 @@ export default class Combatant extends GameObject{
             this.bumpAttack(other)
         }
     }
+
+    
 }
 

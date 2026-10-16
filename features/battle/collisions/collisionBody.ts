@@ -27,10 +27,11 @@ export class CollisionBody {
         CollisionBody.nextId++;
 
         this.tight = args.shape;
-        this.tight.color = "#ff030354"
+        this.tight.color = "#0000003f";
 
-        this.fat = this.newFatbox()
-        this.fat.color = "#2903ff9d"
+        this.fat = this.newFatbox();
+        this.fat.isVisible = false;
+        this.fat.color = "#2903ff9d";
     }
 
     update(args: UpdateOptions): void {
@@ -46,8 +47,8 @@ export class CollisionBody {
     }
 
     render(scene:Scene) {
-        this.fat.render(scene)
-        this.tight.render(scene)
+        if(this.fat.isVisible) this.fat.render(scene)
+        if(this.tight.isVisible) this.tight.render(scene)
     }
 
     newFatbox(): Rectangle{

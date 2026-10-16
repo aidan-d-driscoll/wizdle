@@ -9,11 +9,14 @@ import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
 import { GroundManager, GroundTexture } from "./physics/ground";
 import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
+import { Ellipse } from "./collisions/shapes/ellipse";
 
 const DEV_TOOLS_ENABLED = true;
 
-const VISIBLE_COLLISION_BOXES = false;
+const VISIBLE_COLLISION_BOXES = true;
 const INITIAL_BATTLE_SPEED = 1;
+
+const ELLIPSE_X_TO_Y_RATIO = 1/2
 
 export type UpdateOptions = {
     dt: number,
@@ -47,7 +50,7 @@ export class Scene{
         this.ctx.imageSmoothingEnabled = false;
 
         const arenaArt = new Image();
-        arenaArt.src = "/assets/testing-assets/arena.jpg";
+        arenaArt.src = "/assets/testing-assets/arena-orig.jpg";
 
         const purpleWizardArt = new Image();
         purpleWizardArt.src = "/assets/testing-assets/grape-omancer.png";
@@ -67,19 +70,21 @@ export class Scene{
         this.add(new Sprite({
             position: {x: 0, y: 0},
             image: arenaArt,
-            width: 3.1,
-            height: 3.1,
+            width: 3.35,
+            height: 1.8,
             renderHeight: -1
         }))
 
+        const stageFloorWidth = 0.91
         this.gm.add(
             new GroundTexture({
                 scene: this,
                 position: {x:0, y:0},
                 friction: 1.5,
                 cb: new CollisionBody({
-                    shape: new Circle({
-                        radius: 0.9
+                    shape: new Ellipse({
+                        radiusX: stageFloorWidth,
+                        radiusY: stageFloorWidth * ELLIPSE_X_TO_Y_RATIO
                     })
                 })
             })
@@ -92,15 +97,16 @@ export class Scene{
             friction: 0.2,
             renderHeight: -0.1,
             cb: new CollisionBody({
-                shape: new Circle({
-                    radius: iceWidth
+                shape: new Ellipse({
+                    radiusX: iceWidth,
+                    radiusY: iceWidth*ELLIPSE_X_TO_Y_RATIO
                 })
             }),
             children: [
                 new Sprite({
                     image: iceCircle,
                     width: iceWidth*2.1,
-                    height: iceWidth*2.1
+                    height: iceWidth*2.1*ELLIPSE_X_TO_Y_RATIO
                 })
             ]
         })
@@ -124,21 +130,22 @@ export class Scene{
 
         this.add(new Wizard({
             scene: this,
-            position: {x: 0.5, y: 0.5},
+            position: {x: 0.5, y: 0.5*ELLIPSE_X_TO_Y_RATIO},
             team: 1,
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
-                shape: new Circle({radius: 0.075})
-            }),
-            children: [
-                new Sprite({
-                    image: wizardArt1,
-                    width: 0.15,
-                    height: 0.15,
-                    offset: {x: 0, y: 0.035}
+                shape: new Ellipse({
+                    radiusX: 0.08,
+                    radiusY: 0.08*ELLIPSE_X_TO_Y_RATIO
                 })
-            ],
+            }),
+            sprite: new Sprite({
+                image: wizardArt1,
+                width: 0.15,
+                height: 0.14,
+                offset: {x: 0, y: 0.067}
+            }),
             spells: [],
             name: "Right-side Randy"
         }))
@@ -156,63 +163,56 @@ export class Scene{
             wizardArt2.src = "/assets/testing-assets/grape-omancer.png"
         }
 
-        this.add(new Wizard({
+        const larry = new Wizard({
             scene: this,
-            position: {x: -0.5, y: -0.5},
+            position: {x: -0.5, y: -0.5*ELLIPSE_X_TO_Y_RATIO},
             team: 2,
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
-                shape: new Circle({radius: 0.075})
-            }),
-            children: [
-                new Sprite({
-                    image: wizardArt2,
-                    width: 0.15,
-                    height: 0.15,
-                    offset: {x: 0, y: 0.035}
+                shape: new Ellipse({
+                    radiusX: 0.08,
+                    radiusY: 0.08*ELLIPSE_X_TO_Y_RATIO
                 })
-            ],
+            }),
+            sprite: new Sprite({
+                image: wizardArt2,
+                width: 0.15,
+                height: 0.14,
+                offset: {x: 0, y: 0.067}
+            }),
             spells: [],
             name: "Larry of the Left"
-        }))
+        })
 
-        wizardArtNum = getRandomFloat(0, 4)
-        const wizardArt3 = new Image();
+        this.add(larry)
+        larry.sprite.flipHorizontal()
         
-        if (wizardArtNum < 1){
-            wizardArt3.src = "/assets/testing-assets/blood-sorcerer.png"
-        } else if (wizardArtNum < 2){
-            wizardArt3.src = "/assets/testing-assets/grass-druid.png"
-        } else if (wizardArtNum < 3){
-            wizardArt3.src = "/assets/testing-assets/rain-mage.png"
-        } else{
-            wizardArt3.src = "/assets/testing-assets/grape-omancer.png"
-        }
 
-        wizardArt3.src = "/assets/testing-assets/skeleton.png"
+        // const skeletonArt = new Image();
+        // skeletonArt.src = "/assets/testing-assets/skeleton.png"
 
-        this.add(new Combatant({
-            scene: this,
-            position: {x: 0, y: 0},
-            team: 3,
-            renderHeight: 0.9,
-            moveSpeed: 1.8,
-            bumpDamage: 15,
-            bumpKnockback: 1,
-            maxHP: 130,
-            cb: new CollisionBody({
-                shape: new Circle({radius: 0.075})
-            }),
-            children: [
-                new Sprite({
-                    image: wizardArt3,
-                    width: 0.15,
-                    height: 0.15,
-                    offset: {x: 0, y: 0.035}
-                })
-            ]
-        }))
+        // this.add(new Combatant({
+        //     scene: this,
+        //     position: {x: 0, y: 0},
+        //     team: 3,
+        //     renderHeight: 0.9,
+        //     moveSpeed: 1.8,
+        //     bumpDamage: 15,
+        //     bumpKnockback: 1,
+        //     maxHP: 130,
+        //     cb: new CollisionBody({
+        //         shape: new Circle({radius: 0.075})
+        //     }),
+        //     children: [
+        //         new Sprite({
+        //             image: skeletonArt,
+        //             width: 0.15,
+        //             height: 0.15,
+        //             offset: {x: 0, y: 0.035}
+        //         })
+        //     ]
+        // }))
 
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
@@ -328,13 +328,12 @@ export class Scene{
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         for(const e of this.entities){
-            e.render(this)
+            if (e.isVisible) e.render(this)
         }
 
         if(VISIBLE_COLLISION_BOXES){
             for(const cb of this.cm.handles.keys()){
                 cb.render(this)
-                //sprite(this.ctx, e.image, getScreenPosition(e.position, this.canvas), e.velocity.dx)
             }
         }
     }

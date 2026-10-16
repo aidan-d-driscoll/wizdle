@@ -2,6 +2,7 @@ import { CollisionBody } from "./collisionBody";
 import Vector from "@/features/battle/types/vector";
 import { Circle } from "./shapes/circle";
 import { UpdateOptions } from "../scene";
+import { Ellipse } from "./shapes/ellipse";
 
 interface Endpoint {
     readonly cb: CollisionBody
@@ -15,24 +16,92 @@ interface Handle {
     maxEp: Endpoint
 }
 
+type RoundShape = Circle | Ellipse
+ 
+function isRoundShape(shape: unknown): shape is RoundShape {
+    return shape instanceof Circle || shape instanceof Ellipse
+}
+ 
+function getRadii(shape: RoundShape): { rx: number, ry: number } {
+    return shape instanceof Circle
+        ? { rx: shape.radius, ry: shape.radius }
+        : { rx: shape.radiusX, ry: shape.radiusY }
+}
+ 
+/**
+ * Center-to-center distance at which the two shapes just touch when one is
+ * placed along the unit direction (ux, uy) from the other.
+ *
+ * Uses the same separation function as Ellipse.overlaps: the shapes are
+ * separated at offset t*u when t^2 * max_s g(s) > 1, where g is concave in s.
+ * So the touching distance is 1 / sqrt(max_s g(s)). For two circles this
+ * collapses to radiusA + radiusB.
+ */
+function getContactDistance(a: RoundShape, b: RoundShape, ux: number, uy: number): number {
+    if (a instanceof Circle && b instanceof Circle) {
+        return a.radius + b.radius
+    }
+ 
+    const ra = getRadii(a)
+    const rb = getRadii(b)
+ 
+    const axx = ra.rx * ra.rx
+    const ayy = ra.ry * ra.ry
+    const bxx = rb.rx * rb.rx
+    const byy = rb.ry * rb.ry
+ 
+    const reach = (s: number): number =>
+        (ux * ux) / (axx / (1 - s) + bxx / s) +
+        (uy * uy) / (ayy / (1 - s) + byy / s)
+ 
+    let lo = 0
+    let hi = 1
+ 
+    for (let i = 0; i < 50; i++) {
+        const m1 = lo + (hi - lo) / 3
+        const m2 = hi - (hi - lo) / 3
+ 
+        if (reach(m1) < reach(m2)) lo = m1
+        else hi = m2
+    }
+ 
+    return 1 / Math.sqrt(reach((lo + hi) / 2))
+}
+ 
 function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody) {
-    if (bodyA.tight instanceof Circle && bodyB.tight instanceof Circle) {
-        const push = new Vector({ startPos: bodyA.tight.position, endPos: bodyB.tight.position })
-        const overlap = bodyA.tight.radius + bodyB.tight.radius - push.magnitude;
-
-        push.magnitude = overlap;
-
+    if (isRoundShape(bodyA.tight) && isRoundShape(bodyB.tight)) {
+        const a = bodyA.tight
+        const b = bodyB.tight
+ 
+        // Direction from A's center to B's center
+        const dx = b.position.x - a.position.x
+        const dy = b.position.y - a.position.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+ 
+        // Concentric shapes have no direction, so pick an arbitrary axis
+        const ux = distance > 0 ? dx / distance : 1
+        const uy = distance > 0 ? dy / distance : 0
+ 
+        // Penetration depth along the center-to-center line
+        const overlap = getContactDistance(a, b, ux, uy) - distance
+        if (overlap <= 0) return
+ 
+        const pushX = ux * overlap
+        const pushY = uy * overlap
+ 
         bodyA.owner.position = {
-            x: bodyA.owner.position.x - push.dx / 2,
-            y: bodyA.owner.position.y - push.dy / 2
+            x: bodyA.owner.position.x - pushX / 2,
+            y: bodyA.owner.position.y - pushY / 2
         }
-
+ 
         bodyB.owner.position = {
-            x: bodyB.owner.position.x + push.dx / 2,
-            y: bodyB.owner.position.y + push.dy / 2
+            x: bodyB.owner.position.x + pushX / 2,
+            y: bodyB.owner.position.y + pushY / 2
         }
     }
 }
+
+
 
 export default class CollisionManager {
     endpoints: Endpoint[] = [];

@@ -23,7 +23,7 @@ export function Battle() {
       ref={battleRef}
       width={1000}
       height={1000}
-      className="bg-zinc-700 w-120 h-120"
+      className="bg-zinc-700 w-180 h-180"
     ></canvas>
   );
 }

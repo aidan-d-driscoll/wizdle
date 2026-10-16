@@ -15,8 +15,6 @@ export type ObjectOptions = EntityOptions & {
     physics?: boolean;
 
     velocity?: Vector;
-
-    children?: Entity[];
 }
 
 export class GameObject extends Entity{
@@ -65,8 +63,6 @@ export class GameObject extends Entity{
     }
 
     update(args: UpdateOptions){
-        super.update(args)
-
         if (!this.dead){
             if (this.physics) {
                 if(!this.flying){
@@ -108,9 +104,6 @@ export class GameObject extends Entity{
                     }
                 }
             }
-
-            
-            
             
             this.position = {
                 x: this.position.x + this.velocity.dx * args.dt,
@@ -123,10 +116,12 @@ export class GameObject extends Entity{
                 this._cb.update(args)
             }
         }
-        
+
+        super.update(args)
     }
 
     render(scene: Scene) {
+        if(this.cb?.tight.isVisible) this.cb.tight.render(scene)
         for (const child of this.children){
             child.render(scene)
         }

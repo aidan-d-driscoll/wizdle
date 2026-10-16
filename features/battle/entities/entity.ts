@@ -23,10 +23,14 @@ export abstract class Entity{
     private _position: Position = {x: 0, y: 0}
     private _offset: Position = {x: 0, y: 0}
 
-    get x(): number { return this._position.x } 
-    get y(): number { return this._position.y }
+    renderHeight = 0;
 
-    renderHeight = 0
+    isActive = true;
+
+    isVisible = true;
+
+    get x(): number { return this._position.x }
+    get y(): number { return this._position.y }
 
     // private _velocity: Vector = new Vector({dx: 0, dy: 0})
     // get velocity(): Vector { return this._velocity }
@@ -157,6 +161,10 @@ export abstract class Entity{
 
         return out;
     }
+
+    toggleActive(): void { this.isActive = !this.isActive }
+
+    toggleVisible(): void { this.isVisible = !this.isVisible }
 
     abstract render(scene: Scene): void;
 }
