@@ -1,7 +1,7 @@
 import { Rectangle } from "../collisions/shapes/rectangle";
-import { Entity, EntityOptions } from "../entities/entity";
+import { Entity, EntityOptions } from "../entity";
 import { Scene } from "../scene";
-import { HexColor } from "../utilities/renderingUtils";
+import { HexColor } from "../rendering/renderingUtils";
 
 export type HealthbarOptions = EntityOptions & {
     maxValue: number;

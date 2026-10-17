@@ -1,0 +1,1 @@
+export const PERSPECTIVE_SCALAR = 1;

@@ -1,5 +1,5 @@
 import { Position } from "@/features/battle/types/position";
-import { Scene, UpdateOptions } from "../scene";
+import { Scene, UpdateOptions } from "./scene";
 import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
 
 export type EntityOptions = {children?: Entity[], renderHeight?: number} & (
@@ -42,10 +42,10 @@ export abstract class Entity{
     get dead(): boolean { return this._dead }
 
     get position(): Position {
-        return {x: this._position.x, y: this._position.y}
+        return {x: this._position.x  + this._offset.x, y: this._position.y + this._offset.y}
     }
     set position(value: Position) {
-        this._position = {x: value.x + this._offset.x, y: value.y + this._offset.y}
+        this._position = {x: value.x, y: value.y}
     }
 
     get offset(): Position {

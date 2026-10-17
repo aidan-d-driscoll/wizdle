@@ -1,6 +1,5 @@
-import { Entity, EntityOptions } from "../entities/entity";
-import { toScreenPosition } from "./rendering";
-import { toScreenValue } from "@/features/battle/utilities/renderingUtils";
+import { Entity, EntityOptions } from "../entity";
+import { toScreenValue, toScreenPosition } from "@/features/battle/rendering/renderingUtils";
 import { Scene } from "../scene";
 
 export type SpriteOptions = EntityOptions & {

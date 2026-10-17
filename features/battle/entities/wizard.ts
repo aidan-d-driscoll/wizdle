@@ -4,7 +4,7 @@ import Spell from "@/features/battle/spells/spell";
 import { UpdateOptions } from "../scene";
 import { BoltSpell } from "../spells/boltSpell";
 import { Sprite } from "../rendering/sprite";
-import { HexColor } from "../utilities/renderingUtils";
+import { HexColor } from "../rendering/renderingUtils";
 
 type WizardOptions = CombatantOptions & {
     spells: Spell[],

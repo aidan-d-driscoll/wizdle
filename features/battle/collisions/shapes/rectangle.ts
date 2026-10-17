@@ -1,6 +1,6 @@
 import { Scene } from "@/features/battle/scene";
 import { Shape, ShapeOptions } from "./shape";
-import { toScreenPosition, toScreenValue } from "@/features/battle/utilities/renderingUtils";
+import { toScreenPosition, toScreenValue } from "@/features/battle/rendering/renderingUtils";
 import { Position } from "@/features/battle/types/position";
 
 

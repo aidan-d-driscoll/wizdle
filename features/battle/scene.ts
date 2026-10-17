@@ -2,11 +2,11 @@ import Combatant from "@/features/battle/entities/combatant";
 import CollisionManager from "./collisions/collisionManager";
 import { Sprite } from "./rendering/sprite";
 import { CollisionBody } from "./collisions/collisionBody";
-import { Entity } from "./entities/entity";
+import { Entity } from "./entity";
 import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
-import { GroundManager, GroundTexture } from "./physics/ground";
+import { GroundManager, GroundTexture } from "./collisions/physics/ground";
 import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import { Ellipse } from "./collisions/shapes/ellipse";
 

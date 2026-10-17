@@ -1,6 +1,6 @@
 import { Position } from "@/features/battle/types/position"
-import { Entity, EntityOptions } from "@/features/battle/entities/entity";
-import { HexColor } from "../../utilities/renderingUtils";
+import { Entity, EntityOptions } from "@/features/battle/entity";
+import { HexColor } from "../../rendering/renderingUtils";
 
 export type ShapeOptions = EntityOptions & {
     color?: HexColor

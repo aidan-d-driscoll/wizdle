@@ -1,8 +1,8 @@
-import { Entity, EntityOptions } from "../entities/entity";
+import { Entity, EntityOptions } from "../entity";
 import Vector from "@/features/battle/types/vector";
 import { Scene, UpdateOptions } from "../scene";
 import { CollisionBody } from "../collisions/collisionBody";
-import { GroundTexture } from "../physics/ground";
+import { GroundTexture } from "../collisions/physics/ground";
 
 export type ObjectOptions = EntityOptions & {
     scene: Scene,

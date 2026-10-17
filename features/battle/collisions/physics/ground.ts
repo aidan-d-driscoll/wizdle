@@ -1,7 +1,7 @@
 import { Position } from "@/features/battle/types/position";
-import { GameObject, ObjectOptions } from "../entities/gameObject";
-import { CollisionBody } from "../collisions/collisionBody";
-import { UpdateOptions } from "../scene";
+import { GameObject, ObjectOptions } from "../../entities/gameObject";
+import { CollisionBody } from "../collisionBody";
+import { UpdateOptions } from "../../scene";
 
 export type GroundTextureOptions = ObjectOptions & {
     friction: number;
