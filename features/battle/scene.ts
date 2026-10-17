@@ -2,7 +2,6 @@ import Combatant from "@/features/battle/entities/combatant";
 import CollisionManager from "./collisions/collisionManager";
 import { Sprite } from "./rendering/sprite";
 import { CollisionBody } from "./collisions/collisionBody";
-import { Circle } from "./collisions/shapes/circle";
 import { Entity } from "./entities/entity";
 import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
@@ -15,8 +14,6 @@ const DEV_TOOLS_ENABLED = true;
 
 const VISIBLE_COLLISION_BOXES = true;
 const INITIAL_BATTLE_SPEED = 1;
-
-const ELLIPSE_X_TO_Y_RATIO = 1/2
 
 export type UpdateOptions = {
     dt: number,
@@ -71,7 +68,7 @@ export class Scene{
             position: {x: 0, y: 0},
             image: arenaArt,
             width: 3.35,
-            height: 1.8,
+            height: 3.6,
             renderHeight: -1
         }))
 
@@ -84,7 +81,7 @@ export class Scene{
                 cb: new CollisionBody({
                     shape: new Ellipse({
                         radiusX: stageFloorWidth,
-                        radiusY: stageFloorWidth * ELLIPSE_X_TO_Y_RATIO
+                        radiusY: stageFloorWidth
                     })
                 })
             })
@@ -99,14 +96,14 @@ export class Scene{
             cb: new CollisionBody({
                 shape: new Ellipse({
                     radiusX: iceWidth,
-                    radiusY: iceWidth*ELLIPSE_X_TO_Y_RATIO
+                    radiusY: iceWidth
                 })
             }),
             children: [
                 new Sprite({
                     image: iceCircle,
                     width: iceWidth*2.1,
-                    height: iceWidth*2.1*ELLIPSE_X_TO_Y_RATIO
+                    height: iceWidth*2.1
                 })
             ]
         })
@@ -130,14 +127,14 @@ export class Scene{
 
         this.add(new Wizard({
             scene: this,
-            position: {x: 0.5, y: 0.5*ELLIPSE_X_TO_Y_RATIO},
+            position: {x: 0.5, y: 0.5},
             team: 1,
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
                 shape: new Ellipse({
                     radiusX: 0.08,
-                    radiusY: 0.08*ELLIPSE_X_TO_Y_RATIO
+                    radiusY: 0.08
                 })
             }),
             sprite: new Sprite({
@@ -165,14 +162,14 @@ export class Scene{
 
         const larry = new Wizard({
             scene: this,
-            position: {x: -0.5, y: -0.5*ELLIPSE_X_TO_Y_RATIO},
+            position: {x: -0.5, y: -0.5},
             team: 2,
             renderHeight: 0.9,
             prefferedPosition: {x: 0, y: 0},
             cb: new CollisionBody({
                 shape: new Ellipse({
                     radiusX: 0.08,
-                    radiusY: 0.08*ELLIPSE_X_TO_Y_RATIO
+                    radiusY: 0.08
                 })
             }),
             sprite: new Sprite({

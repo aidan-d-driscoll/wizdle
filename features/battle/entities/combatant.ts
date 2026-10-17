@@ -136,7 +136,7 @@ export default class Combatant extends GameObject{
 
         this.velocity = new Vector({
             dx: this.velocity.dx,
-            dy: this.velocity.dy * 1/2
+            dy: this.velocity.dy
         })
     }
 

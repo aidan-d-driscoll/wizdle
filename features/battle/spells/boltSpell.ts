@@ -46,7 +46,7 @@ export class BoltSpell extends Spell{
                 cb: new CollisionBody({
                     shape: new Ellipse({ 
                         radiusX: 0.03,
-                        radiusY: 0.015
+                        radiusY: 0.03
                     })
                 })
             }))
