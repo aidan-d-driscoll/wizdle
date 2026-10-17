@@ -1,5 +1,5 @@
 import { Rectangle } from "../collisions/shapes/rectangle";
-import { Entity, EntityOptions } from "../entity";
+import { Entity, EntityOptions } from "../entities/entity";
 import { Scene } from "../scene";
 import { HexColor } from "../rendering/renderingUtils";
 
@@ -50,6 +50,7 @@ export class Fillbar extends Entity{
 
     constructor(args: HealthbarOptions){
         super(args)
+
         this.maxValue = args.maxValue;
         this._value = args.startingValue ? args.startingValue : this.maxValue;
 
@@ -71,9 +72,5 @@ export class Fillbar extends Entity{
         this.value = this.value
     }
 
-    render(scene: Scene) {
-        for (const child of this.children){
-            child.render(scene)
-        }
-    }
+    render(scene: Scene) {}
 }

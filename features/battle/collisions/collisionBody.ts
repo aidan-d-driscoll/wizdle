@@ -1,54 +1,40 @@
 import { Rectangle } from "./shapes/rectangle";
 import { Shape } from "./shapes/shape";
 import { Scene, UpdateOptions } from "../scene";
+import { Entity, EntityOptions } from "../entities/entity";
 import { GameObject } from "../entities/gameObject";
-import Combatant from "../entities/combatant";
 
-export type collisionBodyOptions = {
+export type CollisionBodyOptions = EntityOptions & {
     shape: Shape;
     xOffset?: number;
     yOffset?: number;
 }
 
-export class CollisionBody {
-    private static nextId = 0;
-    readonly id: number;
-
-    owner!: GameObject;
+export class CollisionBody extends Entity{
+    parent!: GameObject;
 
     tight: Shape;
-    fat: Rectangle;
     dirty: boolean = false;
 
     physics = false;
 
-    constructor(args: collisionBodyOptions) {
-        this.id = CollisionBody.nextId;
-        CollisionBody.nextId++;
+    constructor(args: CollisionBodyOptions) {
+        super(args)
 
         this.tight = args.shape;
         this.tight.color = "#0000003f";
 
-        this.fat = this.newFatbox();
-        this.fat.isVisible = false;
-        this.fat.color = "#2903ff9d";
+        this.addChild(this.tight)
     }
 
     update(args: UpdateOptions): void {
-        if (this.tight.breaches(this.fat)) {
-            this.dirty = true;
-            args.scene.markDirty(this.owner)
-            this.fat.position = {x: this.tight.x, y: this.tight.y}
-        }
+        super.update(args)
+
+        
     }
 
     toString(): string {
         return (`|${this.fat.xMin.toFixed(2)} |${this.tight.xMin.toFixed(2)} (${this.id}) ${this.tight.xMax.toFixed(2)}| ${this.fat.xMax.toFixed(2)}| @ (${this.fat.position.x.toFixed(2)}, ${this.fat.position.y.toFixed(2)})`)
-    }
-
-    render(scene:Scene) {
-        if(this.fat.isVisible) this.fat.render(scene)
-        if(this.tight.isVisible) this.tight.render(scene)
     }
 
     newFatbox(): Rectangle{

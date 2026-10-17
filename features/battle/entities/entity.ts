@@ -1,5 +1,5 @@
 import { Position } from "@/features/battle/types/position";
-import { Scene, UpdateOptions } from "./scene";
+import { Scene, UpdateOptions } from "../scene";
 import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
 
 export type EntityOptions = {children?: Entity[], renderHeight?: number} & (
@@ -31,12 +31,6 @@ export abstract class Entity{
 
     get x(): number { return this._position.x }
     get y(): number { return this._position.y }
-
-    // private _velocity: Vector = new Vector({dx: 0, dy: 0})
-    // get velocity(): Vector { return this._velocity }
-
-    // private _acceleration: Vector = new Vector({dx: 0, dy: 0})
-    // get acceleration(): Vector { return this._acceleration }
 
     private _dead = false;
     get dead(): boolean { return this._dead }
@@ -79,7 +73,9 @@ export abstract class Entity{
 
 
     update(args: UpdateOptions){
-        if(this.dead) args.scene.markForDestruction(this)
+        if(this.dead){
+            args.scene.markForDestruction(this)
+        }
         else {
             if(this.parent) this.position = this.parent.position
             
@@ -96,6 +92,7 @@ export abstract class Entity{
 
     destroy(){
         this._dead = true;
+        for (const child of this.children) { child.destroy() }
     }
 
     /**
@@ -126,7 +123,7 @@ export abstract class Entity{
     closest(otherA: Set<Entity>): Entity;
     closest(otherA: Entity, otherB: Entity): Entity;
 
-    closest(otherA: Entity | Set<Entity>, otherB?: Entity): Entity | null{
+    closest(otherA: Entity | Set<Entity> | Entity[], otherB?: Entity): Entity | null{
         let minDistance = Infinity
         let out: Entity | null = null
 
@@ -166,5 +163,9 @@ export abstract class Entity{
 
     toggleVisible(): void { this.isVisible = !this.isVisible }
 
-    abstract render(scene: Scene): void;
+    render(scene: Scene){
+        for (const e of this.children){
+            e.render(scene)
+        }
+    }
 }

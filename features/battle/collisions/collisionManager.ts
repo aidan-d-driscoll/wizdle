@@ -1,5 +1,4 @@
 import { CollisionBody } from "./collisionBody";
-import Vector from "@/features/battle/types/vector";
 import { Circle } from "./shapes/circle";
 import { UpdateOptions } from "../scene";
 import { Ellipse } from "./shapes/ellipse";
@@ -89,14 +88,14 @@ function handlePhysicsOverlap(bodyA: CollisionBody, bodyB: CollisionBody) {
         const pushX = ux * overlap
         const pushY = uy * overlap
  
-        bodyA.owner.position = {
-            x: bodyA.owner.position.x - pushX / 2,
-            y: bodyA.owner.position.y - pushY / 2
+        bodyA.parent.position = {
+            x: bodyA.parent.position.x - pushX / 2,
+            y: bodyA.parent.position.y - pushY / 2
         }
  
-        bodyB.owner.position = {
-            x: bodyB.owner.position.x + pushX / 2,
-            y: bodyB.owner.position.y + pushY / 2
+        bodyB.parent.position = {
+            x: bodyB.parent.position.x + pushX / 2,
+            y: bodyB.parent.position.y + pushY / 2
         }
     }
 }
@@ -109,13 +108,10 @@ export default class CollisionManager {
     collisionCandidates = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
     activeCollisions = new Map<number, { bodyA: CollisionBody, bodyB: CollisionBody }>
 
-    // tm = new TargetManager();
-
     update(args:UpdateOptions): void {
 
-        for (const obj of args.scene.dirtyQueue) {
-            if (obj.cb && this.handles.has(obj.cb))
-            this.repositionCollisionBody(obj.cb);
+        for (const body of args.scene.dirtyQueue) {
+            if (this.handles.has(body)) { this.repositionCollisionBody(body) }
         }
 
         let key: number;
@@ -131,26 +127,26 @@ export default class CollisionManager {
                 // The collsion was happening on the last update
                 if (tightBoxCollision) {
                     // The Collision bodys are still overlapping -> collision continues -> Emit collision STAY
-                    // console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
-                    if (bodyA.owner.physics && bodyB.owner.physics) handlePhysicsOverlap(bodyA, bodyB)
+                    console.log(`EMIT COLLISION STAY [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                    if (bodyA.physics && bodyB.physics) handlePhysicsOverlap(bodyA, bodyB)
 
-                    if (bodyA.owner.onCollisionStay) bodyA.owner.onCollisionStay(bodyB.owner);
-                    if (bodyB.owner.onCollisionStay) bodyB.owner.onCollisionStay(bodyA.owner);
+                    if (bodyA.parent.onCollisionStay) bodyA.parent.onCollisionStay(bodyB.parent);
+                    if (bodyB.parent.onCollisionStay) bodyB.parent.onCollisionStay(bodyA.parent);
                 } else {
                     // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
-                    // console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                    console.log(`EMIT COLLISION LEAVE [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                     this.activeCollisions.delete(key)
                     
-                    if (bodyA.owner.onCollisionExit) bodyA.owner.onCollisionExit(bodyB.owner);
-                    if (bodyB.owner.onCollisionExit) bodyB.owner.onCollisionExit(bodyA.owner);
+                    if (bodyA.parent.onCollisionExit) bodyA.parent.onCollisionExit(bodyB.parent);
+                    if (bodyB.parent.onCollisionExit) bodyB.parent.onCollisionExit(bodyA.parent);
                 }
             } else if (tightBoxCollision) {
-                // The objects are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
-                // console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
+                // The bodies are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
+                console.log(`EMIT COLLISION ENTER [body${candidate[1].bodyA.id} <-> body${candidate[1].bodyB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
 
-                if (bodyA.owner.onCollisionEnter) bodyA.owner.onCollisionEnter(bodyB.owner);
-                if (bodyB.owner.onCollisionEnter) bodyB.owner.onCollisionEnter(bodyA.owner);
+                if (bodyA.parent.onCollisionEnter) bodyA.parent.onCollisionEnter(bodyB.parent);
+                if (bodyB.parent.onCollisionEnter) bodyB.parent.onCollisionEnter(bodyA.parent);
             }
         }
 
@@ -158,7 +154,7 @@ export default class CollisionManager {
     }
 
     add(cb: CollisionBody) {
-        // if (cb.owner instanceof Combatant) this.tm.add(cb.owner)
+        // if (cb.parent instanceof Combatant) this.tm.add(cb.parent)
 
         const newMinEp: Endpoint = { cb: cb, isMin: true, xPos: cb.fat.xMin, slot: -1 };
         const newMaxEp: Endpoint = { cb: cb, isMin: false, xPos: cb.fat.xMax, slot: -1 };
@@ -215,7 +211,6 @@ export default class CollisionManager {
     }
 
     remove(cb: CollisionBody): void {
-        // if (cb.owner instanceof Combatant) this.tm.remove(cb.owner)
 
         const handle = this.handles.get(cb)
         if (handle) {
@@ -257,7 +252,10 @@ export default class CollisionManager {
 
         if (minEp.slot < maxEp.slot) {
             this.collisionCandidates.set(key, { bodyA: minEp.cb, bodyB: maxEp.cb })
-        } else this.collisionCandidates.delete(key);
+        } else {
+            this.collisionCandidates.delete(key);
+            if (this.activeCollisions.has(key)) 
+        }
     }
 
     private registerCollisionCandidate(cbA: CollisionBody, cbB: CollisionBody): void {

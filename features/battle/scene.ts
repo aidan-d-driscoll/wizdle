@@ -2,13 +2,17 @@ import Combatant from "@/features/battle/entities/combatant";
 import CollisionManager from "./collisions/collisionManager";
 import { Sprite } from "./rendering/sprite";
 import { CollisionBody } from "./collisions/collisionBody";
-import { Entity } from "./entity";
+import { Entity } from "./entities/entity";
 import { GameObject } from "./entities/gameObject";
 import { TargetManager } from "./targeting/targetManager";
 import { Wizard } from "./entities/wizard";
 import { GroundManager, GroundTexture } from "./collisions/physics/ground";
 import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import { Ellipse } from "./collisions/shapes/ellipse";
+import { Circle } from "./collisions/shapes/circle";
+import Vector from "./types/vector";
+import { getRandomWizardArt } from "./rendering/renderingUtils";
+import { Component } from "./components";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -25,14 +29,15 @@ export class Scene{
     private running: boolean = false;
     readonly ctx!: CanvasRenderingContext2D;
 
-    readonly dirtyQueue: GameObject[] = [];
+    readonly dirtyQueue: Component[] = [];
 
-    readonly cm: CollisionManager = new CollisionManager();
+    readonly cm = new CollisionManager();
     readonly tm = new TargetManager();
     readonly gm = new GroundManager();
 
-    private entities: Entity[] = []
-    private destructionQueue: Entity[] = []
+    private entities: Entity[] = [];
+    readonly updatables = new Set<Component>;
+    private destructionQueue: Entity[] = [];
 
     private animationFrameId: number | null = null;
     
@@ -40,6 +45,7 @@ export class Scene{
 
     private battlePaused: boolean = false;
     private battleSpeed: number = INITIAL_BATTLE_SPEED;
+    private showCollisionBoxes = VISIBLE_COLLISION_BOXES;
 
     constructor(readonly canvas: HTMLCanvasElement) {
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D
@@ -63,153 +69,6 @@ export class Scene{
 
         const iceCircle = new Image();
         iceCircle.src = "/assets/testing-assets/ice_circle.png";
-
-        this.add(new Sprite({
-            position: {x: 0, y: 0},
-            image: arenaArt,
-            width: 3.35,
-            height: 3.6,
-            renderHeight: -1
-        }))
-
-        const stageFloorWidth = 0.91
-        this.gm.add(
-            new GroundTexture({
-                scene: this,
-                position: {x:0, y:0},
-                friction: 1.5,
-                cb: new CollisionBody({
-                    shape: new Ellipse({
-                        radiusX: stageFloorWidth,
-                        radiusY: stageFloorWidth
-                    })
-                })
-            })
-        )
-
-        const iceWidth = setOptionalRandomNumber({min: 0.25, max: 0.55})
-        const icePond = new GroundTexture({
-            scene: this,
-            position: {x:setOptionalRandomNumber({min:-0.1, max: 0.1}), y:setOptionalRandomNumber({min:-0.1, max: 0.1})},
-            friction: 0.2,
-            renderHeight: -0.1,
-            cb: new CollisionBody({
-                shape: new Ellipse({
-                    radiusX: iceWidth,
-                    radiusY: iceWidth
-                })
-            }),
-            children: [
-                new Sprite({
-                    image: iceCircle,
-                    width: iceWidth*2.1,
-                    height: iceWidth*2.1
-                })
-            ]
-        })
-
-        this.add(icePond)
-
-        this.gm.add(icePond)
-
-        let wizardArtNum = getRandomFloat(0, 4)
-        const wizardArt1 = new Image();
-        
-        if (wizardArtNum < 1){
-            wizardArt1.src = "/assets/testing-assets/blood-sorcerer.png"
-        } else if (wizardArtNum < 2){
-            wizardArt1.src = "/assets/testing-assets/grass-druid.png"
-        } else if (wizardArtNum < 3){
-            wizardArt1.src = "/assets/testing-assets/rain-mage.png"
-        } else{
-            wizardArt1.src = "/assets/testing-assets/grape-omancer.png"
-        }
-
-        this.add(new Wizard({
-            scene: this,
-            position: {x: 0.5, y: 0.5},
-            team: 1,
-            renderHeight: 0.9,
-            prefferedPosition: {x: 0, y: 0},
-            cb: new CollisionBody({
-                shape: new Ellipse({
-                    radiusX: 0.08,
-                    radiusY: 0.08
-                })
-            }),
-            sprite: new Sprite({
-                image: wizardArt1,
-                width: 0.15,
-                height: 0.14,
-                offset: {x: 0, y: 0.067}
-            }),
-            spells: [],
-            name: "Right-side Randy"
-        }))
-
-        wizardArtNum = getRandomFloat(0, 4)
-        const wizardArt2 = new Image();
-        
-        if (wizardArtNum < 1){
-            wizardArt2.src = "/assets/testing-assets/blood-sorcerer.png"
-        } else if (wizardArtNum < 2){
-            wizardArt2.src = "/assets/testing-assets/grass-druid.png"
-        } else if (wizardArtNum < 3){
-            wizardArt2.src = "/assets/testing-assets/rain-mage.png"
-        } else{
-            wizardArt2.src = "/assets/testing-assets/grape-omancer.png"
-        }
-
-        const larry = new Wizard({
-            scene: this,
-            position: {x: -0.5, y: -0.5},
-            team: 2,
-            renderHeight: 0.9,
-            prefferedPosition: {x: 0, y: 0},
-            cb: new CollisionBody({
-                shape: new Ellipse({
-                    radiusX: 0.08,
-                    radiusY: 0.08
-                })
-            }),
-            sprite: new Sprite({
-                image: wizardArt2,
-                width: 0.15,
-                height: 0.14,
-                offset: {x: 0, y: 0.067}
-            }),
-            spells: [],
-            name: "Larry of the Left"
-        })
-
-        this.add(larry)
-        larry.sprite.flipHorizontal()
-        
-
-        // const skeletonArt = new Image();
-        // skeletonArt.src = "/assets/testing-assets/skeleton.png"
-
-        // this.add(new Combatant({
-        //     scene: this,
-        //     position: {x: 0, y: 0},
-        //     team: 3,
-        //     renderHeight: 0.9,
-        //     moveSpeed: 1.8,
-        //     bumpDamage: 15,
-        //     bumpKnockback: 1,
-        //     maxHP: 130,
-        //     cb: new CollisionBody({
-        //         shape: new Circle({radius: 0.075})
-        //     }),
-        //     children: [
-        //         new Sprite({
-        //             image: skeletonArt,
-        //             width: 0.15,
-        //             height: 0.15,
-        //             offset: {x: 0, y: 0.035}
-        //         })
-        //     ]
-        // }))
 
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
@@ -239,7 +98,9 @@ export class Scene{
                         }
                         break;
                     case ' ':
-                        this.battlePaused = !this.battlePaused; 
+                        this.battlePaused = !this.battlePaused;
+                    case 'c':
+                        this.showCollisionBoxes = !this.showCollisionBoxes;
                     default:
                         return; 
                 }
@@ -316,36 +177,41 @@ export class Scene{
         this.dirtyQueue.length = 0;
 
         this.processDestruction()
+
+        for (const e of this.entities){
+            console.log(e.id)
+        }
     }
 
     private render() {
         this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-        this.ctx.fillStyle = "#0731b9"
+        this.ctx.fillStyle = "#838383"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         for(const e of this.entities){
-            if (e.isVisible) e.render(this)
-        }
+            if (e.isVisible) { e.render(this) }
 
-        if(VISIBLE_COLLISION_BOXES){
-            for(const cb of this.cm.handles.keys()){
-                cb.render(this)
+            if (this.showCollisionBoxes){
+                // for (const cb of this.cm.handles.keys()) { cb.parent.fat.render(this) }
             }
+            
         }
     }
 
     add(e: Entity){
         this.entities.push(e)
         this.entities.sort((a,b) => {return a.renderHeight - b.renderHeight})
+
+        for (const child of e.children) { this.add(child) }
     }
 
     markForDestruction(e: Entity){
         this.destructionQueue.push(e)
     }
 
-    markDirty(obj: GameObject){
-        this.dirtyQueue.push(obj)
+    markDirty(c: Component){
+        this.dirtyQueue.push(c)
     }
 
     private processDestruction(){
@@ -354,7 +220,7 @@ export class Scene{
         for (const e of this.destructionQueue){
             const idx = this.entities.indexOf(e)
             if(e.parent) e.parent.children.delete(e)
-            if(e instanceof GameObject && e.cb) this.cm.remove(e.cb)
+            // if(e instanceof GameObject && e.cb) this.cm.remove(e.cb)
             if(e instanceof Combatant) this.tm.remove(e)
             this.entities.splice(idx, 1)
         }

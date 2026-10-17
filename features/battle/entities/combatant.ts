@@ -1,17 +1,15 @@
 import { Position } from "@/features/battle/types/position";
 import { GameObject, ObjectOptions } from "../entities/gameObject";
-import { Scene, UpdateOptions } from "../scene";
+import { UpdateOptions } from "../scene";
 import { getRawDistance, setOptionalRandomNumber,  } from "@/features/battle/utilities/mathUtils";
 import Vector from "@/features/battle/types/vector";
-import { CollisionBody } from "../collisions/collisionBody";
 import { Fillbar } from "../ui_elements/fillbar";
 import { Sprite } from "../rendering/sprite";
+import { CollisionBody } from "../collisions/collisionBody";
 
 const CIRCLING_SPEED = 0.35
 
 export type CombatantOptions = ObjectOptions & {
-    cb: CollisionBody;
-
     team: number,
 
     maxHP?: number,
@@ -21,13 +19,13 @@ export type CombatantOptions = ObjectOptions & {
     bumpDamage?: number,
     bumpKnockback?: number,
 
-    sprite: Sprite,
+    sprites: Sprite[],
 }
 
 export default class Combatant extends GameObject{
     private _team: number;
 
-    sprite: Sprite;
+    sprites: Sprite[];
 
     enemies: Combatant[] = [];
     nearestEnemy: Combatant | null = null;
@@ -87,8 +85,8 @@ export default class Combatant extends GameObject{
         })
         this.addChild(this._healthbar)
 
-        this.sprite = args.sprite
-        this.addChild(this.sprite)
+        this.sprites = args.sprites
+        for (const sp of this.sprites){ this.addChild(sp) }
 
         if(args.bumpDamage) this._bumpDamage = args.bumpDamage
         if(args.bumpKnockback) this._bumpKnockback = args.bumpKnockback
@@ -128,7 +126,7 @@ export default class Combatant extends GameObject{
         } else {
             const newDir = new Vector({startPos: this.position, endPos: this.nearestEnemy.position})
             if(this.nearestEnemyDir && ((newDir.dx > 0) !== (this.nearestEnemyDir.dx > 0)))
-                this.sprite.flipHorizontal()
+                for (const sp of this.sprites){ sp.flipHorizontal() }
             this.nearestEnemyDir = newDir
         }
 

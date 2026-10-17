@@ -1,4 +1,4 @@
-import { Entity, EntityOptions } from "../entity";
+import { Entity, EntityOptions } from "../entities/entity";
 import { toScreenValue, toScreenPosition } from "@/features/battle/rendering/renderingUtils";
 import { Scene } from "../scene";
 
