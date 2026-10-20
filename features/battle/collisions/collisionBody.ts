@@ -1,8 +1,8 @@
 import { Rectangle } from "./shapes/rectangle";
 import { Shape } from "./shapes/shape";
 import { Scene, UpdateOptions } from "../scene";
-import { Entity, EntityOptions } from "../entities/entity";
-import { GameObject } from "../entities/gameObject";
+import { Entity, EntityOptions } from "../entity";
+import { GameObject } from "../gameObject";
 
 export type CollisionBodyOptions = EntityOptions & {
     shape: Shape;

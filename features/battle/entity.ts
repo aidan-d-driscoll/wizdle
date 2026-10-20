@@ -1,8 +1,8 @@
 import { Position } from "@/features/battle/types/position";
-import { Scene } from "../scene";
+import { Scene } from "./scene";
 import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
-import { Integer, integer } from "../types/integer";
-import { RenderLayer } from "../globals";
+import { Integer, integer } from "./types/integer";
+import { RenderLayer } from "./globals";
 
 export type EntityOptions = {
     scene: Scene,

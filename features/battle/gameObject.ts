@@ -1,6 +1,6 @@
-import { Entity, EntityOptions } from "../entities/entity";
-import { Component } from "../components";
-import { Scene } from "../scene";
+import { Entity, EntityOptions } from "./entity";
+import { Component } from "./components/component";
+import { Scene } from "./scene";
 
 export type ObjectOptions = EntityOptions & {
     // static?: boolean;

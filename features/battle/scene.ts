@@ -10,13 +10,15 @@
 // import { Circle } from "./collisions/shapes/circle";
 // import Vector from "./types/vector";
 // import { getRandomWizardArt } from "./rendering/renderingUtils";
-import { Component, Body, Sprite } from "./components";
-import { Renderable, Updatable } from "./component_interfaces";
-import { Entity } from "./entities/entity";
-import { GameObject } from "./entities/gameObject";
+import { Component } from "./components/component";
+import { Renderable, Updatable } from "./components/interfaces";
+import { Entity } from "./entity";
+import { GameObject } from "./gameObject";
 import { integer } from "./types/integer";
 import Vector from "./types/vector";
 import { RenderLayer } from "./globals";
+import { Sprite } from "./components/sprite";
+import { Body, BodyType } from "./components/body";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -94,6 +96,7 @@ export class Scene{
         }))
 
         wizard1.add(new Body({
+            bodyType: BodyType.KINEMATIC,
             acceleration: new Vector({dx: 0.01, dy: 0.01})
         }))
         

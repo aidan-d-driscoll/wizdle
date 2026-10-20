@@ -1,5 +1,5 @@
 import { Position } from "@/features/battle/types/position";
-import { GameObject, ObjectOptions } from "../entities/gameObject";
+import { GameObject, ObjectOptions } from "../gameObject";
 import { getRawDistance, setOptionalRandomNumber,  } from "@/features/battle/utilities/mathUtils";
 import Vector from "@/features/battle/types/vector";
 import { Fillbar } from "../ui_elements/fillbar";
