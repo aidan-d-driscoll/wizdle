@@ -22,3 +22,7 @@ export function setOptionalRandomNumber({value, min, max}:{value?: number, min: 
     if (!value) return getRandomFloat(min, max)
     else return value
 }
+
+export function softSign(value: number): number{
+    return value/(value + Math.abs(value))
+}

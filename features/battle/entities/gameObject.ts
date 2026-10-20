@@ -1,14 +1,8 @@
 import { Entity, EntityOptions } from "../entities/entity";
-import Vector from "@/features/battle/types/vector";
-import { Scene, UpdateOptions } from "../scene";
-import { CollisionBody } from "../collisions/collisionBody";
-import { GroundTexture } from "../collisions/physics/ground";
-import { Rectangle } from "../collisions/shapes/rectangle";
 import { Component } from "../components";
+import { Scene } from "../scene";
 
 export type ObjectOptions = EntityOptions & {
-    scene: Scene,
-
     // static?: boolean;
     
     // visible?: boolean;
@@ -19,26 +13,25 @@ export type ObjectOptions = EntityOptions & {
 }
 
 export class GameObject extends Entity{
-    scene: Scene;
-
     private _components = new Map<string, Component>;
-
-    constructor(args: ObjectOptions){
-        super(args)
-        this.scene = args.scene
-    }
 
     add<T extends Component>(c: T): T {
         c.owner = this;
-        this._components.set(c.constructor.toString(), c)
+        this._components.set(c.constructor.toString(), c);
         c.onAttach();
         return c;
     }
 
-    remove(type: string) {
-        const c = this._components.get(type);
+    get<T extends Component>(c: T): T | undefined {
+        return this._components.get(c.constructor.toString()) as T | undefined;
+    }
+
+    has<T extends Component>(type: () => T): boolean { return this._components.has(type.toString()) }
+
+    remove(type: () => Component) {
+        const c = this._components.get(type.toString());
         c?.onDetach();
-        this._components.delete(type);
+        this._components.delete(type.toString());
     }
 
 

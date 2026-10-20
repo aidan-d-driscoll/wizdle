@@ -1,11 +1,19 @@
 import { Position } from "@/features/battle/types/position";
-import { Scene, UpdateOptions } from "../scene";
+import { Scene } from "../scene";
 import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
+import { Integer, integer } from "../types/integer";
 
-export type EntityOptions = {children?: Entity[], renderHeight?: number} & (
-    | { position: Position, parent?: never, offset?: never }
-    | { position?: never, parent?: Entity, offset?: Position}
-)
+export type EntityOptions = {
+    scene: Scene,
+    parent?: Entity,
+    children?: Entity[], 
+    layer?: Integer, 
+    position?: Position,
+}
+
+type ClosestOptions = 
+    | { otherA: Entity[] | Set<Entity>, otherB: never, } 
+    | { otherA: Entity, otherB: Entity}
 
 /**
  * Handles basic logic available to everything in a scene: Positioning, Update, Destroy
@@ -16,52 +24,45 @@ export abstract class Entity{
     private static nextId: number = 0;
     readonly id: number;
 
+    scene: Scene;
+
     public parent: Entity | null = null;
 
     public children = new Set<Entity>;
 
-    private _position: Position = {x: 0, y: 0}
-    private _offset: Position = {x: 0, y: 0}
+    layer: Integer = integer(0);
 
-    renderHeight = 0;
+    private _active = false;
+    get active(): boolean { return this._active }
+    set active(value: boolean){
+        this._active = value;
+        for (const child of this.children){ child._active = value }
+    }
 
-    isActive = true;
+    dead = false;
 
-    isVisible = true;
-
+    private _position: Position = {x:0, y:0}
     get x(): number { return this._position.x }
     get y(): number { return this._position.y }
 
-    private _dead = false;
-    get dead(): boolean { return this._dead }
-
-    get position(): Position {
-        return {x: this._position.x  + this._offset.x, y: this._position.y + this._offset.y}
+    get position(): Position{
+        return this._position
     }
     set position(value: Position) {
         this._position = {x: value.x, y: value.y}
-    }
-
-    get offset(): Position {
-        return this._offset;
-    }
-    set offset(value: Position) {
-        this._offset = {x: value.x, y: value.y}
     }
 
     constructor(args:EntityOptions){
         this.id = Entity.nextId;
         Entity.nextId++;
 
-        if(args.renderHeight) this.renderHeight =  args.renderHeight
+        this.scene = args.scene;
+
+        if(args.layer) this.layer =  args.layer;
         
         if(args.position){
             this._position = args.position;
-        } else {
-            if(args.parent) {
-                this.parent = args.parent;
-            }
-            if(args.offset) this._offset = args.offset;
+            this.active = true;
         }
 
         if(args.children) {
@@ -71,27 +72,20 @@ export abstract class Entity{
         }
     }
 
-
-    update(args: UpdateOptions){
-        if(this.dead){
-            args.scene.markForDestruction(this)
-        }
-        else {
-            if(this.parent) this.position = this.parent.position
-            
-            for (const child of this.children) child.update(args)
-        }
+    addChild(child: Entity){
+        this.children.add(child);
+        child.active = true;
+        child.parent = this;
+        child.layer = this.layer;
+        child.position = this.position;
     }
 
-    addChild(child: Entity){
-        this.children.add(child)
-        child.parent = this
-        child.renderHeight += this.renderHeight
-        child.position = this.position
+    removeChild(child: Entity){
+        this.children.delete(child)
     }
 
     destroy(){
-        this._dead = true;
+        this.scene.markForDestruction(this)
         for (const child of this.children) { child.destroy() }
     }
 
@@ -102,8 +96,8 @@ export abstract class Entity{
      * @returns The total length of the space between this and other
      */
     distanceTo(other: Entity | Position): number{
-        if (other instanceof Entity){ other = other.position }
-
+        if (other instanceof Entity && other.position){ other = other.position }
+        
         return getDistance({from: this.position, to: other})
     }
 
@@ -119,30 +113,25 @@ export abstract class Entity{
 
         return getRawDistance({from: this.position, to: other})
     }
-
-    closest(otherA: Set<Entity>): Entity;
-    closest(otherA: Entity, otherB: Entity): Entity;
-
-    closest(otherA: Entity | Set<Entity> | Entity[], otherB?: Entity): Entity | null{
+    
+    closest(args: ClosestOptions): Entity | null{
         let minDistance = Infinity
         let out: Entity | null = null
 
-        if(otherA instanceof Entity){
-            if (otherB){
-                const dxA = this.x - otherA.x
-                const dyA = this.y - otherA.y
-                
-                const distanceA  = dxA * dxA + dyA * dyA
+        if(args.otherA instanceof Entity){
+            const dxA = this.x - args.otherA.x
+            const dyA = this.y - args.otherA.y
+            
+            const distanceA  = dxA * dxA + dyA * dyA
 
-                const dxB = this.x - otherB.x
-                const dyB = this.y - otherB.y
-                
-                const distanceB  = dxB * dxB + dyB * dyB
+            const dxB = this.x - args.otherB.x
+            const dyB = this.y - args.otherB.y
+            
+            const distanceB  = dxB * dxB + dyB * dyB
 
-                out = (distanceA > distanceB) ? otherB : otherA
-            }
+            out = (distanceA > distanceB) ? args.otherB : args.otherA
         } else {
-            for (const obj of otherA){
+            for (const obj of args.otherA){
                 if(obj === this) continue;
     
                 const dx = this.x - obj.x
@@ -159,9 +148,7 @@ export abstract class Entity{
         return out;
     }
 
-    toggleActive(): void { this.isActive = !this.isActive }
-
-    toggleVisible(): void { this.isVisible = !this.isVisible }
+    deactivate(): void { this.active = false }
 
     render(scene: Scene){
         for (const e of this.children){

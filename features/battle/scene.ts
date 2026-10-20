@@ -1,29 +1,26 @@
-import Combatant from "@/features/battle/entities/combatant";
-import CollisionManager from "./collisions/collisionManager";
-import { Sprite } from "./rendering/sprite";
-import { CollisionBody } from "./collisions/collisionBody";
+// import Combatant from "@/features/battle/entities/combatant";
+// import CollisionManager from "./collisions/collisionManager";
+// import { CollisionBody } from "./collisions/collisionBody";
+
+// import { TargetManager } from "./targeting/targetManager";
+// import { Wizard } from "./entities/wizard";
+// import { GroundManager, GroundTexture } from "./collisions/physics/ground";
+// import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
+// import { Ellipse } from "./collisions/shapes/ellipse";
+// import { Circle } from "./collisions/shapes/circle";
+// import Vector from "./types/vector";
+// import { getRandomWizardArt } from "./rendering/renderingUtils";
+import { Component, Body, Sprite } from "./components";
+import { Renderable, Updateable } from "./component_interfaces";
 import { Entity } from "./entities/entity";
 import { GameObject } from "./entities/gameObject";
-import { TargetManager } from "./targeting/targetManager";
-import { Wizard } from "./entities/wizard";
-import { GroundManager, GroundTexture } from "./collisions/physics/ground";
-import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
-import { Ellipse } from "./collisions/shapes/ellipse";
-import { Circle } from "./collisions/shapes/circle";
+import { integer } from "./types/integer";
 import Vector from "./types/vector";
-import { getRandomWizardArt } from "./rendering/renderingUtils";
-import { Component } from "./components";
 
 const DEV_TOOLS_ENABLED = true;
 
 const VISIBLE_COLLISION_BOXES = true;
 const INITIAL_BATTLE_SPEED = 1;
-
-export type UpdateOptions = {
-    dt: number,
-
-    scene: Scene
-}
 
 export class Scene{
     private running: boolean = false;
@@ -31,12 +28,13 @@ export class Scene{
 
     readonly dirtyQueue: Component[] = [];
 
-    readonly cm = new CollisionManager();
-    readonly tm = new TargetManager();
-    readonly gm = new GroundManager();
+    // readonly cm = new CollisionManager();
+    // readonly tm = new TargetManager();
+    // readonly gm = new GroundManager();
 
     private entities: Entity[] = [];
-    readonly updatables = new Set<Component>;
+    readonly updatables = new Set<Updateable>;
+    renderables: Renderable[] = [];
     private destructionQueue: Entity[] = [];
 
     private animationFrameId: number | null = null;
@@ -70,6 +68,37 @@ export class Scene{
         const iceCircle = new Image();
         iceCircle.src = "/assets/testing-assets/ice_circle.png";
 
+        const background = new GameObject({
+            scene: this,
+            position: {x: 0, y: 0},
+            layer: integer(-1)
+        })
+
+        background.add(new Sprite({
+            image: arenaArt,
+            width: 3.3,
+            height: 3.5,
+            renderHeight: 1000000000000000
+        }))
+
+        const wizard1 = new GameObject({
+            scene: this,
+            position: {x:0, y:0}
+        })
+
+        wizard1.add(new Sprite({
+            offset: {x: 0, y: 0.01},
+            image: purpleWizardArt,
+            width: 0.2,
+            height: 0.2
+        }))
+
+        wizard1.add(new Body({
+            acceleration: new Vector({dx: 0.01, dy: 0.01})
+        }))
+        
+        this.add(wizard1)
+
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
 
@@ -83,7 +112,7 @@ export class Scene{
                 switch (k) {
                     case 'arrowleft':
                         if (this.battlePaused) {
-                            this.update({dt: -1/60, scene: this})
+                            this.update(-1/60)
                             this.render()
                         } else {
                             this.battleSpeed = Math.max(0.001, this.battleSpeed-0.25);
@@ -91,7 +120,7 @@ export class Scene{
                         break;
                     case 'arrowright':
                         if (this.battlePaused) {
-                            this.update({dt: 1/60, scene: this})
+                            this.update(1/60)
                             this.render()
                         } else {
                             this.battleSpeed = Math.min(2, this.battleSpeed+0.25);
@@ -150,7 +179,7 @@ export class Scene{
 
         if(!this.battlePaused){
             dt *= this.battleSpeed;
-            this.update({dt: dt, scene: this});
+            this.update(dt);
             this.render();
         } else {
             dt = 0
@@ -165,22 +194,20 @@ export class Scene{
      * @param dt - Time passed since last update
      * @param scene - {@link Scene} instance that is being updated
      */
-    private update(args: UpdateOptions) {
-        for(const e of this.entities){
+    private update(dt:number) {
+        for(const up of this.updatables){
             // every entity has an update function meant to manage frame-by-frame logic
-            e.update(args)
+            up.update(dt)
         }
 
-        this.cm.update(args)
-        this.tm.update(args)
-        this.gm.update(args)
+        // this.cm.update(args)
+        // this.tm.update(args)
+        // this.gm.update(args)
         this.dirtyQueue.length = 0;
 
         this.processDestruction()
 
-        for (const e of this.entities){
-            console.log(e.id)
-        }
+        this.render()
     }
 
     private render() {
@@ -189,20 +216,11 @@ export class Scene{
         this.ctx.fillStyle = "#838383"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
-        for(const e of this.entities){
-            if (e.isVisible) { e.render(this) }
-
-            if (this.showCollisionBoxes){
-                // for (const cb of this.cm.handles.keys()) { cb.parent.fat.render(this) }
-            }
-            
-        }
+        for (const r of this.renderables){ r.render() }
     }
 
     add(e: Entity){
         this.entities.push(e)
-        this.entities.sort((a,b) => {return a.renderHeight - b.renderHeight})
-
         for (const child of e.children) { this.add(child) }
     }
 
@@ -219,9 +237,9 @@ export class Scene{
 
         for (const e of this.destructionQueue){
             const idx = this.entities.indexOf(e)
-            if(e.parent) e.parent.children.delete(e)
+            if(e.parent) e.parent.removeChild(e)
             // if(e instanceof GameObject && e.cb) this.cm.remove(e.cb)
-            if(e instanceof Combatant) this.tm.remove(e)
+            // if(e instanceof Combatant) this.tm.remove(e)
             this.entities.splice(idx, 1)
         }
 

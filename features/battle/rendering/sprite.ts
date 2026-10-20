@@ -1,64 +1,64 @@
-import { Entity, EntityOptions } from "../entities/entity";
-import { toScreenValue, toScreenPosition } from "@/features/battle/rendering/renderingUtils";
-import { Scene } from "../scene";
+// import { Entity, EntityOptions } from "../entities/entity";
+// import { toScreenValue, toScreenPosition } from "@/features/battle/rendering/renderingUtils";
+// import { Scene } from "../scene";
 
-export type SpriteOptions = EntityOptions & {
-    image: HTMLImageElement
-    width: number
-    height: number
+// export type SpriteOptions = EntityOptions & {
+//     image: HTMLImageElement
+//     width: number
+//     height: number
 
-    visible?: boolean
-}
+//     visible?: boolean
+// }
 
 
-export class Sprite extends Entity{
-    image: HTMLImageElement;
-    width: number;
-    height: number;
+// export class Sprite extends Entity{
+//     image: HTMLImageElement;
+//     width: number;
+//     height: number;
 
-    visible = true;
+//     visible = true;
 
-    protected _flippedVertical = false;
-    protected _flippedHorizontal = false;
+//     protected _flippedVertical = false;
+//     protected _flippedHorizontal = false;
 
-    constructor(args:SpriteOptions){
-        super(args)
+//     constructor(args:SpriteOptions){
+//         super(args)
 
-        this.image = args.image;
-        this.width = args.width;
-        this.height = args.height;
+//         this.image = args.image;
+//         this.width = args.width;
+//         this.height = args.height;
 
-        if(args.visible !== undefined) this.visible = args.visible
-    }
+//         if(args.visible !== undefined) this.visible = args.visible
+//     }
 
-    render(scene: Scene){
-        if (this.visible) {
-            const screenPosition = toScreenPosition(this.position, scene.canvas);
-            const screenWidth = toScreenValue(this.width, scene.canvas);
-            const screenHeight = toScreenValue(this.height, scene.canvas);
+//     render(scene: Scene){
+//         if (this.visible) {
+//             const screenPosition = toScreenPosition(this.position, scene.canvas);
+//             const screenWidth = toScreenValue(this.width, scene.canvas);
+//             const screenHeight = toScreenValue(this.height, scene.canvas);
             
-            scene.ctx.save();
+//             scene.ctx.save();
     
-            scene.ctx.translate(screenPosition.x, screenPosition.y);
+//             scene.ctx.translate(screenPosition.x, screenPosition.y);
     
-            const scaleX = this._flippedHorizontal ? -1 : 1;
-            const scaleY = this._flippedVertical ? -1 : 1;
-            scene.ctx.scale(scaleX, scaleY);
+//             const scaleX = this._flippedHorizontal ? -1 : 1;
+//             const scaleY = this._flippedVertical ? -1 : 1;
+//             scene.ctx.scale(scaleX, scaleY);
     
-            scene.ctx.drawImage(
-                this.image,
-                -screenWidth / 2,
-                -screenHeight / 2,
-                screenWidth,
-                screenHeight
-            );
+//             scene.ctx.drawImage(
+//                 this.image,
+//                 -screenWidth / 2,
+//                 -screenHeight / 2,
+//                 screenWidth,
+//                 screenHeight
+//             );
     
-            scene.ctx.restore();
-        }
+//             scene.ctx.restore();
+//         }
         
-    }
+//     }
 
-    flipHorizontal(): void { this._flippedHorizontal = !this._flippedHorizontal }
+//     flipHorizontal(): void { this._flippedHorizontal = !this._flippedHorizontal }
 
-    flipVertical(): void { this._flippedVertical = !this._flippedVertical }
-}
+//     flipVertical(): void { this._flippedVertical = !this._flippedVertical }
+// }

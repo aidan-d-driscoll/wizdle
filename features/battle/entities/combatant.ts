@@ -1,10 +1,8 @@
 import { Position } from "@/features/battle/types/position";
 import { GameObject, ObjectOptions } from "../entities/gameObject";
-import { UpdateOptions } from "../scene";
 import { getRawDistance, setOptionalRandomNumber,  } from "@/features/battle/utilities/mathUtils";
 import Vector from "@/features/battle/types/vector";
 import { Fillbar } from "../ui_elements/fillbar";
-import { Sprite } from "../rendering/sprite";
 import { CollisionBody } from "../collisions/collisionBody";
 
 const CIRCLING_SPEED = 0.35
