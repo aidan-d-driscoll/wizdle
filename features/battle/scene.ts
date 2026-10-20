@@ -11,11 +11,12 @@
 // import Vector from "./types/vector";
 // import { getRandomWizardArt } from "./rendering/renderingUtils";
 import { Component, Body, Sprite } from "./components";
-import { Renderable, Updateable } from "./component_interfaces";
+import { Renderable, Updatable } from "./component_interfaces";
 import { Entity } from "./entities/entity";
 import { GameObject } from "./entities/gameObject";
 import { integer } from "./types/integer";
 import Vector from "./types/vector";
+import { RenderLayer } from "./globals";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -33,8 +34,8 @@ export class Scene{
     // readonly gm = new GroundManager();
 
     private entities: Entity[] = [];
-    readonly updatables = new Set<Updateable>;
-    renderables: Renderable[] = [];
+    readonly updatables = new Set<Updatable>;
+    readonly renderables: Renderable[][] = Array.from({ length: RenderLayer.COUNT }, () => [])
     private destructionQueue: Entity[] = [];
 
     private animationFrameId: number | null = null;
@@ -70,15 +71,14 @@ export class Scene{
 
         const background = new GameObject({
             scene: this,
-            position: {x: 0, y: 0},
-            layer: integer(-1)
+            position: {x: 0, y: 0}
         })
 
         background.add(new Sprite({
             image: arenaArt,
             width: 3.3,
             height: 3.5,
-            renderHeight: 1000000000000000
+            renderHeight: -10
         }))
 
         const wizard1 = new GameObject({
@@ -216,7 +216,9 @@ export class Scene{
         this.ctx.fillStyle = "#838383"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
-        for (const r of this.renderables){ r.render() }
+        for (const layerList of this.renderables){ 
+            for(const r of layerList) { r.render() }
+        }
     }
 
     add(e: Entity){

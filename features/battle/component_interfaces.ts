@@ -1,4 +1,4 @@
-export interface Updateable {
+export interface Updatable {
     update(dt:number):void;
 }
 

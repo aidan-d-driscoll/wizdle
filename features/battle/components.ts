@@ -1,6 +1,6 @@
 import { Rectangle } from "./collisions/shapes/rectangle";
 import { Shape } from "./collisions/shapes/shape";
-import { Renderable, Updateable } from "./component_interfaces";
+import { Renderable, Updatable } from "./component_interfaces";
 import { GameObject } from "./entities/gameObject";
 import { toScreenPosition, toScreenValue } from "./rendering/renderingUtils";
 import { Position } from "./types/position";
@@ -12,22 +12,25 @@ import { insertionSorted } from "./utilities/sortUtils";
 export abstract class Component{
     owner!: GameObject;
 
-    renderHeight?: number;
+    onAttach(): void{} 
+    onDetach(): void{}
 
-    onAttach(): void{ 
-        if (this.update) this.owner.scene.updatables.add(this as Updateable)
-        if (this.render) {
-            this.renderHeight = this.renderHeight ? 2 * this.owner.layer + this.renderHeight : this.owner.layer;
-            this.owner.scene.renderables.push(this as Renderable)
-            this.owner.scene.renderables = insertionSorted(this.owner.scene.renderables, (a) => { return a.renderHeight })
-        }
-    } 
-    onDetach(): void{
-        this.owner.scene.updatables.delete(this as Updateable)
-        if(this.render){
-            const idx = this.owner.scene.renderables.indexOf(this as Renderable)
-            if (idx >= 0) this.owner.scene.renderables.splice(idx, 1)
-        }
+    protected registerUpdateable(this: Component & Updatable) {
+        this.owner.scene.updatables.add(this);
+    }
+    protected unregisterUpdateable(this: Component & Updatable){
+        this.owner.scene.updatables.delete(this)
+    }
+
+    protected registerRenderable(this: Component & Renderable) {
+        const layer = this.owner.layer;
+        this.owner.scene.renderables[layer].push(this);
+        this.owner.scene.renderables[layer] = insertionSorted(this.owner.scene.renderables[layer], (a) => { return a.renderHeight });
+    }
+    protected unregisterRenderable(this: Component & Renderable){
+        const layer = this.owner.layer;
+        const idx = this.owner.scene.renderables[layer].indexOf(this);
+        if (idx >= 0) this.owner.scene.renderables[layer].splice(idx, 1);
     }
 
     update?(dt: number): void;
@@ -64,7 +67,19 @@ export class Sprite extends Component implements Renderable{
 
         if(args.offset) this.offset = args.offset;
 
-        if (args.renderHeight) this.renderHeight = softSign(args.renderHeight);
+        if (args.renderHeight) this.renderHeight = args.renderHeight;
+    }
+
+    onAttach(): void {
+        super.onAttach();
+
+        this.registerRenderable();
+    }
+
+    onDetach(): void {
+        super.onDetach();
+
+        this.unregisterRenderable();
     }
 
     render(): void {
@@ -106,7 +121,7 @@ type BodyOptions = {
     acceleration?: Vector
 }
 
-export class Body extends Component implements Updateable{
+export class Body extends Component implements Updatable{
     velocity: Vector;
 
     acceleration: Vector;
@@ -117,6 +132,18 @@ export class Body extends Component implements Updateable{
         this.velocity = args.velocity ? args.velocity : new Vector({dx: 0, dy: 0})
         
         this.acceleration = args.acceleration ? args.acceleration : new Vector({dx: 0, dy: 0})
+    }
+
+    onAttach(): void {
+        super.onAttach();
+
+        this.registerUpdateable();
+    }
+
+    onDetach(): void {
+        super.onAttach();
+
+        this.unregisterUpdateable();
     }
 
     update(dt: number): void {
@@ -138,7 +165,7 @@ type ColliderOptions = {
     onCollisionExit: (other: GameObject) => void;
 }
 
-export class Collider extends Component implements Updateable{
+export class Collider extends Component implements Updatable{
     offset: Position = {x: 0, y: 0}
 
     tight: Shape;
