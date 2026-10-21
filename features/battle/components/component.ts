@@ -1,9 +1,19 @@
 import { Renderable, Updatable } from "./interfaces";
 import { GameObject } from "../gameObject";
 import { insertionSorted } from "../utilities/sortUtils";
+import { Body } from "./body";
+
+export type ComponentType<T extends Component = Component> = (abstract new (...args: any[]) => T) & {
+    requires: ComponentType[];
+    max: number;
+};
 
 export abstract class Component{
     owner!: GameObject;
+
+    static max: number = Infinity;
+
+    static requires: ComponentType[] = []
 
     onAttach(): void{} 
     onDetach(): void{}

@@ -1,6 +1,6 @@
 // import Combatant from "@/features/battle/entities/combatant";
 // import CollisionManager from "./collisions/collisionManager";
-// import { CollisionBody } from "./collisions/collisionBody";
+// import { Collider } from "./collisions/Collider";
 
 // import { TargetManager } from "./targeting/targetManager";
 // import { Wizard } from "./entities/wizard";
@@ -19,6 +19,9 @@ import Vector from "./types/vector";
 import { RenderLayer } from "./globals";
 import { Sprite } from "./components/sprite";
 import { Body, BodyType } from "./components/body";
+import { Collider } from "./components/collider";
+import { Circle } from "./shapes/circle";
+import { Ellipse } from "./shapes/ellipse";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -29,7 +32,7 @@ export class Scene{
     private running: boolean = false;
     readonly ctx!: CanvasRenderingContext2D;
 
-    readonly dirtyQueue: Component[] = [];
+    readonly dirtyColliders: Collider[] = [];
 
     // readonly cm = new CollisionManager();
     // readonly tm = new TargetManager();
@@ -99,6 +102,14 @@ export class Scene{
             bodyType: BodyType.KINEMATIC,
             acceleration: new Vector({dx: 0.01, dy: 0.01})
         }))
+
+        wizard1.add(new Collider({
+            shape: new Ellipse({
+                position: wizard1.position,
+                radiusX: 0.1,
+                radiusY: 0.1
+            })
+        }))
         
         this.add(wizard1)
 
@@ -161,7 +172,6 @@ export class Scene{
         this.prevTimestamp = null
     }
 
-    
     private frame = (timestamp:number) => {
         
         if (!this.running) return
@@ -206,7 +216,7 @@ export class Scene{
         // this.cm.update(args)
         // this.tm.update(args)
         // this.gm.update(args)
-        this.dirtyQueue.length = 0;
+        this.dirtyColliders.length = 0;
 
         this.processDestruction()
 
@@ -233,8 +243,8 @@ export class Scene{
         this.destructionQueue.push(e)
     }
 
-    markDirty(c: Component){
-        this.dirtyQueue.push(c)
+    markDirty(c: Collider){
+        this.dirtyColliders.push(c)
     }
 
     private processDestruction(){

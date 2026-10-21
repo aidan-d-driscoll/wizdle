@@ -31,10 +31,10 @@ export class Rectangle extends Shape{
         this._width = args.width
         this._height = args.height
 
-        this.xMin = this.x - 0.5 * this._width
-        this.xMax = this.x + 0.5 * this._width
-        this.yMin = this.y - 0.5 * this._height
-        this.yMax = this.y + 0.5 * this._height
+        this.xMin = this._position.x - 0.5 * this._width
+        this.xMax = this._position.x + 0.5 * this._width
+        this.yMin = this._position.y - 0.5 * this._height
+        this.yMax = this._position.y + 0.5 * this._height
     }
 
     contains(target: Position){

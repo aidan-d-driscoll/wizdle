@@ -1,5 +1,5 @@
 import CollisionManager from "../features/battle/collisions/collisionManager"
-import { CollisionBody } from "../features/battle/collisions/collisionBody"
+import { Collider } from "../features/battle/collisions/Collider"
 import { Rectangle } from "@/types/shapes/rectangle";
 
 import * as readline from 'readline/promises';
@@ -8,17 +8,17 @@ import { stdin as input, stdout as output } from 'process';
 async function main() {
     
     
-    const boxA = new CollisionBody({tight: new Rectangle({
+    const boxA = new Collider({tight: new Rectangle({
         startingPosition: {x:1, y:1}, 
         width: 1, 
         height: 1
     })})
-    const boxB = new CollisionBody({tight: new Rectangle({
+    const boxB = new Collider({tight: new Rectangle({
         startingPosition: {x:3, y:3}, 
         width: 1, 
         height: 1
     })})
-    const boxC = new CollisionBody({tight: new Rectangle({
+    const boxC = new Collider({tight: new Rectangle({
         startingPosition: {x:3, y:1}, 
         width: 1, 
         height: 1

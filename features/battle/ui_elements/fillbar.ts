@@ -1,4 +1,4 @@
-import { Rectangle } from "../collisions/shapes/rectangle";
+import { Rectangle } from "../shapes/rectangle";
 import { Entity, EntityOptions } from "../entity";
 import { Scene } from "../scene";
 import { HexColor } from "../rendering/renderingUtils";

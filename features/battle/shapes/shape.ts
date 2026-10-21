@@ -1,12 +1,16 @@
 import { Position } from "@/features/battle/types/position"
-import { Entity, EntityOptions } from "@/features/battle/entity";
-import { HexColor } from "../../rendering/renderingUtils";
+import { HexColor } from "../rendering/renderingUtils";
+import { Scene } from "../scene";
 
-export type ShapeOptions = EntityOptions & {
+export type ShapeOptions = {
+    position?: Position
+
     color?: HexColor
 }
 
-export abstract class Shape extends Entity{
+export abstract class Shape{
+    protected _position: Position;
+
     abstract xMax: number;
     abstract xMin: number;
     abstract yMax: number;
@@ -17,14 +21,14 @@ export abstract class Shape extends Entity{
 
     color: HexColor;
 
-    get position(): Position { return super.position }
+    get position(): Position { return this._position }
     set position(value: Position) {
-        this.xMin += value.x - this.x
-        this.xMax += value.x - this.x
-        this.yMin += value.y - this.y
-        this.yMax += value.y - this.y
+        this.xMin += value.x - this._position.x
+        this.xMax += value.x - this._position.x
+        this.yMin += value.y - this._position.y
+        this.yMax += value.y - this._position.y
 
-        super.position = {x: value.x, y: value.y};
+        this._position = {x: value.x, y: value.y};
     }
 
     get width(): number {
@@ -36,14 +40,16 @@ export abstract class Shape extends Entity{
     }
 
     constructor(args: ShapeOptions){
-        super(args)
+        this.color = args.color ? args.color : "#00000050"
 
-        this.color = args.color ? args.color : "#000000"
+        this._position = args.position ?? {x: 0, y:0}
     }
 
     abstract overlaps(target: Shape): boolean;
 
     abstract contains(target: Position): boolean;
+
+    abstract render(scene: Scene): void;
 
     breaches(outer: Shape): boolean {
         return (this.xMin < outer.xMin) ||

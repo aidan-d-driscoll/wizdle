@@ -3,7 +3,7 @@ import { GameObject, ObjectOptions } from "../gameObject";
 import { getRawDistance, setOptionalRandomNumber,  } from "@/features/battle/utilities/mathUtils";
 import Vector from "@/features/battle/types/vector";
 import { Fillbar } from "../ui_elements/fillbar";
-import { CollisionBody } from "../collisions/collisionBody";
+import { Collider } from "../collisions/Collider";
 
 const CIRCLING_SPEED = 0.35
 

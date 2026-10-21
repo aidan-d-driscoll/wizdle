@@ -15,7 +15,7 @@ type SpriteOptions = {
 }
 
 export class Sprite extends Component implements Renderable{
-    offset: Position = {x:0, y:0};
+    offset: Position;
 
     image: HTMLImageElement;
     width: number;
@@ -23,7 +23,7 @@ export class Sprite extends Component implements Renderable{
 
     visible = true;
 
-    renderHeight = 0;
+    renderHeight: number;
 
     constructor(args:SpriteOptions){
         super()
@@ -32,9 +32,9 @@ export class Sprite extends Component implements Renderable{
         this.width = args.width;
         this.height = args.height;
 
-        if(args.offset) this.offset = args.offset;
+        this.offset = args.offset ?? {x: 0, y: 0};
 
-        if (args.renderHeight) this.renderHeight = args.renderHeight;
+        this.renderHeight = args.renderHeight ?? 0;
     }
 
     onAttach(): void {
@@ -50,7 +50,6 @@ export class Sprite extends Component implements Renderable{
     }
 
     render(): void {
-        
         if (this.visible) {
             const scene = this.owner.scene;
             const position = {

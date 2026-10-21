@@ -1,16 +1,16 @@
-import { Rectangle } from "./shapes/rectangle";
-import { Shape } from "./shapes/shape";
+import { Rectangle } from "../shapes/rectangle";
+import { Shape } from "../shapes/shape";
 import { Scene, UpdateOptions } from "../scene";
 import { Entity, EntityOptions } from "../entity";
 import { GameObject } from "../gameObject";
 
-export type CollisionBodyOptions = EntityOptions & {
+export type ColliderOptions = EntityOptions & {
     shape: Shape;
     xOffset?: number;
     yOffset?: number;
 }
 
-export class CollisionBody extends Entity{
+export class Collider extends Entity{
     parent!: GameObject;
 
     tight: Shape;
@@ -18,7 +18,7 @@ export class CollisionBody extends Entity{
 
     physics = false;
 
-    constructor(args: CollisionBodyOptions) {
+    constructor(args: ColliderOptions) {
         super(args)
 
         this.tight = args.shape;

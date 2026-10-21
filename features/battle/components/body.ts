@@ -16,20 +16,21 @@ type BodyOptions = {
 }
 
 export class Body extends Component implements Updatable{
-    velocity: Vector;
-
-    acceleration: Vector;
+    static max = 1;
 
     bodyType: BodyType;
+
+    velocity: Vector;
+    acceleration: Vector;
 
     constructor(args: BodyOptions){
         super()
 
-        this.velocity = args.velocity ? args.velocity : new Vector({dx: 0, dy: 0})
+        this.velocity = args.velocity ? args.velocity : new Vector({dx: 0, dy: 0});
         
-        this.acceleration = args.acceleration ? args.acceleration : new Vector({dx: 0, dy: 0})
+        this.acceleration = args.acceleration ? args.acceleration : new Vector({dx: 0, dy: 0});
 
-        this.bodyType = args.bodyType
+        this.bodyType = args.bodyType;
     }
 
     onAttach(): void {

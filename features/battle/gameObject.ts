@@ -1,5 +1,5 @@
 import { Entity, EntityOptions } from "./entity";
-import { Component } from "./components/component";
+import { Component, ComponentType } from "./components/component";
 import { Scene } from "./scene";
 
 export type ObjectOptions = EntityOptions & {
@@ -13,33 +13,75 @@ export type ObjectOptions = EntityOptions & {
 }
 
 export class GameObject extends Entity{
-    private _components = new Map<string, Component>;
+    private _components = new Map<ComponentType, Component[]>;
 
     add<T extends Component>(c: T): T {
+        const type = c.constructor as ComponentType<T>;
+
+        for (const req of type.requires){
+            if (!this.has(req)) throw new Error(`${this.constructor.name} requires a previously added ${req.name} component`)
+        }
+
+        const typeList = this._components.get(type);
+        if(typeList) {
+            if(typeList.length < type.max){
+                typeList.push(c)
+            } else {
+                throw new Error(`${this.constructor.name} can have at most ${type.max} ${type.name}(s)`);
+            }
+        } else {
+            this._components.set(type, [c])
+        }
+        
         c.owner = this;
-        this._components.set(c.constructor.toString(), c);
         c.onAttach();
         return c;
     }
 
-    get<T extends Component>(c: T): T | undefined {
-        return this._components.get(c.constructor.toString()) as T | undefined;
+    get<T extends Component>(type: ComponentType<T>): T | undefined {
+        const typeList = this._components.get(type)
+        if (! typeList) return undefined
+            
+        return typeList[0] as T | undefined
     }
 
-    has<T extends Component>(type: () => T): boolean { return this._components.has(type.toString()) }
+    getAll<T extends Component>(type: ComponentType<T>): T[] {
+        const typeList = this._components.get(type)
+        if(!typeList) return []
 
-    remove(type: () => Component) {
-        const c = this._components.get(type.toString());
-        c?.onDetach();
-        this._components.delete(type.toString());
+        return typeList as T[];
     }
+
+    has<T extends Component>(type: ComponentType<T>): boolean { return this._components.has(type) }
+
+    remove<T extends Component>(c: T) {
+        const type = c.constructor as ComponentType<T>
+        const typeList = this._components.get(type);
+        const idx = typeList?.indexOf(c) ?? -1
+
+        if(!typeList || idx < 0) return;
+
+        typeList.splice(idx, 1);
+        c.onDetach();
+        if (typeList.length === 0) this._components.delete(type);
+    }
+
+    removeAll<T extends Component>(type: ComponentType<T>) {
+        const typeList = this._components.get(type);
+        if (!typeList) return;
+
+        for (const c of typeList)
+            c.onDetach();
+        this._components.delete(type);
+    }
+}
 
 
     // static = false;
 
-    // protected _cb: CollisionBody | null = null;
-    // get cb(): CollisionBody | null { return this._cb }
-    // set cb(value: CollisionBody) {
+    // protected _cb: Collider | null = null;
+    // get cb(): Collider | null { return this._cb }
+    // set cb(value: Collider) {
     //     this._cb = value;
     //     this._cb.owner = this;
     //     this._cb.tight.position = this.position;
@@ -156,4 +198,3 @@ export class GameObject extends Entity{
     // onCollisionEnter?(other: GameObject): void;
     // onCollisionStay?(other: GameObject): void;
     // onCollisionExit?(other: GameObject): void;
-}
