@@ -2,7 +2,7 @@ import { Circle } from "../shapes/circle";
 import { Ellipse } from "../shapes/ellipse";
 import { Scene } from "../scene";
 import { Collider } from "../components/collider";
-import { ColliderType } from "../components/collider";
+import { BodyType } from "../components/body";
 
 interface Endpoint {
     readonly cb: Collider
@@ -135,7 +135,10 @@ export default class CollisionManager {
                 if (tightBoxCollision) {
                     // The Collision colliders are still overlapping -> collision continues -> Emit collision STAY
                     console.log(`EMIT COLLISION STAY [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
-                    if (colliderA.owner. == ColliderType.DYNAMIC && colliderB.physics) handlePhysicsOverlap(colliderA, colliderB)
+                    if (colliderA.body.bodyType == BodyType.DYNAMIC 
+                        && colliderB.body.bodyType == BodyType.DYNAMIC) {
+                            handlePhysicsOverlap(colliderA, colliderB)
+                        }
 
                     if (colliderA.onCollisionStay) colliderA.onCollisionStay(colliderB.owner);
                     if (colliderB.onCollisionStay) colliderB.onCollisionStay(colliderA.owner);
@@ -261,7 +264,7 @@ export default class CollisionManager {
             this.collisionCandidates.set(key, { colliderA: minEp.cb, colliderB: maxEp.cb })
         } else {
             this.collisionCandidates.delete(key);
-            if (this.activeCollisions.has(key)) 
+            this.activeCollisions.delete(key);
         }
     }
 
@@ -294,7 +297,7 @@ export default class CollisionManager {
             this.repositionEndpoint(maxEndpoint)
         }
 
-        cb.dirty = false;
+        // cb.dirty = false;
 
         // this.logHandles();
     }

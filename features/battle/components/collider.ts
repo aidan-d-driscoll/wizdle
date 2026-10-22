@@ -18,6 +18,9 @@ type ColliderOptions = {
 }
 
 export class Collider extends Component implements Updatable, Renderable{
+    static nextId = 0;
+    id: number;
+
     static requires: ComponentType[] = [Body]
 
     body!: Body;
@@ -32,6 +35,9 @@ export class Collider extends Component implements Updatable, Renderable{
     constructor(args: ColliderOptions){
         super()
 
+        this.id = Collider.nextId;
+        Collider.nextId++;
+
         this.tight = args.shape;
 
         this.renderHeight = 0;
@@ -44,7 +50,7 @@ export class Collider extends Component implements Updatable, Renderable{
     onAttach(): void {
         super.onAttach();
 
-        this.followOwnerPosition()
+        this.followOwnerPosition();
 
         this.fat = new Rectangle({
             position: {
@@ -63,6 +69,8 @@ export class Collider extends Component implements Updatable, Renderable{
 
         this.registerUpdateable();
         this.registerRenderable();
+
+        this.owner.scene.cm.add(this);
     }
 
     onDetach(): void {

@@ -1,27 +1,13 @@
-// import Combatant from "@/features/battle/entities/combatant";
-// import CollisionManager from "./collisions/collisionManager";
-// import { Collider } from "./collisions/Collider";
-
-// import { TargetManager } from "./targeting/targetManager";
-// import { Wizard } from "./entities/wizard";
-// import { GroundManager, GroundTexture } from "./collisions/physics/ground";
-// import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
-// import { Ellipse } from "./collisions/shapes/ellipse";
-// import { Circle } from "./collisions/shapes/circle";
-// import Vector from "./types/vector";
-// import { getRandomWizardArt } from "./rendering/renderingUtils";
-import { Component } from "./components/component";
 import { Renderable, Updatable } from "./components/interfaces";
 import { Entity } from "./entity";
 import { GameObject } from "./gameObject";
-import { integer } from "./types/integer";
 import Vector from "./types/vector";
 import { RenderLayer } from "./globals";
 import { Sprite } from "./components/sprite";
 import { Body, BodyType } from "./components/body";
 import { Collider } from "./components/collider";
-import { Circle } from "./shapes/circle";
 import { Ellipse } from "./shapes/ellipse";
+import CollisionManager from "./collisions/collisionManager";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -34,7 +20,7 @@ export class Scene{
 
     readonly dirtyColliders: Collider[] = [];
 
-    // readonly cm = new CollisionManager();
+    readonly cm = new CollisionManager(this);
     // readonly tm = new TargetManager();
     // readonly gm = new GroundManager();
 
@@ -88,7 +74,7 @@ export class Scene{
 
         const wizard1 = new GameObject({
             scene: this,
-            position: {x:0, y:0}
+            position: {x:-0.6, y:0}
         })
 
         wizard1.add(new Sprite({
@@ -98,9 +84,8 @@ export class Scene{
             height: 0.2
         }))
 
-        wizard1.add(new Body({
-            bodyType: BodyType.KINEMATIC,
-            acceleration: new Vector({dx: 0.01, dy: 0.01})
+        const wizBody = wizard1.add(new Body({
+            bodyType: BodyType.DYNAMIC
         }))
 
         wizard1.add(new Collider({
@@ -112,6 +97,37 @@ export class Scene{
         }))
         
         this.add(wizard1)
+
+        wizBody.applyForce(new Vector({dx: 100, dy: 0}))
+
+        const wizard2 = new GameObject({
+            scene: this,
+            position: {x:0.6, y:0}
+        })
+
+        wizard2.add(new Sprite({
+            offset: {x: 0, y: 0.01},
+            image: redWizardArt,
+            width: 0.2,
+            height: 0.2
+        }))
+
+        const wizBody2 = wizard2.add(new Body({
+            bodyType: BodyType.DYNAMIC
+        }))
+
+        wizard2.add(new Collider({
+            shape: new Ellipse({
+                position: wizard2.position,
+                radiusX: 0.1,
+                radiusY: 0.1
+            })
+        }))
+        
+        this.add(wizard2)
+
+        wizBody2.applyForce(new Vector({dx: -100, dy: 0}))
+        
 
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
@@ -213,7 +229,7 @@ export class Scene{
             up.update(dt)
         }
 
-        // this.cm.update(args)
+        this.cm.update(dt)
         // this.tm.update(args)
         // this.gm.update(args)
         this.dirtyColliders.length = 0;

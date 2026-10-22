@@ -54,8 +54,10 @@ export default class Vector{
         this._magnitude = getDistance({from:{x:0,y:0}, to:{x:this._dx, y: this._dy}})
     }
 
-    add(other: Vector): Vector {
-        return new Vector({dx: this.dx + other.dx, dy: this.dy + other.dy})
+    add(other: Vector) {
+        this.dx += other.dx;
+        this.dy += other.dy;
+        // return new Vector({dx: this.dx + other.dx, dy: this.dy + other.dy})
     }
     
     toString(): string {
