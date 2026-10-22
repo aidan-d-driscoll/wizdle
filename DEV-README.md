@@ -30,9 +30,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser or VSCodet
 
 ## Working on the UI side of things
 
-The UI entry point is `app/page.tsx`. You can kinda just start building off of that if you wanna do UI stuff.
+The UI entry point is `app/layout.tsx` which defines the layout applied to every page. Pages are in `app/<pagename>/page.tsx` which is where you should start if you wanna do UI stuff. The homepage is in `app/page.tsx`.
 
-The enitre battle replay/sim/game in contained in every instance of HTML canvas element that can be ported around the App using the `/app/features/battle/Battle.tsx` react element.
+Brycen and Steve, I made two different "playground" pages for you guys to mess around and learn React/NextJS stuff without feeling like you're touching someone else's part of the project. Go crazy in there.
+
+The enitre battle replay/sim/game in contained in every instance of HTML canvas element that can be ported around the App using the `/app/components/Battle.tsx` react element. You can add it to any UI page by doing:
+
+```js
+import { Battle } from "@/components/Battle";
+```
+
+Then use the Battle JSX (basically HTML) element `<Battle/>` as if it were an html element.
 
 ## Learning the Battle Replay/Simulation system
 

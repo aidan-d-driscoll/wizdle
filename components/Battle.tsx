@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Scene } from "./scene";
+import { Scene } from "@/features/battle/scene";
 
 export function Battle() {
   const battleRef = useRef<HTMLCanvasElement>(null);
