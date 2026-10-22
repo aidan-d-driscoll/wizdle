@@ -4,10 +4,10 @@ import Vector from "@/features/battle/types/vector";
 import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import { Sprite } from "../rendering/sprite";
 import { Scene } from "../scene";
-import { CollisionBody } from "../collisions/collisionBody";
-import { Circle } from "../collisions/shapes/circle";
+import { Collider } from "../collisions/Collider";
+import { Circle } from "../shapes/circle";
 import Combatant from "../entities/combatant";
-import { Ellipse } from "../collisions/shapes/ellipse";
+import { Ellipse } from "../shapes/ellipse";
 
 const MIN_TRAVEL_SPEED = 1;
 const MAX_TRAVEL_SPEED = 2;
@@ -43,10 +43,10 @@ export class BoltSpell extends Spell{
                 knockback: this.knockback,
                 travelSpeed: this.travelSpeed,
                 damage: this.damage,
-                cb: new CollisionBody({
+                cb: new Collider({
                     shape: new Ellipse({ 
                         radiusX: 0.03,
-                        radiusY: 0.015
+                        radiusY: 0.03
                     })
                 })
             }))

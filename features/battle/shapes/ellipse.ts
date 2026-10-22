@@ -2,7 +2,7 @@ import { Shape, ShapeOptions } from "./shape";
 import { Rectangle } from "./rectangle";
 import { Circle } from "./circle";
 import { Scene } from "@/features/battle/scene";
-import { toScreenPosition, toScreenValue } from "@/features/battle/utilities/renderingUtils";
+import { toScreenPosition, toScreenValue } from "@/features/battle/rendering/renderingUtils";
 import { Position } from "@/features/battle/types/position";
 
 export type EllipseOptions = ShapeOptions & {

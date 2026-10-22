@@ -1,21 +1,16 @@
 import { Position } from "@/features/battle/types/position";
-import { GameObject, ObjectOptions } from "../entities/gameObject";
-import { CollisionBody } from "../collisions/collisionBody";
-import { UpdateOptions } from "../scene";
+import { Collider, ColliderOptions } from "../Collider";
+import { UpdateOptions } from "../../scene";
 
-export type GroundTextureOptions = ObjectOptions & {
+export type GroundTextureOptions = ColliderOptions & {
     friction: number;
-
-    cb: CollisionBody;
 }
 
-export class GroundTexture extends GameObject{
+export class GroundTexture extends Collider{
     friction: number;
 
     constructor(args: GroundTextureOptions){
         super(args);
-
-        this._cb = args.cb;
 
         this.friction = args.friction;
     }
@@ -34,14 +29,14 @@ export class GroundManager{
     }
 
     update(args: UpdateOptions){
-        for (const obj of args.scene.dirtyQueue){
-            obj.ground = this.highestGroundAt(obj.position)
+        for (const body of args.scene.dirtyColliders){
+            body.parent.ground = this.highestGroundAt(body.position)
         }
     }
 
     highestGroundAt(position: Position): GroundTexture | null{
         for(let i = this.groundTextures.length-1; i >= 0; i--){
-            if (this.groundTextures[i].cb?.tight.contains(position)) {
+            if (this.groundTextures[i].tight.contains(position)) {
                 return this.groundTextures[i];
             }  
         }

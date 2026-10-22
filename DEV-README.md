@@ -56,9 +56,9 @@ Off the top of my head...
 
 - **Scene.ts:** Knows about everything in a given replay/sim and handles the main loop of the game
 - **Entity.ts:** Abstract class. Handles positioning and child-parent positioning inheritance. Pretty much everything that gets added to a scene _extends_ Entity to inherit shared positioning functionality. Children will base their position on the parent's position unless manually changed.
-- **GameObject.ts:** GameObjects are basically entities that can have collisions. Most things in the sim are gameobjects that have a CollisionBody and one child - a Sprite
+- **GameObject.ts:** GameObjects are basically entities that can have collisions. Most things in the sim are gameobjects that have a Collider and one child - a Sprite
 - **Sprite.ts:** Basic rendered image at a position.
-- **CollisionBody.ts:** Detects collisions and optionally manages physics as if it were the owning GameObject's body.
+- **Collider.ts:** Detects collisions and optionally manages physics as if it were the owning GameObject's body.
 - **"System"Manager.ts:** CollisionManager, TargetManager, etc. Each one of these manages one of the major systems that needs to be frequently updated.
 
 ### Replay dev Controls

@@ -6,7 +6,7 @@ export class TargetManager{
     combatants = new Set<Combatant>
 
     update(args: UpdateOptions){
-        for (const cmb of args.scene.dirtyQueue){
+        for (const cmb of args.scene.dirtyColliders){
             if(cmb instanceof Combatant && this.combatants.has(cmb)) this.repositionCombatant(cmb)
         }
     }

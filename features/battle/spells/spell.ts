@@ -3,7 +3,7 @@ import Combatant from "@/features/battle/entities/combatant";
 import { Sprite } from "../rendering/sprite";
 import { Scene, UpdateOptions } from "../scene";
 import { Fillbar } from "../ui_elements/fillbar";
-import { HexColor } from "../utilities/renderingUtils";
+import { HexColor } from "../rendering/renderingUtils";
 
 const CAST_TIME_INFLUENCE = 0.5
 
