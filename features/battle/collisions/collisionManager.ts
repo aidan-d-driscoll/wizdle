@@ -2,7 +2,7 @@ import { Circle } from "../shapes/circle";
 import { Ellipse } from "../shapes/ellipse";
 import { Scene } from "../scene";
 import { Collider } from "../components/collider";
-import { Body, BodyType } from "../components/body";
+import { Body, BodyType, ForceMode } from "../components/body";
 import Vector from "../types/vector";
 
 interface Endpoint {
@@ -103,58 +103,33 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
         const bodyA = colliderA.body;
         const bodyB = colliderB.body;
 
-        let temp: Vector;
-        const bounce = bodyA.bounce * bodyB.bounce;
+        // let temp: Vector;
+        const bounce = Math.max(bodyA.bounce, bodyB.bounce);
+        let bounceForceA = new Vector({dx: 0, dy: 0})
+        let bounceForceB = new Vector({dx: 0, dy: 0})
 
-        if(bodyA.bodyType === BodyType.DYNAMIC && bodyB.bodyType === BodyType.DYNAMIC){
-            temp = bodyA.velocity;
-
-            bodyA.velocity = new Vector({
-                startPos: bodyB.owner.position, 
+        if(bodyA.bodyType === BodyType.DYNAMIC){
+            bounceForceA = new Vector({
+                startPos: bodyB.owner.position,
                 endPos: bodyA.owner.position
             })
 
-            bodyA.velocity.magnitude = bodyB.velocity.magnitude * bounce;
-
-            bodyB.velocity = new Vector({
-                startPos: bodyA.owner.position, 
-                endPos: bodyB.owner.position
-            })
-
-            bodyB.velocity.magnitude = temp.magnitude * bounce;
-            
-            // temp = bodyA.totalForces;
-
-            // bodyA.totalForces = new Vector({
-            //     dx: bodyB.totalForces.dx * bounce,
-            //     dy: bodyB.totalForces.dy * bounce
-            // })
-
-            // bodyB.totalForces = new Vector({
-            //     dx: temp.dx * bounce,
-            //     dy: temp.dy * bounce
-            // })
-        } else if (bodyA.bodyType == BodyType.DYNAMIC){
-            bodyA.velocity = new Vector({
-                startPos: bodyB.owner.position, 
-                endPos: bodyA.owner.position
-            })
-
-            bodyA.velocity.magnitude = bodyA.velocity.magnitude * bounce;
-
-            // bodyA.totalForces.dx *= -1 * bounce;
-            // bodyA.totalForces.dy *= -1 * bounce;
-        } else if (bodyB.bodyType == BodyType.DYNAMIC){
-            bodyB.velocity = new Vector({
-                startPos: bodyA.owner.position, 
-                endPos: bodyB.owner.position
-            })
-
-            bodyB.velocity.magnitude = bodyB.velocity.magnitude * bounce;
-
-            // bodyB.totalForces.dx *= -1 * bounce;
-            // bodyB.totalForces.dy *= -1 * bounce;
+            bounceForceA.magnitude *= (1+bounce)
         }
+
+        if(bodyB.bodyType === BodyType.DYNAMIC){
+
+            bounceForceB = new Vector({
+                startPos: bodyA.owner.position,
+                endPos: bodyB.owner.position
+            })
+
+            bounceForceB.magnitude *= (1+bounce)
+        }
+
+        bodyA.applyForce(bounceForceA, ForceMode.IMPULSE);
+
+        bodyB.applyForce(bounceForceB, ForceMode.IMPULSE);
     }
 }
 
@@ -192,6 +167,10 @@ export default class CollisionManager {
                 if (tightBoxCollision) {
                     // The Collision colliders are still overlapping -> collision continues -> Emit collision STAY
                     // console.log(`EMIT COLLISION STAY [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
+                    if (colliderA.body.bodyType === BodyType.DYNAMIC
+                        || colliderB.body.bodyType === BodyType.DYNAMIC){
+                            handlePhysicsOverlap(colliderA, colliderB);
+                        }
 
                     if (colliderA.onCollisionStay) colliderA.onCollisionStay(colliderB.owner);
                     if (colliderB.onCollisionStay) colliderB.onCollisionStay(colliderA.owner);

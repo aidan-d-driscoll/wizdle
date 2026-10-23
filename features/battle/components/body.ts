@@ -11,6 +11,11 @@ export enum BodyType {
     DYNAMIC
 }
 
+export enum ForceMode {
+    FORCE,
+    IMPULSE
+}
+
 type BodyOptions = {
     velocity?: Vector,
     acceleration?: Vector
@@ -29,6 +34,7 @@ export class Body extends Component implements Updatable{
     acceleration: Vector;
 
     totalForces = new Vector({dx: 0, dy: 0});
+    impulseForce = new Vector({dx: 0, dy: 0});
 
     bounce: number;
 
@@ -77,8 +83,11 @@ export class Body extends Component implements Updatable{
             this.velocity.dy += this.acceleration.dy * dt
 
             if (this.bodyType === BodyType.DYNAMIC){
-                this.velocity.dx *= Math.exp(-FRICTION * dt);
-                this.velocity.dy *= Math.exp(-FRICTION * dt);
+                this.velocity.dx += this.impulseForce.dx
+                this.velocity.dy += this.impulseForce.dy 
+
+                this.velocity.dx *= 1 - FRICTION * dt;
+                this.velocity.dy *= 1 - FRICTION * dt;
             }
             
             this.owner.position.x += this.velocity.dx * dt
@@ -86,13 +95,18 @@ export class Body extends Component implements Updatable{
 
             this.totalForces.dx = 0;
             this.totalForces.dy = 0;
+
+            this.impulseForce.dx = 0;
+            this.impulseForce.dy = 0;
         }
     }
 
-    applyForce(force: Vector){
+    applyForce(force: Vector, forceMode: ForceMode = ForceMode.FORCE){
         if (this.bodyType !== BodyType.DYNAMIC){
             console.warn(`Warning: Attempt to add force to ${BodyType[this.bodyType]} body. Will have no effect.`)
         }
-        this.totalForces.add(force)
+        if (forceMode = ForceMode.IMPULSE) this.impulseForce.add(force)
+        else if (forceMode = ForceMode.FORCE) this.totalForces.add(force)
+        else throw new Error(`Error: Attempted to add force with unknown ForceMode: ${ForceMode[forceMode]}`)
     }
 }

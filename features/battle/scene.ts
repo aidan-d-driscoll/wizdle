@@ -4,7 +4,7 @@ import { GameObject } from "./gameObject";
 import Vector from "./types/vector";
 import { RenderLayer } from "./globals";
 import { Sprite } from "./components/sprite";
-import { Body, BodyType } from "./components/body";
+import { Body, BodyType, ForceMode } from "./components/body";
 import { Collider } from "./components/collider";
 import { Ellipse } from "./shapes/ellipse";
 import CollisionManager from "./collisions/collisionManager";
@@ -74,7 +74,7 @@ export class Scene{
 
         const wizard1 = new GameObject({
             scene: this,
-            position: {x:-0.4, y:-0.05}
+            position: {x:-0.4, y:0.07}
         })
 
         wizard1.add(new Sprite({
@@ -87,7 +87,7 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 1
+            bounce: 0.5
         }))
 
         wizard1.add(new Collider({
@@ -100,15 +100,15 @@ export class Scene{
         
         this.add(wizard1)
 
-        wizBody.applyForce(new Vector({dx: 250, dy: 0}))
+        wizBody.applyForce(new Vector({dx: 1, dy: 0}), ForceMode.IMPULSE)
 
         const wizard2 = new GameObject({
             scene: this,
-            position: {x:0.4, y:0.05}
+            position: {x:0.4, y:-0.07}
         })
 
         wizard2.add(new Sprite({
-            offset: {x: -0.01, y: 0.09},
+            offset: {x: -0.01, y: 0.08},
             image: redWizardArt,
             width: 0.2,
             height: 0.2,
@@ -117,7 +117,7 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 1
+            bounce: 0.5
         }))
 
         wizard2.add(new Collider({
@@ -130,9 +130,8 @@ export class Scene{
         
         this.add(wizard2)
 
-        wizBody2.applyForce(new Vector({dx: -150, dy: 0}))
+        wizBody2.applyForce(new Vector({dx: -1, dy: 0}), ForceMode.IMPULSE)
         
-
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
 
