@@ -110,38 +110,50 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
             temp = bodyA.velocity;
 
             bodyA.velocity = new Vector({
-                dx: bodyB.velocity.dx * bounce,
-                dy: bodyB.velocity.dy * bounce
+                startPos: bodyB.owner.position, 
+                endPos: bodyA.owner.position
             })
+
+            bodyA.velocity.magnitude = bodyB.velocity.magnitude * bounce;
 
             bodyB.velocity = new Vector({
-                dx: temp.dx * bounce,
-                dy: temp.dy * bounce
+                startPos: bodyA.owner.position, 
+                endPos: bodyB.owner.position
             })
+
+            bodyB.velocity.magnitude = temp.magnitude * bounce;
             
-            temp = bodyA.totalForces;
+            // temp = bodyA.totalForces;
 
-            bodyA.totalForces = new Vector({
-                dx: bodyB.totalForces.dx * bounce,
-                dy: bodyB.totalForces.dy * bounce
-            })
+            // bodyA.totalForces = new Vector({
+            //     dx: bodyB.totalForces.dx * bounce,
+            //     dy: bodyB.totalForces.dy * bounce
+            // })
 
-            bodyB.totalForces = new Vector({
-                dx: temp.dx * bounce,
-                dy: temp.dy * bounce
-            })
+            // bodyB.totalForces = new Vector({
+            //     dx: temp.dx * bounce,
+            //     dy: temp.dy * bounce
+            // })
         } else if (bodyA.bodyType == BodyType.DYNAMIC){
-            bodyA.velocity.dx *= -1 * bounce;
-            bodyA.velocity.dy *= -1 * bounce;
+            bodyA.velocity = new Vector({
+                startPos: bodyB.owner.position, 
+                endPos: bodyA.owner.position
+            })
 
-            bodyA.totalForces.dx *= -1 * bounce;
-            bodyA.totalForces.dy *= -1 * bounce;
+            bodyA.velocity.magnitude = bodyA.velocity.magnitude * bounce;
+
+            // bodyA.totalForces.dx *= -1 * bounce;
+            // bodyA.totalForces.dy *= -1 * bounce;
         } else if (bodyB.bodyType == BodyType.DYNAMIC){
-            bodyB.velocity.dx *= -1 * bounce;
-            bodyB.velocity.dy *= -1 * bounce;
+            bodyB.velocity = new Vector({
+                startPos: bodyA.owner.position, 
+                endPos: bodyB.owner.position
+            })
 
-            bodyB.totalForces.dx *= -1 * bounce;
-            bodyB.totalForces.dy *= -1 * bounce;
+            bodyB.velocity.magnitude = bodyB.velocity.magnitude * bounce;
+
+            // bodyB.totalForces.dx *= -1 * bounce;
+            // bodyB.totalForces.dy *= -1 * bounce;
         }
     }
 }

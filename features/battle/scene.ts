@@ -74,7 +74,7 @@ export class Scene{
 
         const wizard1 = new GameObject({
             scene: this,
-            position: {x:-0.6, y:0}
+            position: {x:-0.4, y:-0.05}
         })
 
         wizard1.add(new Sprite({
@@ -87,7 +87,7 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.6
+            bounce: 1
         }))
 
         wizard1.add(new Collider({
@@ -100,11 +100,11 @@ export class Scene{
         
         this.add(wizard1)
 
-        wizBody.applyForce(new Vector({dx: 100, dy: 0}))
+        wizBody.applyForce(new Vector({dx: 250, dy: 0}))
 
         const wizard2 = new GameObject({
             scene: this,
-            position: {x:0.6, y:0}
+            position: {x:0.4, y:0.05}
         })
 
         wizard2.add(new Sprite({
@@ -117,7 +117,7 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.6
+            bounce: 1
         }))
 
         wizard2.add(new Collider({
@@ -130,7 +130,7 @@ export class Scene{
         
         this.add(wizard2)
 
-        wizBody2.applyForce(new Vector({dx: -200, dy: 0}))
+        wizBody2.applyForce(new Vector({dx: -150, dy: 0}))
         
 
         if (DEV_TOOLS_ENABLED){
@@ -160,8 +160,6 @@ export class Scene{
                             this.battleSpeed = Math.min(2, this.battleSpeed+0.25);
                         }
                         break;
-                    case ' ':
-                        this.battlePaused = !this.battlePaused;
                     case 'c':
                         this.showColliders = !this.showColliders;
                     default:

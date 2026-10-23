@@ -3,7 +3,7 @@ import Vector from "../types/vector";
 import { Updatable } from "./interfaces";
 import { error } from "console";
 
-const FRICTION = 0.9
+const FRICTION = 2
 
 export enum BodyType {
     STATIC,
