@@ -91,7 +91,7 @@ export class Body extends Component implements Updatable{
 
     applyForce(force: Vector){
         if (this.bodyType !== BodyType.DYNAMIC){
-            throw new Error("Warning: Attempt to add force to non-dynamic body")
+            console.warn(`Warning: Attempt to add force to ${BodyType[this.bodyType]} body. Will have no effect.`)
         }
         this.totalForces.add(force)
     }

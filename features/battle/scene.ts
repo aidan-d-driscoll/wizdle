@@ -87,7 +87,7 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.99
+            bounce: 0.6
         }))
 
         wizard1.add(new Collider({
@@ -117,7 +117,7 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.99
+            bounce: 0.6
         }))
 
         wizard2.add(new Collider({
@@ -130,7 +130,7 @@ export class Scene{
         
         this.add(wizard2)
 
-        wizBody2.applyForce(new Vector({dx: -100, dy: 0}))
+        wizBody2.applyForce(new Vector({dx: -200, dy: 0}))
         
 
         if (DEV_TOOLS_ENABLED){

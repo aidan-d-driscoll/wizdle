@@ -2,7 +2,7 @@ import { Circle } from "../shapes/circle";
 import { Ellipse } from "../shapes/ellipse";
 import { Scene } from "../scene";
 import { Collider } from "../components/collider";
-import { BodyType } from "../components/body";
+import { Body, BodyType } from "../components/body";
 import Vector from "../types/vector";
 
 interface Endpoint {
@@ -103,34 +103,45 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
         const bodyA = colliderA.body;
         const bodyB = colliderB.body;
 
-        if(bodyA.bodyType === BodyType.DYNAMIC){
+        let temp: Vector;
+        const bounce = bodyA.bounce * bodyB.bounce;
+
+        if(bodyA.bodyType === BodyType.DYNAMIC && bodyB.bodyType === BodyType.DYNAMIC){
+            temp = bodyA.velocity;
+
+            bodyA.velocity = new Vector({
+                dx: bodyB.velocity.dx * bounce,
+                dy: bodyB.velocity.dy * bounce
+            })
+
+            bodyB.velocity = new Vector({
+                dx: temp.dx * bounce,
+                dy: temp.dy * bounce
+            })
+            
+            temp = bodyA.totalForces;
+
             bodyA.totalForces = new Vector({
-                dx: -bodyA.velocity.dx,
-                dy: -bodyA.velocity.dy
+                dx: bodyB.totalForces.dx * bounce,
+                dy: bodyB.totalForces.dy * bounce
             })
 
-            bodyA.totalForces.add(colliderB.body.velocity)
-
-            bodyA.totalForces.magnitude = bodyA.totalForces.magnitude * (bodyA.bounce * bodyB.bounce)
-        }
-
-        if(bodyB.bodyType === BodyType.DYNAMIC){
             bodyB.totalForces = new Vector({
-                dx: -bodyB.velocity.dx,
-                dy: -bodyB.velocity.dy
+                dx: temp.dx * bounce,
+                dy: temp.dy * bounce
             })
+        } else if (bodyA.bodyType == BodyType.DYNAMIC){
+            bodyA.velocity.dx *= -1 * bounce;
+            bodyA.velocity.dy *= -1 * bounce;
 
-            bodyB.totalForces.add(colliderA.body.velocity)
+            bodyA.totalForces.dx *= -1 * bounce;
+            bodyA.totalForces.dy *= -1 * bounce;
+        } else if (bodyB.bodyType == BodyType.DYNAMIC){
+            bodyB.velocity.dx *= -1 * bounce;
+            bodyB.velocity.dy *= -1 * bounce;
 
-            bodyB.totalForces.magnitude = bodyB.totalForces.magnitude * (bodyA.bounce * bodyB.bounce)
-        }
-
-        if (bodyA.bodyType === BodyType.DYNAMIC) {
-            bodyA.velocity.magnitude = 0
-        }
-
-        if (bodyB.bodyType === BodyType.DYNAMIC) {
-            bodyB.velocity.magnitude = 0
+            bodyB.totalForces.dx *= -1 * bounce;
+            bodyB.totalForces.dy *= -1 * bounce;
         }
     }
 }
@@ -184,8 +195,11 @@ export default class CollisionManager {
                 // The bodies are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
                 // console.log(`EMIT COLLISION ENTER [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
-
-                handlePhysicsOverlap(colliderA, colliderB);
+                
+                if (colliderA.body.bodyType === BodyType.DYNAMIC
+                    || colliderB.body.bodyType === BodyType.DYNAMIC){
+                        handlePhysicsOverlap(colliderA, colliderB);
+                    }
 
                 if (colliderA.onCollisionEnter) colliderA.onCollisionEnter(colliderB.owner);
                 if (colliderB.onCollisionEnter) colliderB.onCollisionEnter(colliderA.owner);
