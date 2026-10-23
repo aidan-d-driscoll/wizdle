@@ -35,7 +35,7 @@ export class Scene{
 
     private battlePaused: boolean = false;
     private battleSpeed: number = INITIAL_BATTLE_SPEED;
-    private showCollisionBoxes = VISIBLE_COLLISION_BOXES;
+    showColliders = VISIBLE_COLLISION_BOXES;
 
     constructor(readonly canvas: HTMLCanvasElement) {
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D
@@ -78,21 +78,23 @@ export class Scene{
         })
 
         wizard1.add(new Sprite({
-            offset: {x: 0, y: 0.01},
+            offset: {x: -0.01, y: 0.09},
             image: purpleWizardArt,
             width: 0.2,
-            height: 0.2
+            height: 0.2,
+            renderHeight: 1
         }))
 
         const wizBody = wizard1.add(new Body({
-            bodyType: BodyType.DYNAMIC
+            bodyType: BodyType.DYNAMIC,
+            bounce: 0.99
         }))
 
         wizard1.add(new Collider({
             shape: new Ellipse({
                 position: wizard1.position,
-                radiusX: 0.1,
-                radiusY: 0.1
+                radiusX: 0.09,
+                radiusY: 0.09
             })
         }))
         
@@ -106,21 +108,23 @@ export class Scene{
         })
 
         wizard2.add(new Sprite({
-            offset: {x: 0, y: 0.01},
+            offset: {x: -0.01, y: 0.09},
             image: redWizardArt,
             width: 0.2,
-            height: 0.2
+            height: 0.2,
+            renderHeight: 1
         }))
 
         const wizBody2 = wizard2.add(new Body({
-            bodyType: BodyType.DYNAMIC
+            bodyType: BodyType.DYNAMIC,
+            bounce: 0.99
         }))
 
         wizard2.add(new Collider({
             shape: new Ellipse({
                 position: wizard2.position,
-                radiusX: 0.1,
-                radiusY: 0.1
+                radiusX: 0.09,
+                radiusY: 0.09
             })
         }))
         
@@ -159,7 +163,7 @@ export class Scene{
                     case ' ':
                         this.battlePaused = !this.battlePaused;
                     case 'c':
-                        this.showCollisionBoxes = !this.showCollisionBoxes;
+                        this.showColliders = !this.showColliders;
                     default:
                         return; 
                 }

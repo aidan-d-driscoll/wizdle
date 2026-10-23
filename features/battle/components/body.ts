@@ -16,6 +16,8 @@ type BodyOptions = {
     acceleration?: Vector
 
     bodyType: BodyType
+
+    bounce?: number
 }
 
 export class Body extends Component implements Updatable{
@@ -28,6 +30,8 @@ export class Body extends Component implements Updatable{
 
     totalForces = new Vector({dx: 0, dy: 0});
 
+    bounce: number;
+
     constructor(args: BodyOptions){
         super()
 
@@ -36,6 +40,8 @@ export class Body extends Component implements Updatable{
         this.acceleration = args.acceleration ? args.acceleration : new Vector({dx: 0, dy: 0});
 
         this.bodyType = args.bodyType;
+
+        this.bounce = args.bounce ? args.bounce : 0
     }
 
     onAttach(): void {
@@ -51,6 +57,15 @@ export class Body extends Component implements Updatable{
     }
 
     update(dt: number): void {
+
+        console.log("forces")
+        console.log(this.totalForces)
+
+        console.log("velocity")
+        console.log(this.velocity)
+
+        console.log("------------------------------------------------------")
+
         if(this.bodyType !== BodyType.STATIC) {
             
             if (this.bodyType === BodyType.DYNAMIC){

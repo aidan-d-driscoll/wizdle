@@ -39,6 +39,7 @@ export class Collider extends Component implements Updatable, Renderable{
         Collider.nextId++;
 
         this.tight = args.shape;
+        this.tight.color = "#ff00007e"
 
         this.renderHeight = 0;
 
@@ -79,6 +80,9 @@ export class Collider extends Component implements Updatable, Renderable{
     }
 
     update(dt: number){
+        console.log(`ID:`)
+        console.log(this.id)
+        
         this.followOwnerPosition();
 
         if (this.tight.breaches(this.fat)) {
@@ -87,8 +91,7 @@ export class Collider extends Component implements Updatable, Renderable{
         }
     }
     render(){
-        this.fat.render(this.owner.scene)
-        this.tight.render(this.owner.scene)
+        if (this.owner.scene.showColliders) this.tight.render(this.owner.scene)
     }
 
     protected followOwnerPosition() {

@@ -3,6 +3,7 @@ import { Ellipse } from "../shapes/ellipse";
 import { Scene } from "../scene";
 import { Collider } from "../components/collider";
 import { BodyType } from "../components/body";
+import Vector from "../types/vector";
 
 interface Endpoint {
     readonly cb: Collider
@@ -98,6 +99,39 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
             x: colliderB.owner.position.x + pushX / 2,
             y: colliderB.owner.position.y + pushY / 2
         }
+        
+        const bodyA = colliderA.body;
+        const bodyB = colliderB.body;
+
+        if(bodyA.bodyType === BodyType.DYNAMIC){
+            bodyA.totalForces = new Vector({
+                dx: -bodyA.velocity.dx,
+                dy: -bodyA.velocity.dy
+            })
+
+            bodyA.totalForces.add(colliderB.body.velocity)
+
+            bodyA.totalForces.magnitude = bodyA.totalForces.magnitude * (bodyA.bounce * bodyB.bounce)
+        }
+
+        if(bodyB.bodyType === BodyType.DYNAMIC){
+            bodyB.totalForces = new Vector({
+                dx: -bodyB.velocity.dx,
+                dy: -bodyB.velocity.dy
+            })
+
+            bodyB.totalForces.add(colliderA.body.velocity)
+
+            bodyB.totalForces.magnitude = bodyB.totalForces.magnitude * (bodyA.bounce * bodyB.bounce)
+        }
+
+        if (bodyA.bodyType === BodyType.DYNAMIC) {
+            bodyA.velocity.magnitude = 0
+        }
+
+        if (bodyB.bodyType === BodyType.DYNAMIC) {
+            bodyB.velocity.magnitude = 0
+        }
     }
 }
 
@@ -134,17 +168,13 @@ export default class CollisionManager {
                 // The collsion was happening on the last update
                 if (tightBoxCollision) {
                     // The Collision colliders are still overlapping -> collision continues -> Emit collision STAY
-                    console.log(`EMIT COLLISION STAY [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
-                    if (colliderA.body.bodyType == BodyType.DYNAMIC 
-                        && colliderB.body.bodyType == BodyType.DYNAMIC) {
-                            handlePhysicsOverlap(colliderA, colliderB)
-                        }
+                    // console.log(`EMIT COLLISION STAY [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
 
                     if (colliderA.onCollisionStay) colliderA.onCollisionStay(colliderB.owner);
                     if (colliderB.onCollisionStay) colliderB.onCollisionStay(colliderA.owner);
                 } else {
                     // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
-                    console.log(`EMIT COLLISION LEAVE [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
+                    // console.log(`EMIT COLLISION LEAVE [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
                     this.activeCollisions.delete(key)
 
                     if (colliderA.onCollisionExit) colliderA.onCollisionExit(colliderB.owner);
@@ -152,8 +182,10 @@ export default class CollisionManager {
                 }
             } else if (tightBoxCollision) {
                 // The bodies are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
-                console.log(`EMIT COLLISION ENTER [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
+                // console.log(`EMIT COLLISION ENTER [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
                 this.activeCollisions.set(key, candidate[1])
+
+                handlePhysicsOverlap(colliderA, colliderB);
 
                 if (colliderA.onCollisionEnter) colliderA.onCollisionEnter(colliderB.owner);
                 if (colliderB.onCollisionEnter) colliderB.onCollisionEnter(colliderA.owner);
