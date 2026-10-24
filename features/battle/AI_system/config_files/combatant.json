@@ -1,0 +1,14 @@
+{
+  "ai_name": "Combatant",
+  "initial_state": "TakeCenter",
+  "states": {
+    "TakeCenter": {
+      "on_update": [
+        {
+          "action": "move_towards_point",
+          "params": { "targetX": 0, "targetY": 0 }
+        }
+      ]
+    }
+  }
+}

@@ -72,14 +72,6 @@ export class Body extends Component implements Updatable{
 
     update(dt: number): void {
 
-        console.log("total forces")
-        console.log(this.totalForces)
-
-        console.log("velocity")
-        console.log(this.velocity)
-
-        console.log("------------------------------------------------------")
-
         if(this.bodyType !== BodyType.STATIC) {
             
             if (this.bodyType === BodyType.DYNAMIC){

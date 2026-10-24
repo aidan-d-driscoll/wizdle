@@ -80,39 +80,29 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
 
         const totalMass = bodyA.mass + bodyB.mass
 
-        const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
-        const massRatioB = bodyA.mass == Infinity ? 1 : bodyA.mass/totalMass
+        // const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
+        // const massRatioB = bodyA.mass == Infinity ? 1 : bodyA.mass/totalMass
 
         const normal = new Vector({startPos: bodyA.owner.position, endPos: bodyB.owner.position})
         const distance = normal.magnitude
         if (distance === 0) { normal.dx = 1; normal.dy = 0 }
         else normal.magnitude = 1
 
-        // // Direction from A's center to B's center
-        // const dx = b.position.x - a.position.x
-        // const dy = b.position.y - a.position.y
-        // const distance = Math.sqrt(dx * dx + dy * dy)
+        // const overlap = getContactDistance(a, b, normal.dx, normal.dy) - distance
+        // if (overlap <= 0) return
 
-        // Concentric shapes have no direction, so pick an arbitrary axis
-        // const ux = normal.magnitude > 0 ? normal.dx / normal.magnitude : 1
-        // const uy = normal.magnitude > 0 ? normal.dy / normal.magnitude : 0
+        // const pushX = normal.dx * overlap
+        // const pushY = normal.dy * overlap
 
-        // Penetration depth along the center-to-center line
-        const overlap = getContactDistance(a, b, normal.dx, normal.dy) - normal.magnitude
-        if (overlap <= 0) return
+        // colliderA.owner.position = {
+        //     x: colliderA.owner.position.x + pushX * massRatioA,
+        //     y: colliderA.owner.position.y + pushY * massRatioA
+        // }
 
-        const pushX = normal.dx * overlap
-        const pushY = normal.dy * overlap
-
-        colliderA.owner.position = {
-            x: colliderA.owner.position.x + pushX * massRatioA,
-            y: colliderA.owner.position.y + pushY * massRatioA
-        }
-
-        colliderB.owner.position = {
-            x: colliderB.owner.position.x - pushX * massRatioB,
-            y: colliderB.owner.position.y - pushY * massRatioB
-        }
+        // colliderB.owner.position = {
+        //     x: colliderB.owner.position.x - pushX * massRatioB,
+        //     y: colliderB.owner.position.y - pushY * massRatioB
+        // }
 
         const relV = (bodyA.velocity.dx - bodyB.velocity.dx) * normal.dx
             + (bodyA.velocity.dy - bodyB.velocity.dy) * normal.dy
@@ -128,51 +118,42 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
 
         bodyB.velocity.dx = bodyB.velocity.dx + j/bodyB.mass * normal.dx
         bodyB.velocity.dy = bodyB.velocity.dy + j/bodyB.mass * normal.dy
+    }
+}
 
-        // if(bodyA.bodyType === BodyType.DYNAMIC){
-        //     bounceForceA = new Vector({
-        //         startPos: bodyB.owner.position,
-        //         endPos: bodyA.owner.position
-        //     })
+function seperateBodies(colliderA: Collider, colliderB: Collider) {
+    if (isRoundShape(colliderA.tight) && isRoundShape(colliderB.tight)) {
+        const bodyA = colliderA.body;
+        const bodyB = colliderB.body;
 
-        //     bounceForceA.magnitude = 1;
+        const a = colliderA.tight
+        const b = colliderB.tight
 
-        //     bounceForceA.dx = Math.abs(bodyB.velocity.dx) * bounceForceA.dx
-        //     bounceForceA.dy = Math.abs(bodyB.velocity.dy) * bounceForceA.dy
+        const totalMass = bodyA.mass + bodyB.mass
 
-        //     bounceForceA.add(new Vector({
-        //         dx: bodyA.velocity.dx * -(1+bounce),
-        //         dy: bodyA.velocity.dy * -(1+bounce)
-        //     }))
+        const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
+        const massRatioB = bodyA.mass == Infinity ? 1 : bodyA.mass/totalMass
 
-        //     console.log("bounce A")
-        //     console.log(bounceForceA.magnitude)
+        const normal = new Vector({startPos: bodyA.owner.position, endPos: bodyB.owner.position})
+        const distance = normal.magnitude
+        if (distance === 0) { normal.dx = 1; normal.dy = 0 }
+        else normal.magnitude = 1
 
-        //     bodyA.applyForce(bounceForceA, ForceMode.IMPULSE);
-        // }
+        const overlap = getContactDistance(a, b, normal.dx, normal.dy) - distance
+        if (overlap <= 0) return
 
-        // if(bodyB.bodyType === BodyType.DYNAMIC){
+        const pushX = normal.dx * (overlap + 0.001)
+        const pushY = normal.dy * (overlap + 0.001)
 
-        //     bounceForceB = new Vector({
-        //         startPos: bodyA.owner.position,
-        //         endPos: bodyB.owner.position
-        //     })
+        colliderA.owner.position = {
+            x: colliderA.owner.position.x - pushX * massRatioA,
+            y: colliderA.owner.position.y - pushY * massRatioA
+        }
 
-        //     bounceForceB.magnitude = 1;
-
-        //     bounceForceB.dx = Math.abs(bodyA.velocity.dx) * bounceForceB.dx
-        //     bounceForceB.dy = Math.abs(bodyA.velocity.dy) * bounceForceB.dy
-
-        //     bounceForceB.add(new Vector({
-        //         dx: bodyB.velocity.dx * -(1+bounce),
-        //         dy: bodyB.velocity.dy * -(1+bounce)
-        //     }))
-
-        //     console.log("bounce B")
-        //     console.log(bounceForceB.magnitude)
-
-        //     bodyB.applyForce(bounceForceB, ForceMode.IMPULSE);
-        // }
+        colliderB.owner.position = {
+            x: colliderB.owner.position.x + pushX * massRatioB,
+            y: colliderB.owner.position.y + pushY * massRatioB
+        }
     }
 }
 
@@ -205,38 +186,41 @@ export default class CollisionManager {
             colliderA = candidate[1].colliderA
             colliderB = candidate[1].colliderB
             key = this.pairKey(colliderA, colliderB)
-            if (this.activeCollisions.has(key)) {
-                // The collsion was happening on the last update
-                if (tightBoxCollision) {
-                    // The Collision colliders are still overlapping -> collision continues -> Emit collision STAY
-                    // console.log(`EMIT COLLISION STAY [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
-                    if (colliderA.body.bodyType === BodyType.DYNAMIC
-                        || colliderB.body.bodyType === BodyType.DYNAMIC){
-                            handlePhysicsOverlap(colliderA, colliderB);
-                        }
 
-                    if (colliderA.onCollisionStay) colliderA.onCollisionStay(colliderB.owner);
-                    if (colliderB.onCollisionStay) colliderB.onCollisionStay(colliderA.owner);
-                } else {
-                    // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
-                    // console.log(`EMIT COLLISION LEAVE [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
-                    this.activeCollisions.delete(key)
-
-                    if (colliderA.onCollisionExit) colliderA.onCollisionExit(colliderB.owner);
-                    if (colliderB.onCollisionExit) colliderB.onCollisionExit(colliderA.owner);
-                }
-            } else if (tightBoxCollision) {
-                // The bodies are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
-                // console.log(`EMIT COLLISION ENTER [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
-                this.activeCollisions.set(key, candidate[1])
-                
+            const wasActive = this.activeCollisions.has(key)
+            if (tightBoxCollision) {
                 if (colliderA.body.bodyType === BodyType.DYNAMIC
                     || colliderB.body.bodyType === BodyType.DYNAMIC){
-                        handlePhysicsOverlap(colliderA, colliderB);
-                    }
+                    seperateBodies(colliderA, colliderB);
+                    handlePhysicsOverlap(colliderA, colliderB);
+                }
+                if (!wasActive) {
+                    // The bodies are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER
+                    // console.log(`EMIT COLLISION ENTER [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
+                    this.activeCollisions.set(key, candidate[1])
+                    
+                    if (colliderA.onCollisionEnter) colliderA.onCollisionEnter(colliderB.owner);
+                    if (colliderB.onCollisionEnter) colliderB.onCollisionEnter(colliderA.owner);
 
-                if (colliderA.onCollisionEnter) colliderA.onCollisionEnter(colliderB.owner);
-                if (colliderB.onCollisionEnter) colliderB.onCollisionEnter(colliderA.owner);
+                    
+                } else {
+                    // The Collision colliders are still overlapping -> collision continues -> Emit collision STAY
+                    // console.log(`EMIT COLLISION STAY [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
+                    
+                    if (colliderA.onCollisionStay) colliderA.onCollisionStay(colliderB.owner);
+                    if (colliderB.onCollisionStay) colliderB.onCollisionStay(colliderA.owner);
+                }
+            } else if (wasActive) {
+ 
+                // The collision boxes are no longer overlaping -> collision ends -> Emit collision LEAVE
+                // console.log(`EMIT COLLISION LEAVE [collider${candidate[1].colliderA.id} <-> collider${candidate[1].colliderB.id}]`)
+                this.activeCollisions.delete(key)
+
+                if (colliderA.onCollisionExit) colliderA.onCollisionExit(colliderB.owner);
+                if (colliderB.onCollisionExit) colliderB.onCollisionExit(colliderA.owner);
+                
+
+                
             }
         }
 

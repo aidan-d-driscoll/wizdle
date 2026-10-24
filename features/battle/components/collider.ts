@@ -80,8 +80,6 @@ export class Collider extends Component implements Updatable, Renderable{
     }
 
     update(dt: number){
-        console.log(`ID:`)
-        console.log(this.id)
         
         this.followOwnerPosition();
 

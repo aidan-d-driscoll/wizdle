@@ -8,6 +8,8 @@ import { Body, BodyType, ForceMode } from "./components/body";
 import { Collider } from "./components/collider";
 import { Ellipse } from "./shapes/ellipse";
 import CollisionManager from "./collisions/collisionManager";
+import { Brain } from "./components/brain";
+import { BehaviorRegistry } from "./AI_system/behaviorRegistry";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -35,12 +37,14 @@ export class Scene{
 
     private battlePaused: boolean = false;
     private battleSpeed: number = INITIAL_BATTLE_SPEED;
-    showColliders = VISIBLE_COLLISION_BOXES;
+    public showColliders = VISIBLE_COLLISION_BOXES;
 
     constructor(readonly canvas: HTMLCanvasElement) {
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D
 
         this.ctx.imageSmoothingEnabled = false;
+
+        BehaviorRegistry.initialize();
 
         const arenaArt = new Image();
         arenaArt.src = "/assets/testing-assets/arena-orig.jpg";
@@ -74,7 +78,7 @@ export class Scene{
 
         const wizard1 = new GameObject({
             scene: this,
-            position: {x:-0.4, y:0.1}
+            position: {x:-0.4, y:-0.4}
         })
 
         wizard1.add(new Sprite({
@@ -87,7 +91,7 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 1,
+            bounce: 0.9,
             mass: 1
         }))
 
@@ -98,19 +102,23 @@ export class Scene{
                 radiusY: 0.09
             })
         }))
+
+        const wizBrain1 = wizard1.add(new Brain("combatant"))
+
+        wizBrain1.blackboard.set("speed", 0.06)
         
         this.add(wizard1)
 
-        wizBody.applyForce(new Vector({dx: 1.27, dy: 0}), ForceMode.IMPULSE)
+        // wizBody.applyForce(new Vector({dx: 1, dy: 0}), ForceMode.IMPULSE)
 
         const wizard2 = new GameObject({
             scene: this,
-            position: {x:0.0, y:-0.55}
+            position: {x:0.4, y:-0}
         })
 
         wizard2.add(new Sprite({
-            offset: {x: -0.01, y: 0.08},
-            image: redWizardArt,
+            offset: {x: -0.01, y: 0.09},
+            image: blueWizardArt,
             width: 0.2,
             height: 0.2,
             renderHeight: 1
@@ -118,8 +126,8 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 1,
-            mass: 2
+            bounce: 0.9,
+            mass: 1.1
         }))
 
         wizard2.add(new Collider({
@@ -129,10 +137,14 @@ export class Scene{
                 radiusY: 0.09
             })
         }))
+
+        const wizBrain2 = wizard2.add(new Brain("combatant"))
+
+        wizBrain2.blackboard.set("speed", 0.05)
         
         this.add(wizard2)
 
-        wizBody2.applyForce(new Vector({dx: 0, dy: 1.5}), ForceMode.IMPULSE)
+        // wizBody2.applyForce(new Vector({dx: -1, dy: 0}), ForceMode.IMPULSE)
         
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
@@ -147,7 +159,7 @@ export class Scene{
                 switch (k) {
                     case 'arrowleft':
                         if (this.battlePaused) {
-                            this.update(-1/60)
+                            this.update(-1/120)
                             this.render()
                         } else {
                             this.battleSpeed = Math.max(0.001, this.battleSpeed-0.25);
@@ -155,7 +167,7 @@ export class Scene{
                         break;
                     case 'arrowright':
                         if (this.battlePaused) {
-                            this.update(1/60)
+                            this.update(1/120)
                             this.render()
                         } else {
                             this.battleSpeed = Math.min(2, this.battleSpeed+0.25);
@@ -228,7 +240,6 @@ export class Scene{
      */
     private update(dt:number) {
         for(const up of this.updatables){
-            // every entity has an update function meant to manage frame-by-frame logic
             up.update(dt)
         }
 
@@ -236,6 +247,7 @@ export class Scene{
         // this.tm.update(args)
         // this.gm.update(args)
         this.dirtyColliders.length = 0;
+        
 
         this.processDestruction()
 
