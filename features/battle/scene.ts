@@ -74,7 +74,7 @@ export class Scene{
 
         const wizard1 = new GameObject({
             scene: this,
-            position: {x:-0.4, y:0.07}
+            position: {x:-0.4, y:0.1}
         })
 
         wizard1.add(new Sprite({
@@ -87,7 +87,8 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.5
+            bounce: 1,
+            mass: 1
         }))
 
         wizard1.add(new Collider({
@@ -100,11 +101,11 @@ export class Scene{
         
         this.add(wizard1)
 
-        wizBody.applyForce(new Vector({dx: 1, dy: 0}), ForceMode.IMPULSE)
+        wizBody.applyForce(new Vector({dx: 1.27, dy: 0}), ForceMode.IMPULSE)
 
         const wizard2 = new GameObject({
             scene: this,
-            position: {x:0.4, y:-0.07}
+            position: {x:0.0, y:-0.55}
         })
 
         wizard2.add(new Sprite({
@@ -117,7 +118,8 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.5
+            bounce: 1,
+            mass: 2
         }))
 
         wizard2.add(new Collider({
@@ -130,7 +132,7 @@ export class Scene{
         
         this.add(wizard2)
 
-        wizBody2.applyForce(new Vector({dx: -1, dy: 0}), ForceMode.IMPULSE)
+        wizBody2.applyForce(new Vector({dx: 0, dy: 1.5}), ForceMode.IMPULSE)
         
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;

@@ -4,6 +4,7 @@ import { Scene } from "../scene";
 import { Collider } from "../components/collider";
 import { Body, BodyType, ForceMode } from "../components/body";
 import Vector from "../types/vector";
+import { softSign } from "../utilities/mathUtils";
 
 interface Endpoint {
     readonly cb: Collider
@@ -71,65 +72,107 @@ function getContactDistance(a: RoundShape, b: RoundShape, ux: number, uy: number
 
 function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
     if (isRoundShape(colliderA.tight) && isRoundShape(colliderB.tight)) {
-        const a = colliderA.tight
-        const b = colliderB.tight
-
-        // Direction from A's center to B's center
-        const dx = b.position.x - a.position.x
-        const dy = b.position.y - a.position.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
-
-        // Concentric shapes have no direction, so pick an arbitrary axis
-        const ux = distance > 0 ? dx / distance : 1
-        const uy = distance > 0 ? dy / distance : 0
-
-        // Penetration depth along the center-to-center line
-        const overlap = getContactDistance(a, b, ux, uy) - distance
-        if (overlap <= 0) return
-
-        const pushX = ux * overlap
-        const pushY = uy * overlap
-
-        colliderA.owner.position = {
-            x: colliderA.owner.position.x - pushX / 2,
-            y: colliderA.owner.position.y - pushY / 2
-        }
-
-        colliderB.owner.position = {
-            x: colliderB.owner.position.x + pushX / 2,
-            y: colliderB.owner.position.y + pushY / 2
-        }
-        
         const bodyA = colliderA.body;
         const bodyB = colliderB.body;
 
-        // let temp: Vector;
-        const bounce = Math.max(bodyA.bounce, bodyB.bounce);
-        let bounceForceA = new Vector({dx: 0, dy: 0})
-        let bounceForceB = new Vector({dx: 0, dy: 0})
+        const a = colliderA.tight
+        const b = colliderB.tight
 
-        if(bodyA.bodyType === BodyType.DYNAMIC){
-            bounceForceA = new Vector({
-                startPos: bodyB.owner.position,
-                endPos: bodyA.owner.position
-            })
+        const totalMass = bodyA.mass + bodyB.mass
 
-            bounceForceA.magnitude *= (1+bounce)
+        const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
+        const massRatioB = bodyA.mass == Infinity ? 1 : bodyA.mass/totalMass
+
+        const normal = new Vector({startPos: bodyA.owner.position, endPos: bodyB.owner.position})
+        const distance = normal.magnitude
+        if (distance === 0) { normal.dx = 1; normal.dy = 0 }
+        else normal.magnitude = 1
+
+        // // Direction from A's center to B's center
+        // const dx = b.position.x - a.position.x
+        // const dy = b.position.y - a.position.y
+        // const distance = Math.sqrt(dx * dx + dy * dy)
+
+        // Concentric shapes have no direction, so pick an arbitrary axis
+        // const ux = normal.magnitude > 0 ? normal.dx / normal.magnitude : 1
+        // const uy = normal.magnitude > 0 ? normal.dy / normal.magnitude : 0
+
+        // Penetration depth along the center-to-center line
+        const overlap = getContactDistance(a, b, normal.dx, normal.dy) - normal.magnitude
+        if (overlap <= 0) return
+
+        const pushX = normal.dx * overlap
+        const pushY = normal.dy * overlap
+
+        colliderA.owner.position = {
+            x: colliderA.owner.position.x + pushX * massRatioA,
+            y: colliderA.owner.position.y + pushY * massRatioA
         }
 
-        if(bodyB.bodyType === BodyType.DYNAMIC){
-
-            bounceForceB = new Vector({
-                startPos: bodyA.owner.position,
-                endPos: bodyB.owner.position
-            })
-
-            bounceForceB.magnitude *= (1+bounce)
+        colliderB.owner.position = {
+            x: colliderB.owner.position.x - pushX * massRatioB,
+            y: colliderB.owner.position.y - pushY * massRatioB
         }
 
-        bodyA.applyForce(bounceForceA, ForceMode.IMPULSE);
+        const relV = (bodyA.velocity.dx - bodyB.velocity.dx) * normal.dx
+            + (bodyA.velocity.dy - bodyB.velocity.dy) * normal.dy
+        
+        if(relV <= 0) return
 
-        bodyB.applyForce(bounceForceB, ForceMode.IMPULSE);
+        const bounce = bodyA.bounce * bodyB.bounce
+
+        const j = (1 + bounce) * relV / (1/bodyA.mass + 1/bodyB.mass)
+
+        bodyA.velocity.dx = bodyA.velocity.dx - j/bodyA.mass * normal.dx
+        bodyA.velocity.dy = bodyA.velocity.dy - j/bodyA.mass * normal.dy
+
+        bodyB.velocity.dx = bodyB.velocity.dx + j/bodyB.mass * normal.dx
+        bodyB.velocity.dy = bodyB.velocity.dy + j/bodyB.mass * normal.dy
+
+        // if(bodyA.bodyType === BodyType.DYNAMIC){
+        //     bounceForceA = new Vector({
+        //         startPos: bodyB.owner.position,
+        //         endPos: bodyA.owner.position
+        //     })
+
+        //     bounceForceA.magnitude = 1;
+
+        //     bounceForceA.dx = Math.abs(bodyB.velocity.dx) * bounceForceA.dx
+        //     bounceForceA.dy = Math.abs(bodyB.velocity.dy) * bounceForceA.dy
+
+        //     bounceForceA.add(new Vector({
+        //         dx: bodyA.velocity.dx * -(1+bounce),
+        //         dy: bodyA.velocity.dy * -(1+bounce)
+        //     }))
+
+        //     console.log("bounce A")
+        //     console.log(bounceForceA.magnitude)
+
+        //     bodyA.applyForce(bounceForceA, ForceMode.IMPULSE);
+        // }
+
+        // if(bodyB.bodyType === BodyType.DYNAMIC){
+
+        //     bounceForceB = new Vector({
+        //         startPos: bodyA.owner.position,
+        //         endPos: bodyB.owner.position
+        //     })
+
+        //     bounceForceB.magnitude = 1;
+
+        //     bounceForceB.dx = Math.abs(bodyA.velocity.dx) * bounceForceB.dx
+        //     bounceForceB.dy = Math.abs(bodyA.velocity.dy) * bounceForceB.dy
+
+        //     bounceForceB.add(new Vector({
+        //         dx: bodyB.velocity.dx * -(1+bounce),
+        //         dy: bodyB.velocity.dy * -(1+bounce)
+        //     }))
+
+        //     console.log("bounce B")
+        //     console.log(bounceForceB.magnitude)
+
+        //     bodyB.applyForce(bounceForceB, ForceMode.IMPULSE);
+        // }
     }
 }
 

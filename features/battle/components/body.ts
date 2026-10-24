@@ -19,6 +19,7 @@ export enum ForceMode {
 type BodyOptions = {
     velocity?: Vector,
     acceleration?: Vector
+    mass?:number
 
     bodyType: BodyType
 
@@ -32,6 +33,7 @@ export class Body extends Component implements Updatable{
 
     velocity: Vector;
     acceleration: Vector;
+    mass: number;
 
     totalForces = new Vector({dx: 0, dy: 0});
     impulseForce = new Vector({dx: 0, dy: 0});
@@ -41,13 +43,19 @@ export class Body extends Component implements Updatable{
     constructor(args: BodyOptions){
         super()
 
+        this.bodyType = args.bodyType;
+
         this.velocity = args.velocity ? args.velocity : new Vector({dx: 0, dy: 0});
         
         this.acceleration = args.acceleration ? args.acceleration : new Vector({dx: 0, dy: 0});
 
-        this.bodyType = args.bodyType;
+        if(this.bodyType !== BodyType.DYNAMIC){
+            this.mass = Infinity;
+        } else {
+            this.mass = args.mass ? args.mass : 1
+        }
 
-        this.bounce = args.bounce ? args.bounce : 0
+        this.bounce = args.bounce ? args.bounce : 0;
     }
 
     onAttach(): void {
@@ -64,7 +72,7 @@ export class Body extends Component implements Updatable{
 
     update(dt: number): void {
 
-        console.log("forces")
+        console.log("total forces")
         console.log(this.totalForces)
 
         console.log("velocity")
