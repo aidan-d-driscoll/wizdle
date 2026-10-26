@@ -1,12 +1,40 @@
 import { Component, ComponentType } from "./component";
 import { Updatable } from "./interfaces";
-import { AIConfig, loadAIConfig } from "../utilities/fileUtils";
 import { Body } from "./body";
 import { BehaviorRegistry } from "../AI_system/behaviorRegistry";
+import { loadAIConfig } from "../utilities/fileUtils";
+import { EntityContext } from "../AI_system/behaviorRegistry";
+
+interface AIAction {
+    action: string,
+    params?: Record<string, any>
+}
+
+interface AITransition {
+    trigger: string,
+    target_state: string,
+    actions?: [AIAction]
+    params?: Record<string, any>
+}
+
+interface AIState {
+    on_enter?: [AIAction]
+    on_update?: [AIAction]
+    on_exit?: [AIAction]
+    transitions?: [AITransition]
+}
+
+export interface AIConfig {
+    ai_name: string;
+    initial_state: string;
+    states: Record<string, AIState>
+}
 
 export class Brain extends Component implements Updatable{
     static requires = [Body];
     static max = 1;
+
+    private ctx!: EntityContext
 
     configName: string;
     public currentState: string = "";
@@ -32,6 +60,8 @@ export class Brain extends Component implements Updatable{
 
         this.currentState = this.configData.initial_state;
 
+        this.ctx = {owner: this.owner, blackboard: this.blackboard, dt: 0}
+
         this.registerUpdateable()
     }
 
@@ -44,16 +74,36 @@ export class Brain extends Component implements Updatable{
         this.timeInCurrentState += dt;
         this.blackboard.set("timeInCurrentState", this.timeInCurrentState)
 
-        const currentState = this.configData?.states[this.currentState]
+        let currentState = this.configData?.states[this.currentState]
         if (!currentState) return;
 
-        const ctx = {owner: this.owner, blackboard: this.blackboard, dt: dt}
+        this.ctx = {owner: this.owner, blackboard: this.blackboard, dt: dt}
 
         if (currentState.on_update){
             for(const a of currentState.on_update) {
                 console.log(`Performing action ${a.action}`)
-                BehaviorRegistry.getAction(a.action)(ctx, a.params)
+                BehaviorRegistry.getAction(a.action)(this.ctx, a.params)
             }
+        }
+
+        if (currentState.transitions){
+            for(const t of currentState.transitions) {
+                if (BehaviorRegistry.getTrigger(t.trigger)(this.ctx, t.params)){
+                    this.executeActionList(currentState?.on_exit)
+                    this.currentState = t.target_state
+                    currentState = this.configData?.states[this.currentState]
+                    this.executeActionList(currentState?.on_enter)
+                }
+            }
+        }
+    }
+
+    private executeActionList(list: [AIAction] | undefined){
+        if (!list) return;
+
+        for(const a of list) {
+            console.log(`Performing action ${a.action}`)
+            BehaviorRegistry.getAction(a.action)(this.ctx, a.params)
         }
     }
 }

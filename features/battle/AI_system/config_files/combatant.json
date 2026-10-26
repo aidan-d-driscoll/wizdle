@@ -8,6 +8,28 @@
           "action": "move_towards_point",
           "params": { "targetX": 0, "targetY": 0 }
         }
+      ],
+      "transitions": [
+        {
+          "trigger": "close_to_point",
+          "params": { "pointX": 0, "pointY": 0, "distance": 0.1 },
+          "target_state": "FleeCenter"
+        }
+      ]
+    },
+    "FleeCenter": {
+      "on_update": [
+        {
+          "action": "move_away_from_point",
+          "params": { "targetX": 0, "targetY": 0 }
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "far_from_point",
+          "params": { "pointX": 0, "pointY": 0, "distance": 0.3 },
+          "target_state": "TakeCenter"
+        }
       ]
     }
   }

@@ -1,26 +1,4 @@
-interface AIAction {
-    action: string,
-    params?: Record<string, any>
-}
-
-interface AITransition {
-    trigger: string,
-    target_state: string,
-    actions?: [AIAction]
-}
-
-interface AIState {
-    on_enter?: [AIAction]
-    on_update?: [AIAction]
-    on_exit?: [AIAction]
-    transition?: [AITransition]
-}
-
-export interface AIConfig {
-    ai_name: string;
-    initial_state: string;
-    states: Record<string, AIState>
-}
+import { AIConfig } from "../components/brain";
 
 export async function loadAIConfig(filename: string) {
     try {
