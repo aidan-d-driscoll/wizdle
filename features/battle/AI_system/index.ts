@@ -1,1 +1,1 @@
-import { moveTowardsPoint } from "./actions/moveTowardsPoint";
+import { chargePosition } from "./actions/chargePosition";

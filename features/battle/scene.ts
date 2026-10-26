@@ -10,6 +10,7 @@ import { Ellipse } from "./shapes/ellipse";
 import CollisionManager from "./collisions/collisionManager";
 import { Brain } from "./components/brain";
 import { BehaviorRegistry } from "./AI_system/behaviorRegistry";
+import { Team } from "./components/team";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -23,12 +24,12 @@ export class Scene{
     readonly dirtyColliders: Collider[] = [];
 
     readonly cm = new CollisionManager(this);
-    // readonly tm = new TargetManager();
     // readonly gm = new GroundManager();
 
     private entities: Entity[] = [];
     readonly updatables = new Set<Updatable>;
     readonly renderables: Renderable[][] = Array.from({ length: RenderLayer.COUNT }, () => [])
+    readonly targetables: Team[] = [];
     private destructionQueue: Entity[] = [];
 
     private animationFrameId: number | null = null;
@@ -91,8 +92,8 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.9,
-            mass: 1
+            bounce: 0.4,
+            mass: 1.5
         }))
 
         wizard1.add(new Collider({
@@ -105,7 +106,9 @@ export class Scene{
 
         const wizBrain1 = wizard1.add(new Brain("combatant"))
 
-        wizBrain1.blackboard.set("speed", 0.06)
+        wizBrain1.blackboard.set("speed", 4)
+
+        wizard1.add(new Team(1))
         
         this.add(wizard1)
 
@@ -126,7 +129,7 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.9,
+            bounce: 0.4,
             mass: 1.1
         }))
 
@@ -140,7 +143,9 @@ export class Scene{
 
         const wizBrain2 = wizard2.add(new Brain("combatant"))
 
-        wizBrain2.blackboard.set("speed", 0.05)
+        wizBrain2.blackboard.set("speed", 4.5)
+
+        wizard2.add(new Team(2))
         
         this.add(wizard2)
 

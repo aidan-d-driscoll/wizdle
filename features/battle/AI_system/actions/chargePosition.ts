@@ -2,8 +2,8 @@ import { Body, BodyType, ForceMode } from "../../components/body";
 import Vector from "../../types/vector";
 import { Action, EntityContext } from "../behaviorRegistry";
 
-export class moveAwayFromPoint implements Action{
-    public name = "move_away_from_point"
+export class chargePosition implements Action{
+    public name = "charge_position"
 
     perform(ctx: EntityContext, params: Record<string, any> | undefined){
         if (!params) {
@@ -18,6 +18,6 @@ export class moveAwayFromPoint implements Action{
             throw new Error(`GameObjects without a DYNAMIC body cannot ${this.name}`)
         }
 
-        body.applyForce(new Vector({startPos: {x: params["targetX"], y: params["targetY"]}, endPos: ctx.owner.position, magnitude: ctx.blackboard.get("speed")}))
+        body.applyForce(new Vector({startPos: ctx.owner.position, endPos: {x: params["positionX"], y: params["positionY"]}, magnitude: speed * ctx.dt}), ForceMode.IMPULSE)
     }
 }

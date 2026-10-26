@@ -62,6 +62,8 @@ export class Brain extends Component implements Updatable{
 
         this.ctx = {owner: this.owner, blackboard: this.blackboard, dt: 0}
 
+        this.executeActionList(this.configData?.states[this.currentState].on_enter)
+
         this.registerUpdateable()
     }
 
@@ -73,6 +75,9 @@ export class Brain extends Component implements Updatable{
     update(dt: number){
         this.timeInCurrentState += dt;
         this.blackboard.set("timeInCurrentState", this.timeInCurrentState)
+
+        console.log("-----------------------------------------------------------")
+        console.log(`current state: ${this.currentState}`)
 
         let currentState = this.configData?.states[this.currentState]
         if (!currentState) return;
@@ -86,13 +91,22 @@ export class Brain extends Component implements Updatable{
             }
         }
 
+        let triggerOutput: boolean;
+        
         if (currentState.transitions){
             for(const t of currentState.transitions) {
-                if (BehaviorRegistry.getTrigger(t.trigger)(this.ctx, t.params)){
-                    this.executeActionList(currentState?.on_exit)
-                    this.currentState = t.target_state
-                    currentState = this.configData?.states[this.currentState]
-                    this.executeActionList(currentState?.on_enter)
+                triggerOutput = BehaviorRegistry.getTrigger(t.trigger)(this.ctx, t.params);
+                
+                if(t.params && t.params["invert_output"] === 1) {
+                    console.log("inversion")
+                    triggerOutput = !triggerOutput;
+                }
+
+                if (triggerOutput){
+                    this.executeActionList(currentState?.on_exit);
+                    this.currentState = t.target_state;
+                    currentState = this.configData?.states[this.currentState];
+                    this.executeActionList(currentState?.on_enter);
                 }
             }
         }

@@ -21,7 +21,7 @@ export class Collider extends Component implements Updatable, Renderable{
     static nextId = 0;
     id: number;
 
-    static requires: ComponentType[] = [Body]
+    requires: ComponentType[] = [Body]
 
     body!: Body;
 
@@ -63,10 +63,7 @@ export class Collider extends Component implements Updatable, Renderable{
         })
 
         const body = this.owner.get(Body);
-
-        if (!body) throw new Error("Attampted to add Collider to GameObject with no Body");
-        
-        this.body = body;
+        if (body) this.body = body;
 
         this.registerUpdateable();
         this.registerRenderable();

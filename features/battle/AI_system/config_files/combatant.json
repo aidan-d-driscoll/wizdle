@@ -1,34 +1,46 @@
 {
   "ai_name": "Combatant",
-  "initial_state": "TakeCenter",
+  "initial_state": "AvoidEdge",
   "states": {
-    "TakeCenter": {
+    "Combat": {
+      "on_enter": [
+        {
+          "action": "start_target_timer"
+        }
+      ],
       "on_update": [
         {
-          "action": "move_towards_point",
-          "params": { "targetX": 0, "targetY": 0 }
+          "action": "find_target"
+        },
+        {
+          "action": "approach_target"
         }
       ],
       "transitions": [
         {
-          "trigger": "close_to_point",
-          "params": { "pointX": 0, "pointY": 0, "distance": 0.1 },
-          "target_state": "FleeCenter"
+          "trigger": "within_range_of_position",
+          "params": {
+            "positionX": 0,
+            "positionY": 0,
+            "range": 0.4,
+            "invert_output": 1
+          },
+          "target_state": "AvoidEdge"
         }
       ]
     },
-    "FleeCenter": {
+    "AvoidEdge": {
       "on_update": [
         {
-          "action": "move_away_from_point",
-          "params": { "targetX": 0, "targetY": 0 }
+          "action": "charge_position",
+          "params": { "positionX": 0, "positionY": 0 }
         }
       ],
       "transitions": [
         {
-          "trigger": "far_from_point",
-          "params": { "pointX": 0, "pointY": 0, "distance": 0.3 },
-          "target_state": "TakeCenter"
+          "trigger": "within_range_of_position",
+          "params": { "positionX": 0, "positionY": 0, "range": 0.4 },
+          "target_state": "Combat"
         }
       ]
     }

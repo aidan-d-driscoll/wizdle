@@ -24,6 +24,8 @@ type BodyOptions = {
     bodyType: BodyType
 
     bounce?: number
+
+    maxInternalvelocity?: number
 }
 
 export class Body extends Component implements Updatable{
@@ -73,7 +75,7 @@ export class Body extends Component implements Updatable{
     update(dt: number): void {
 
         if(this.bodyType !== BodyType.STATIC) {
-            
+
             if (this.bodyType === BodyType.DYNAMIC){
                 this.acceleration.dx = this.totalForces.dx
                 this.acceleration.dy = this.totalForces.dy

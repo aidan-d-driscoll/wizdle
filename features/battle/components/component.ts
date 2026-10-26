@@ -13,9 +13,16 @@ export abstract class Component{
 
     static max: number = Infinity;
 
-    static requires: ComponentType[] = []
+    static requires: ComponentType<Component>[] = [];
 
-    onAttach(): void{} 
+    onAttach(): void {
+        const comp = this.constructor as ComponentType
+        for (const c of comp.requires){
+            if (!this.owner.has(c)) {
+                throw new Error(`${comp.name} added to GameObject wihtout required component ${c.name}`)
+            }
+        }
+    } 
     onDetach(): void{}
 
     protected registerUpdateable(this: Component & Updatable) {

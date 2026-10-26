@@ -1,9 +1,11 @@
 import "./index"
 import { GameObject } from "../gameObject";
-import { moveTowardsPoint } from "./actions/moveTowardsPoint";
-import { moveAwayFromPoint } from "./actions/moveTowardsPoint copy";
-import { closeToPoint } from "./triggers/closeToPoint";
-import { farFromPoint } from "./triggers/farFromPoint";
+import { chargePosition } from "./actions/chargePosition";
+import { withinRangeOfPosition } from "./triggers/withinRangeOfPosition";
+import { startTargetTimer } from "./actions/startTargetTimer";
+import { findTarget } from "./actions/findTarget";
+import { approachTarget } from "./actions/approachTarget";
+import { constrainSpeed } from "./actions/constrainSpeed";
 
 export interface EntityContext {
     owner: GameObject;
@@ -33,12 +35,14 @@ export class BehaviorRegistry {
 
     static initialize() {
         // Actions
-        BehaviorRegistry.addAction(new moveTowardsPoint())
-        BehaviorRegistry.addAction(new moveAwayFromPoint())
+        BehaviorRegistry.addAction(new chargePosition())
+        BehaviorRegistry.addAction(new startTargetTimer())
+        BehaviorRegistry.addAction(new findTarget())
+        BehaviorRegistry.addAction(new approachTarget())
+        BehaviorRegistry.addAction(new constrainSpeed())
 
-        // Actions
-        BehaviorRegistry.addTrigger(new closeToPoint())
-        BehaviorRegistry.addTrigger(new farFromPoint())
+        // Trigger
+        BehaviorRegistry.addTrigger(new withinRangeOfPosition())
     }
 
     static addAction(a: Action) {

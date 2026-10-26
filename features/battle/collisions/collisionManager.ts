@@ -109,7 +109,7 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
         
         if(relV <= 0) return
 
-        const bounce = bodyA.bounce * bodyB.bounce
+        const bounce = Math.max(bodyA.bounce, bodyB.bounce)
 
         const j = (1 + bounce) * relV / (1/bodyA.mass + 1/bodyB.mass)
 
