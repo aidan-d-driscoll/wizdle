@@ -30,7 +30,7 @@ export default abstract class Spell{
     caster: Combatant;
 
     sprite: Sprite;
-    knockback: number;   
+    knockback: number;
     spellQuality: number;
     damage: number;
 

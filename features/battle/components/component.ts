@@ -2,6 +2,7 @@ import { Renderable, Updatable } from "./interfaces";
 import { GameObject } from "../gameObject";
 import { insertionSorted } from "../utilities/sortUtils";
 import { Body } from "./body";
+import { ComponentRequirementError } from "../errors";
 
 export type ComponentType<T extends Component = Component> = (abstract new (...args: any[]) => T) & {
     requires: ComponentType[];
@@ -18,11 +19,12 @@ export abstract class Component{
     onAttach(): void {
         const comp = this.constructor as ComponentType
         for (const c of comp.requires){
-            if (!this.owner.has(c)) {
-                throw new Error(`${comp.name} added to GameObject wihtout required component ${c.name}`)
+            if (!this.owner.get(c)) {
+                throw new ComponentRequirementError(`${comp.name} added to GameObject without required component ${c.name}`)
             }
         }
-    } 
+    }
+    
     onDetach(): void{}
 
     protected registerUpdateable(this: Component & Updatable) {

@@ -1,6 +1,7 @@
 import { Entity, EntityOptions } from "./entity";
 import { Component, ComponentType } from "./components/component";
 import { Scene } from "./scene";
+import { ComponentRequirementError } from "./errors";
 
 export type ObjectOptions = EntityOptions & {
     // static?: boolean;
@@ -43,6 +44,13 @@ export class GameObject extends Entity{
         if (! typeList) return undefined
             
         return typeList[0] as T | undefined
+    }
+
+    getRequired<T extends Component>(type: ComponentType<T>): T {
+        const out = this.get(type);
+        if(!out) throw new ComponentRequirementError(`${this.constructor.name} is missing ${type.name}`);
+
+        return out;
     }
 
     getAll<T extends Component>(type: ComponentType<T>): T[] {

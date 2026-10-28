@@ -1,4 +1,4 @@
-export function insertionSorted<T>(list: T[], key: (objA: T) => number): T[]{
+export function insertionSorted<Type>(list: Type[], key: (objA: Type) => number): Type[]{
     const newList = [...list]
 
     for (let i = 1; i < newList.length; i++){

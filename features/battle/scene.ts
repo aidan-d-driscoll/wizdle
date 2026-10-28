@@ -79,7 +79,7 @@ export class Scene{
 
         const wizard1 = new GameObject({
             scene: this,
-            position: {x:-0.4, y:-0.4}
+            position: {x:0, y:-0.4}
         })
 
         wizard1.add(new Sprite({
@@ -92,7 +92,7 @@ export class Scene{
 
         const wizBody = wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.4,
+            bounce: 0.9,
             mass: 1.5
         }))
 
@@ -104,19 +104,19 @@ export class Scene{
             })
         }))
 
-        const wizBrain1 = wizard1.add(new Brain("combatant"))
+        // const wizBrain1 = wizard1.add(new Brain("combatant"))
 
-        wizBrain1.blackboard.set("speed", 4)
+        // wizBrain1.blackboard.set("speed", 4)
 
-        wizard1.add(new Team(1))
+        // wizard1.add(new Team(1))
         
         this.add(wizard1)
 
-        // wizBody.applyForce(new Vector({dx: 1, dy: 0}), ForceMode.IMPULSE)
+        wizBody.applyForce(new Vector({dx: 0, dy: 1}), ForceMode.IMPULSE)
 
         const wizard2 = new GameObject({
             scene: this,
-            position: {x:0.4, y:-0}
+            position: {x:0.4, y:0}
         })
 
         wizard2.add(new Sprite({
@@ -129,7 +129,7 @@ export class Scene{
 
         const wizBody2 = wizard2.add(new Body({
             bodyType: BodyType.DYNAMIC,
-            bounce: 0.4,
+            bounce: 0.9,
             mass: 1.1
         }))
 
@@ -141,15 +141,15 @@ export class Scene{
             })
         }))
 
-        const wizBrain2 = wizard2.add(new Brain("combatant"))
+        // const wizBrain2 = wizard2.add(new Brain("combatant"))
 
-        wizBrain2.blackboard.set("speed", 4.5)
+        // wizBrain2.blackboard.set("speed", 4.5)
 
-        wizard2.add(new Team(2))
+        // wizard2.add(new Team(2))
         
         this.add(wizard2)
 
-        // wizBody2.applyForce(new Vector({dx: -1, dy: 0}), ForceMode.IMPULSE)
+        wizBody2.applyForce(new Vector({dx: -1.5, dy: 0}), ForceMode.IMPULSE)
         
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;

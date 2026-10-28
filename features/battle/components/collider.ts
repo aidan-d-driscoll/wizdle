@@ -62,8 +62,7 @@ export class Collider extends Component implements Updatable, Renderable{
             height: this.tight.height + 0.1
         })
 
-        const body = this.owner.get(Body);
-        if (body) this.body = body;
+        this.body = this.owner.getRequired(Body);
 
         this.registerUpdateable();
         this.registerRenderable();

@@ -20,12 +20,15 @@ export class Team extends Component{
     onAttach(): void {
         super.onAttach();
 
-        const body = this.owner.get(Body)
-        if (body) this.body = body
+        this.body = this.owner.getRequired(Body);
 
-        const collider = this.owner.get(Collider)
-        if (collider) this.collider = collider
+        this.collider = this.owner.getRequired(Collider);
 
-        this.owner.scene.targetables.push(this)
+        this.owner.scene.targetables.push(this);
+    }
+
+    onDetach(): void {
+        const idx = this.owner.scene.targetables.indexOf(this)
+        if(idx !== -1) this.owner.scene.targetables.splice(idx, 1)
     }
 }

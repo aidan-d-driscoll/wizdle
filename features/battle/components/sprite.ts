@@ -1,7 +1,7 @@
 import { toScreenPosition, toScreenValue } from "../rendering/renderingUtils";
 import { Position } from "../types/position";
 import { Component } from "./component";
-import { Renderable } from "./interfaces";
+import { Renderable, Updatable } from "./interfaces";
 
 
 type SpriteOptions = {

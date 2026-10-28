@@ -1,6 +1,5 @@
 import { Component, ComponentType } from "./component";
 import { Updatable } from "./interfaces";
-import { Body } from "./body";
 import { BehaviorRegistry } from "../AI_system/behaviorRegistry";
 import { loadAIConfig } from "../utilities/fileUtils";
 import { EntityContext } from "../AI_system/behaviorRegistry";
@@ -31,7 +30,7 @@ export interface AIConfig {
 }
 
 export class Brain extends Component implements Updatable{
-    static requires = [Body];
+    static requires = [];
     static max = 1;
 
     private ctx!: EntityContext
