@@ -3,6 +3,8 @@ import { Module } from "./module";
 import { Updatable } from "./interfaces";
 import Vector from "../types/vector";
 
+const BRAKE_MULITPLIER = 1.5;
+
 export class Movement extends Module implements Updatable{
     static max: number = 1;
     static requires = [Body];
@@ -38,11 +40,21 @@ export class Movement extends Module implements Updatable{
     update(dt: number): void {
         const v = this.body.velocity;
         const along = v.dx * this.force.dx + v.dy * this.force.dy; 
-        // const room = this.maxSpeed - along;
-        const room = Infinity;
+        const room = this.maxSpeed - along;
 
         if (room > 0) {
-            const dv = Math.min(this.speed * dt, room);
+            const speed = v.magnitude;
+            let opposition = 0;
+            if (speed > 0) {
+                const alignment = along / speed;
+                opposition = Math.max(0, -alignment);
+            }
+
+            const brake = 1 + (BRAKE_MULITPLIER - 1) * opposition;
+            const traction = this.body.groundFriction * brake;
+
+            const accel = this.speed * traction;
+            const dv = Math.min(accel * dt, room);
             this.body.applyForce(
                 new Vector({ dx: this.force.dx * dv, dy: this.force.dy * dv }),
                 ForceMode.IMPULSE

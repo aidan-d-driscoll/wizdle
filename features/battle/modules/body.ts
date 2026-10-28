@@ -1,9 +1,6 @@
 import { Module } from "./module";
 import Vector from "../types/vector";
 import { Updatable } from "./interfaces";
-import { Kadwa } from "next/font/google";
-
-const FRICTION = 2
 
 export enum BodyType {
     STATIC,
@@ -42,6 +39,8 @@ export class Body extends Module implements Updatable{
 
     bounce: number;
 
+    groundFriction = 1;
+
     constructor(args: BodyOptions){
         super()
 
@@ -73,7 +72,6 @@ export class Body extends Module implements Updatable{
     }
 
     update(dt: number): void {
-
         if(this.bodyType !== BodyType.STATIC) {
 
             if (this.bodyType === BodyType.DYNAMIC){
@@ -85,7 +83,7 @@ export class Body extends Module implements Updatable{
             this.velocity.dy += this.acceleration.dy * dt
 
             if (this.bodyType === BodyType.DYNAMIC){
-                const k = Math.exp(-FRICTION * dt);
+                const k = Math.exp(-this.groundFriction * dt);
 
                 this.velocity.dx += this.impulseForce.dx
                 this.velocity.dy += this.impulseForce.dy 
