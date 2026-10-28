@@ -1,8 +1,6 @@
 import { Renderable, Updatable } from "./interfaces";
 import { GameObject } from "../gameObject";
 import { insertionSorted } from "../utilities/sortUtils";
-import { Body } from "./body";
-import { ModuleRequirementError } from "../errors";
 
 export type ModuleType<T extends Module = Module> = (abstract new (...args: any[]) => T) & {
     requires: ModuleType[];

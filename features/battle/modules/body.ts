@@ -1,7 +1,7 @@
 import { Module } from "./module";
 import Vector from "../types/vector";
 import { Updatable } from "./interfaces";
-import { error } from "console";
+import { Kadwa } from "next/font/google";
 
 const FRICTION = 2
 
@@ -85,11 +85,13 @@ export class Body extends Module implements Updatable{
             this.velocity.dy += this.acceleration.dy * dt
 
             if (this.bodyType === BodyType.DYNAMIC){
+                const k = Math.exp(-FRICTION * dt);
+
                 this.velocity.dx += this.impulseForce.dx
                 this.velocity.dy += this.impulseForce.dy 
 
-                this.velocity.dx *= 1 - FRICTION * dt;
-                this.velocity.dy *= 1 - FRICTION * dt;
+                this.velocity.dx *= k;
+                this.velocity.dy *= k;
             }
             
             this.owner.position.x += this.velocity.dx * dt

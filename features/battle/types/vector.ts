@@ -34,6 +34,9 @@ export default class Vector{
             this._dx = value/this._magnitude * this._dx;
             this._dy = value/this._magnitude * this._dy;
         }
+        
+        
+        this._magnitude = value;
     }
 
     get magnitude(): number { return this._magnitude }

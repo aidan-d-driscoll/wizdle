@@ -8,9 +8,10 @@ import { Body, BodyType, ForceMode } from "./modules/body";
 import { Collider } from "./modules/collider";
 import { Ellipse } from "./shapes/ellipse";
 import CollisionManager from "./collisions/collisionManager";
-import { Brain } from "./modules/brain";
 import { BehaviorRegistry } from "./AI_system/behaviorRegistry";
 import { Team } from "./modules/team";
+import { Brain } from "./modules/brain";
+import { Movement } from "./modules/movement";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -90,7 +91,7 @@ export class Scene{
             renderHeight: 1
         }))
 
-        const wizBody = wizard1.add(new Body({
+        wizard1.add(new Body({
             bodyType: BodyType.DYNAMIC,
             bounce: 0.9,
             mass: 1.5
@@ -104,15 +105,15 @@ export class Scene{
             })
         }))
 
-        // const wizBrain1 = wizard1.add(new Brain("combatant"))
+        wizard1.add(new Movement(2))
 
-        // wizBrain1.blackboard.set("speed", 4)
+        wizard1.add(new Team(1))
 
-        // wizard1.add(new Team(1))
+        const wizBrain1 = wizard1.add(new Brain("combatant"))
         
         this.add(wizard1)
 
-        wizBody.applyForce(new Vector({dx: 0, dy: 1}), ForceMode.IMPULSE)
+        // wizBody.applyForce(new Vector({dx: 0, dy: 1}), ForceMode.IMPULSE)
 
         const wizard2 = new GameObject({
             scene: this,
@@ -141,21 +142,21 @@ export class Scene{
             })
         }))
 
-        // const wizBrain2 = wizard2.add(new Brain("combatant"))
+        wizard2.add(new Movement(2.2))
 
-        // wizBrain2.blackboard.set("speed", 4.5)
+        wizard2.add(new Team(2))
 
-        // wizard2.add(new Team(2))
+        wizard2.add(new Brain("combatant"))
         
         this.add(wizard2)
 
-        wizBody2.applyForce(new Vector({dx: -1.5, dy: 0}), ForceMode.IMPULSE)
+        // wizBody2.applyForce(new Vector({dx: -1.5, dy: 0}), ForceMode.IMPULSE)
         
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
 
             canvas.addEventListener("mousedown", () => {
-                this.battlePaused = !this.battlePaused; 
+                this.battlePaused = !this.battlePaused;
             });
 
             window.addEventListener('keydown', (event) => {

@@ -1,7 +1,8 @@
 import { getDistance } from "../../utilities/mathUtils";
-import { EntityContext, Trigger } from "../behaviorRegistry";
+import { Trigger } from "../behavior";
+import { EntityContext} from "../behaviorRegistry";
 
-export class withinRangeOfPosition implements Trigger{
+export class withinRangeOfPosition extends Trigger{
     public name = "within_range_of_position"
 
     evaluate(ctx: EntityContext, params: Record<string, any> | undefined): boolean {

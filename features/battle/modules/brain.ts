@@ -1,6 +1,6 @@
 import { Module, ModuleType } from "./module";
 import { Updatable } from "./interfaces";
-import { BehaviorRegistry } from "../AI_system/behaviorRegistry";
+import { BehaviorRegistry} from "../AI_system/behaviorRegistry";
 import { loadAIConfig } from "../utilities/fileUtils";
 import { EntityContext } from "../AI_system/behaviorRegistry";
 
@@ -57,18 +57,10 @@ export class Brain extends Module implements Updatable{
         }
         
         for (const [key, state] of Object.entries(this.configData.states)){
-            for (const action of state.on_enter ?? []){
-                BehaviorRegistry.getAction(action.action)
-            }
-            for (const action of state.on_update ?? []){
-                BehaviorRegistry.getAction(action.action)
-            }
-            for (const action of state.on_exit ?? []){
-                BehaviorRegistry.getAction(action.action)
-            }
-            for (const t of state.transitions ?? []){
-                BehaviorRegistry.getTrigger(t.trigger)
-            }
+            this.getActionRequirements(state.on_enter)
+            this.getActionRequirements(state.on_update)
+            this.getActionRequirements(state.on_update)
+            
         }
 
         this.currentState = this.configData.initial_state;
@@ -98,17 +90,14 @@ export class Brain extends Module implements Updatable{
         this.ctx = {owner: this.owner, blackboard: this.blackboard, dt: dt}
 
         if (currentState.on_update){
-            for(const a of currentState.on_update) {
-                console.log(`Performing action ${a.action}`)
-                BehaviorRegistry.getAction(a.action)(this.ctx, a.params)
-            }
+            this.executeActionList(currentState.on_update)
         }
 
         let triggerOutput: boolean;
         
         if (currentState.transitions){
             for(const t of currentState.transitions) {
-                triggerOutput = BehaviorRegistry.getTrigger(t.trigger)(this.ctx, t.params);
+                triggerOutput = BehaviorRegistry.getTrigger(t.trigger).evaluate(this.ctx, t.params);
                 
                 if(t.params && t.params["invert_output"] === 1) {
                     console.log("inversion")
@@ -130,7 +119,27 @@ export class Brain extends Module implements Updatable{
 
         for(const a of list) {
             console.log(`Performing action ${a.action}`)
-            BehaviorRegistry.getAction(a.action)(this.ctx, a.params)
+            BehaviorRegistry.getAction(a.action).perform(this.ctx, a.params)
+        }
+    }
+
+    private getActionRequirements(list: [AIAction] | undefined){
+        if (!list || list.length < 1) return; 
+
+        for (const action of list){
+            for (const req of BehaviorRegistry.getAction(action.action).requires){
+                this.blackboard.set(req.name, this.owner.getRequired(req))
+            }
+        }
+    }
+
+    private getTransitionRequirements(list: [AITransition] | undefined){
+        if (!list || list.length < 1) return; 
+
+        for (const t of list){
+            for (const req of BehaviorRegistry.getTrigger(t.trigger).requires){
+                this.blackboard.set(req.name, this.owner.getRequired(req))
+            }
         }
     }
 }

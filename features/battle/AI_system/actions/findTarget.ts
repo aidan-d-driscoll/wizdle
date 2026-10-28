@@ -1,9 +1,9 @@
-import { Collider } from "../../modules/collider";
 import { Team } from "../../modules/team";
 import { getRawDistance } from "../../utilities/mathUtils";
-import { Action, EntityContext } from "../behaviorRegistry";
+import { Action } from "../behavior";
+import { EntityContext } from "../behaviorRegistry";
 
-export class findTarget implements Action{
+export class findTarget extends Action{
     name = "find_target";
 
     perform(ctx: EntityContext, params: Record<string, any> | undefined){

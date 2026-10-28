@@ -1,20 +1,17 @@
 import { Body, BodyType, ForceMode } from "../../modules/body";
+import { Movement } from "../../modules/movement";
 import { Team } from "../../modules/team";
 import Vector from "../../types/vector";
-import { Action, EntityContext } from "../behaviorRegistry";
+import { Action } from "../behavior";
+import { EntityContext } from "../behaviorRegistry";
+
 
 export class approachTarget implements Action{
     public name = "approach_target"
-    requires = [Body]
+    requires = [Movement]
 
     perform(ctx: EntityContext, params: Record<string, any> | undefined){
-        const speed = ctx.blackboard.get("speed") ?? 0.01;
-        ctx.blackboard.set("speed", speed)
-
-        const body = ctx.owner.get(Body)
-        if (!body || body.bodyType != BodyType.DYNAMIC) {
-            throw new Error(`GameObjects without a DYNAMIC body cannot ${this.name}`)
-        }
+        const movement = ctx.blackboard.get("Movement")
 
         const target = ctx.blackboard.get("current_target") as Team
 
@@ -22,25 +19,23 @@ export class approachTarget implements Action{
         console.log(`target: ${target}`)
 
         if (target){
-            const directForce = new Vector({
+            const movementDir = new Vector({
                 startPos: ctx.owner.position, 
-                endPos: target.collider.tight.position, 
-                magnitude: speed
+                endPos: target.collider.tight.position,
+                magnitude: 1
             })
 
-            const circleForce = new Vector({
-                dx: directForce.dy,
-                dy: -1 * directForce.dx,
-                magnitude: speed * 0.25
+            const circleDir = new Vector({
+                dx: movementDir.dy,
+                dy: -1 * movementDir.dx,
+                magnitude: 0.15
             })
 
-            directForce.add(circleForce)
+            movementDir.add(circleDir)
 
-            directForce.magnitude = speed * ctx.dt
+            console.log(`movementDir: ${movementDir}`)
     
-            body.applyForce(directForce, ForceMode.IMPULSE)
+            movement.moveInDirection(movementDir)
         }
-
-        
     }
 }
