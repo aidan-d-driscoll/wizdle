@@ -1,4 +1,4 @@
-import { Component } from "./component";
+import { Module } from "./module";
 import Vector from "../types/vector";
 import { Updatable } from "./interfaces";
 import { error } from "console";
@@ -28,7 +28,7 @@ type BodyOptions = {
     maxInternalvelocity?: number
 }
 
-export class Body extends Component implements Updatable{
+export class Body extends Module implements Updatable{
     static max = 1;
 
     bodyType: BodyType;

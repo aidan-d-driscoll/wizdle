@@ -1,4 +1,4 @@
-import { Component, ComponentType } from "./component";
+import { Module, ModuleType } from "./module";
 import { Updatable } from "./interfaces";
 import { BehaviorRegistry } from "../AI_system/behaviorRegistry";
 import { loadAIConfig } from "../utilities/fileUtils";
@@ -29,7 +29,7 @@ export interface AIConfig {
     states: Record<string, AIState>
 }
 
-export class Brain extends Component implements Updatable{
+export class Brain extends Module implements Updatable{
     static requires = [];
     static max = 1;
 
@@ -55,7 +55,21 @@ export class Brain extends Component implements Updatable{
         if (!this.configData){
             throw new Error(`Failed to load AI config: ${this.configName}`);
         }
-        console.log(this.configData)
+        
+        for (const [key, state] of Object.entries(this.configData.states)){
+            for (const action of state.on_enter ?? []){
+                BehaviorRegistry.getAction(action.action)
+            }
+            for (const action of state.on_update ?? []){
+                BehaviorRegistry.getAction(action.action)
+            }
+            for (const action of state.on_exit ?? []){
+                BehaviorRegistry.getAction(action.action)
+            }
+            for (const t of state.transitions ?? []){
+                BehaviorRegistry.getTrigger(t.trigger)
+            }
+        }
 
         this.currentState = this.configData.initial_state;
 

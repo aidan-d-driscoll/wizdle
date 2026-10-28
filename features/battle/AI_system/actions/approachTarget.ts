@@ -1,10 +1,11 @@
-import { Body, BodyType, ForceMode } from "../../components/body";
-import { Team } from "../../components/team";
+import { Body, BodyType, ForceMode } from "../../modules/body";
+import { Team } from "../../modules/team";
 import Vector from "../../types/vector";
 import { Action, EntityContext } from "../behaviorRegistry";
 
 export class approachTarget implements Action{
     public name = "approach_target"
+    requires = [Body]
 
     perform(ctx: EntityContext, params: Record<string, any> | undefined){
         const speed = ctx.blackboard.get("speed") ?? 0.01;

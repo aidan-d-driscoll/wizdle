@@ -6,6 +6,7 @@ import { startTargetTimer } from "./actions/startTargetTimer";
 import { findTarget } from "./actions/findTarget";
 import { approachTarget } from "./actions/approachTarget";
 import { constrainSpeed } from "./actions/constrainSpeed";
+import { Module, ModuleType } from "../modules/module";
 
 export interface EntityContext {
     owner: GameObject;
@@ -13,21 +14,22 @@ export interface EntityContext {
     dt: number;
 }
 
-export interface Action {
-    name: string;
-
-    perform: ActionFunction;
-}
-
-export interface Trigger {
-    name: string;
-
-    evaluate: TriggerFunction;
-}
-
 type ActionFunction = (ctx: EntityContext, params: Record<string, any> | undefined) => void;
 
 type TriggerFunction = (ctx: EntityContext, params: Record<string, any> | undefined) => boolean;
+
+abstract class Behavior{
+    abstract name: string;
+    static requires: ModuleType<Module>[] = [];
+}
+
+export interface Action extends Behavior {
+    perform: ActionFunction;
+}
+    
+export interface Trigger extends Behavior {
+    evaluate: TriggerFunction;
+}
 
 export class BehaviorRegistry {
     private static actions = new Map<string, ActionFunction>()

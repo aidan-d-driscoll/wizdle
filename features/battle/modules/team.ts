@@ -1,8 +1,8 @@
 import { Body } from "./body";
 import { Collider } from "./collider";
-import { Component, ComponentType } from "./component";
+import { Module, ModuleType } from "./module";
 
-export class Team extends Component{
+export class Team extends Module{
     static max = 1;
     static requires = [Body, Collider]
 

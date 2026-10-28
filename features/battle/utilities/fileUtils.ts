@@ -1,4 +1,4 @@
-import { AIConfig } from "../components/brain";
+import { AIConfig } from "../modules/brain";
 
 export async function loadAIConfig(filename: string) {
     try {

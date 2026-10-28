@@ -1,6 +1,6 @@
 import { toScreenPosition, toScreenValue } from "../rendering/renderingUtils";
 import { Position } from "../types/position";
-import { Component } from "./component";
+import { Module } from "./module";
 import { Renderable, Updatable } from "./interfaces";
 
 
@@ -14,7 +14,7 @@ type SpriteOptions = {
     renderHeight?: number;
 }
 
-export class Sprite extends Component implements Renderable{
+export class Sprite extends Module implements Renderable{
     offset: Position;
 
     image: HTMLImageElement;

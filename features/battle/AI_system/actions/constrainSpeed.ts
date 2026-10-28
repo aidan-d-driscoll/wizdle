@@ -1,4 +1,4 @@
-import { Body } from "../../components/body";
+import { Body } from "../../modules/body";
 import { Action, EntityContext } from "../behaviorRegistry";
 
 export class constrainSpeed implements Action {

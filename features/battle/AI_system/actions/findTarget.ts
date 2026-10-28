@@ -1,5 +1,5 @@
-import { Collider } from "../../components/collider";
-import { Team } from "../../components/team";
+import { Collider } from "../../modules/collider";
+import { Team } from "../../modules/team";
 import { getRawDistance } from "../../utilities/mathUtils";
 import { Action, EntityContext } from "../behaviorRegistry";
 
@@ -11,7 +11,7 @@ export class findTarget implements Action{
         const team = ctx.owner.get(Team)
 
         if (!team) {
-            throw new Error(`GameObject without Team component cannot perform ${this.name}`)
+            throw new Error(`GameObject without Team module cannot perform ${this.name}`)
         }
         
         let target_timer = ctx.blackboard.get("target_timer") as number

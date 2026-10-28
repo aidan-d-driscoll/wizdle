@@ -2,7 +2,7 @@ import { Rectangle } from "../shapes/rectangle";
 import { Shape } from "../shapes/shape";
 import { GameObject } from "../gameObject";
 import { Position } from "../types/position";
-import { Component, ComponentType } from "./component";
+import { Module, ModuleType } from "./module";
 import { Renderable, Updatable } from "./interfaces";
 import { Body } from "./body";
 
@@ -17,11 +17,11 @@ type ColliderOptions = {
     onCollisionExit?: (other: GameObject) => void;
 }
 
-export class Collider extends Component implements Updatable, Renderable{
+export class Collider extends Module implements Updatable, Renderable{
     static nextId = 0;
     id: number;
 
-    requires: ComponentType[] = [Body]
+    requires: ModuleType[] = [Body]
 
     body!: Body;
 

@@ -1,4 +1,4 @@
-import { Body, BodyType, ForceMode } from "../../components/body";
+import { Body, BodyType, ForceMode } from "../../modules/body";
 import Vector from "../../types/vector";
 import { Action, EntityContext } from "../behaviorRegistry";
 

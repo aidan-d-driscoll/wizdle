@@ -1,12 +1,12 @@
-export class ComponentRequirementError extends Error {
+export class ModuleRequirementError extends Error {
     public readonly field?: string;
   
     constructor(message: string, field?: string) {
       super(message);
       
-      this.name = 'ComponentRequirementError';
+      this.name = 'ModuleRequirementError';
       this.field = field;
   
-      Object.setPrototypeOf(this, ComponentRequirementError.prototype);
+      Object.setPrototypeOf(this, ModuleRequirementError.prototype);
     }
   }

@@ -1,16 +1,16 @@
-import { Renderable, Updatable } from "./components/interfaces";
+import { Renderable, Updatable } from "./modules/interfaces";
 import { Entity } from "./entity";
 import { GameObject } from "./gameObject";
 import Vector from "./types/vector";
 import { RenderLayer } from "./globals";
-import { Sprite } from "./components/sprite";
-import { Body, BodyType, ForceMode } from "./components/body";
-import { Collider } from "./components/collider";
+import { Sprite } from "./modules/sprite";
+import { Body, BodyType, ForceMode } from "./modules/body";
+import { Collider } from "./modules/collider";
 import { Ellipse } from "./shapes/ellipse";
 import CollisionManager from "./collisions/collisionManager";
-import { Brain } from "./components/brain";
+import { Brain } from "./modules/brain";
 import { BehaviorRegistry } from "./AI_system/behaviorRegistry";
-import { Team } from "./components/team";
+import { Team } from "./modules/team";
 
 const DEV_TOOLS_ENABLED = true;
 

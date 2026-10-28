@@ -1,7 +1,7 @@
 import { Entity, EntityOptions } from "./entity";
-import { Component, ComponentType } from "./components/component";
+import { Module, ModuleType } from "./modules/module";
 import { Scene } from "./scene";
-import { ComponentRequirementError } from "./errors";
+import { ModuleRequirementError } from "./errors";
 
 export type ObjectOptions = EntityOptions & {
     // static?: boolean;
@@ -14,16 +14,16 @@ export type ObjectOptions = EntityOptions & {
 }
 
 export class GameObject extends Entity{
-    private _components = new Map<ComponentType, Component[]>;
+    private _modules = new Map<ModuleType, Module[]>;
 
-    add<T extends Component>(c: T): T {
-        const type = c.constructor as ComponentType<T>;
+    add<T extends Module>(c: T): T {
+        const type = c.constructor as ModuleType<T>;
 
         for (const req of type.requires){
-            if (!this.has(req)) throw new Error(`${this.constructor.name} requires a previously added ${req.name} component`)
+            if (!this.has(req)) throw new ModuleRequirementError(`${c.constructor.name} requires module ${req.name}`)
         }
 
-        const typeList = this._components.get(type);
+        const typeList = this._modules.get(type);
         if(typeList) {
             if(typeList.length < type.max){
                 typeList.push(c)
@@ -31,7 +31,7 @@ export class GameObject extends Entity{
                 throw new Error(`${this.constructor.name} can have at most ${type.max} ${type.name}(s)`);
             }
         } else {
-            this._components.set(type, [c])
+            this._modules.set(type, [c])
         }
         
         c.owner = this;
@@ -39,48 +39,48 @@ export class GameObject extends Entity{
         return c;
     }
 
-    get<T extends Component>(type: ComponentType<T>): T | undefined {
-        const typeList = this._components.get(type)
+    get<T extends Module>(type: ModuleType<T>): T | undefined {
+        const typeList = this._modules.get(type)
         if (! typeList) return undefined
             
         return typeList[0] as T | undefined
     }
 
-    getRequired<T extends Component>(type: ComponentType<T>): T {
+    getRequired<T extends Module>(type: ModuleType<T>): T {
         const out = this.get(type);
-        if(!out) throw new ComponentRequirementError(`${this.constructor.name} is missing ${type.name}`);
+        if(!out) throw new ModuleRequirementError(`${this.constructor.name} is missing ${type.name}`);
 
         return out;
     }
 
-    getAll<T extends Component>(type: ComponentType<T>): T[] {
-        const typeList = this._components.get(type)
+    getAll<T extends Module>(type: ModuleType<T>): T[] {
+        const typeList = this._modules.get(type)
         if(!typeList) return []
 
         return typeList as T[];
     }
 
-    has<T extends Component>(type: ComponentType<T>): boolean { return this._components.has(type) }
+    has<T extends Module>(type: ModuleType<T>): boolean { return this._modules.has(type) }
 
-    remove<T extends Component>(c: T) {
-        const type = c.constructor as ComponentType<T>
-        const typeList = this._components.get(type);
+    remove<T extends Module>(c: T) {
+        const type = c.constructor as ModuleType<T>
+        const typeList = this._modules.get(type);
         const idx = typeList?.indexOf(c) ?? -1
 
         if(!typeList || idx < 0) return;
 
         typeList.splice(idx, 1);
         c.onDetach();
-        if (typeList.length === 0) this._components.delete(type);
+        if (typeList.length === 0) this._modules.delete(type);
     }
 
-    removeAll<T extends Component>(type: ComponentType<T>) {
-        const typeList = this._components.get(type);
+    removeAll<T extends Module>(type: ModuleType<T>) {
+        const typeList = this._modules.get(type);
         if (!typeList) return;
 
         for (const c of typeList)
             c.onDetach();
-        this._components.delete(type);
+        this._modules.delete(type);
     }
 }
 

@@ -1,8 +1,8 @@
 import { Circle } from "../shapes/circle";
 import { Ellipse } from "../shapes/ellipse";
 import { Scene } from "../scene";
-import { Collider } from "../components/collider";
-import { Body, BodyType, ForceMode } from "../components/body";
+import { Collider } from "../modules/collider";
+import { Body, BodyType, ForceMode } from "../modules/body";
 import Vector from "../types/vector";
 import { softSign } from "../utilities/mathUtils";
 

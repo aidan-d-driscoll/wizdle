@@ -1,8 +1,8 @@
 import { Body } from "./body";
-import { Component, ComponentType } from "./component";
+import { Module } from "./module";
 import { Updatable } from "./interfaces";
 
-class FighterMovement extends Component implements Updatable{
+class Movement extends Module implements Updatable{
     static max: number = 1;
     static requires = [Body];
     
