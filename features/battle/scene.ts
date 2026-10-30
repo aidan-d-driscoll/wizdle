@@ -13,6 +13,7 @@ import { Team } from "./modules/team";
 import { Brain } from "./modules/brain";
 import { MovementControl } from "./modules/movementControl";
 import { wizard } from "./Prefabs/wizard";
+import { insertionSort } from "./utilities/sortUtils";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -196,7 +197,8 @@ export class Scene{
         this.ctx.fillStyle = "#838383"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
-        for (const layerList of this.renderables){ 
+        for (const layerList of this.renderables){
+            insertionSort(layerList, (a, b) => { return (b.renderHeight - a.renderHeight) || (a.owner.position.y - b.owner.position.y)})
             for(const r of layerList) { r.render() }
         }
     }

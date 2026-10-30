@@ -1,6 +1,6 @@
 import { Renderable, Updatable } from "./interfaces";
 import { GameObject } from "../gameObject";
-import { insertionSorted } from "../utilities/sortUtils";
+import { insertionSort, insertionSorted } from "../utilities/sortUtils";
 
 export type ModuleType<T extends Module = Module> = (abstract new (...args: any[]) => T) & {
     requires: ModuleType[];
@@ -28,7 +28,6 @@ export abstract class Module{
     protected registerRenderable(this: Module & Renderable) {
         const layer = this.owner.layer;
         this.owner.scene.renderables[layer].push(this);
-        this.owner.scene.renderables[layer] = insertionSorted(this.owner.scene.renderables[layer], (a) => { return a.renderHeight });
     }
     protected unregisterRenderable(this: Module & Renderable){
         const layer = this.owner.layer;
