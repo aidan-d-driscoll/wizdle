@@ -1,5 +1,5 @@
 import { Body, BodyType, ForceMode } from "../../modules/body";
-import { Movement } from "../../modules/movement";
+import { MovementControl } from "../../modules/movementControl";
 import { Team } from "../../modules/team";
 import Vector from "../../types/vector";
 import { Action } from "../behavior";
@@ -8,10 +8,10 @@ import { EntityContext } from "../behaviorRegistry";
 
 export class approachTarget implements Action{
     public name = "approach_target"
-    requires = [Movement]
+    requires = [MovementControl]
 
     perform(ctx: EntityContext, params: Record<string, any> | undefined){
-        const movement = ctx.blackboard.get("Movement")
+        const movement = ctx.blackboard.get("MovementControl")
 
         const target = ctx.blackboard.get("current_target") as Team
 

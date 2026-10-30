@@ -5,7 +5,7 @@ import Vector from "../types/vector";
 
 const BRAKE_MULITPLIER = 1.5;
 
-export class Movement extends Module implements Updatable{
+export class MovementControl extends Module implements Updatable{
     static max: number = 1;
     static requires = [Body];
     

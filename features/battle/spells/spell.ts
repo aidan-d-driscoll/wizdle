@@ -1,7 +1,7 @@
 import { setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
 import Combatant from "@/features/battle/entities/combatant";
 import { Sprite } from "../rendering/sprite";
-import { Scene, UpdateOptions } from "../scene";
+import { Scene } from "../scene";
 import { Fillbar } from "../ui_elements/fillbar";
 import { HexColor } from "../rendering/renderingUtils";
 
@@ -39,7 +39,7 @@ export default abstract class Spell{
     castTime: number;
     castTimer: number;
 
-    castBar: Fillbar;
+    // castBar: Fillbar;
 
     constructor(args:spellOptions){
         this.caster = args.caster;
@@ -49,14 +49,14 @@ export default abstract class Spell{
         this.castTimer = 0;
         this.castTime = setOptionalRandomNumber({value: args.castTime, min: MIN_CAST_TIME, max: MAX_CAST_TIME})
 
-        this.castBar = new Fillbar({
-            maxValue: this.castTime,
-            startingValue: 0,
-            renderHeight: 1,
-            color: args.castBarColor ? args.castBarColor : "#1cb2d8",
-            width: 0.1,
-            height: 0.02
-        })
+        // this.castBar = new Fillbar({
+        //     maxValue: this.castTime,
+        //     startingValue: 0,
+        //     renderHeight: 1,
+        //     color: args.castBarColor ? args.castBarColor : "#1cb2d8",
+        //     width: 0.1,
+        //     height: 0.02
+        // })
 
         // scales other values based on cast time. Higher cast time = more powerful
         this.spellQuality = Math.pow((this.castTime / MIN_CAST_TIME), CAST_TIME_INFLUENCE);

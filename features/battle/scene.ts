@@ -11,7 +11,8 @@ import CollisionManager from "./collisions/collisionManager";
 import { BehaviorRegistry } from "./AI_system/behaviorRegistry";
 import { Team } from "./modules/team";
 import { Brain } from "./modules/brain";
-import { Movement } from "./modules/movement";
+import { MovementControl } from "./modules/movementControl";
+import { wizard } from "./Prefabs/wizard";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -51,15 +52,6 @@ export class Scene{
         const arenaArt = new Image();
         arenaArt.src = "/assets/testing-assets/arena-orig.jpg";
 
-        const purpleWizardArt = new Image();
-        purpleWizardArt.src = "/assets/testing-assets/grape-omancer.png";
-
-        const redWizardArt = new Image();
-        redWizardArt.src = "/assets/testing-assets/blood-sorcerer.png"
-
-        const blueWizardArt = new Image();
-        blueWizardArt.src = "/assets/testing-assets/rain-mage.png"
-
         const tombstone = new Image();
         tombstone.src = "/assets/testing-assets/tombstone.png";
 
@@ -78,75 +70,17 @@ export class Scene{
             renderHeight: -10
         }))
 
-        const wizard1 = new GameObject({
+        this.add(wizard({
             scene: this,
-            position: {x:-0.6, y:-0.03}
-        })
-
-        wizard1.add(new Sprite({
-            offset: {x: -0.01, y: 0.09},
-            image: purpleWizardArt,
-            width: 0.2,
-            height: 0.2,
-            renderHeight: 1
+            position: {x: -0.55, y: -0.55},
+            team: 1
         }))
 
-        wizard1.add(new Body({
-            bodyType: BodyType.DYNAMIC,
-            bounce: 0.9,
-            mass: 1.5
-        }))
-
-        wizard1.add(new Collider({
-            shape: new Ellipse({
-                position: wizard1.position,
-                radiusX: 0.09,
-                radiusY: 0.09
-            })
-        }))
-
-        wizard1.add(new Movement(1.5))
-
-        wizard1.add(new Team(1))
-
-        wizard1.add(new Brain("combatant"))
-        
-        this.add(wizard1)
-
-        const wizard2 = new GameObject({
+        this.add(wizard({
             scene: this,
-            position: {x:0.6, y:0.03}
-        })
-
-        wizard2.add(new Sprite({
-            offset: {x: -0.01, y: 0.09},
-            image: blueWizardArt,
-            width: 0.2,
-            height: 0.2,
-            renderHeight: 1
+            position: {x: 0.55, y: 0.55},
+            team: 2
         }))
-
-        const wizBody2 = wizard2.add(new Body({
-            bodyType: BodyType.DYNAMIC,
-            bounce: 0.9,
-            mass: 1.1
-        }))
-
-        wizard2.add(new Collider({
-            shape: new Ellipse({
-                position: wizard2.position,
-                radiusX: 0.09,
-                radiusY: 0.09
-            })
-        }))
-
-        wizard2.add(new Movement(1.8))
-
-        wizard2.add(new Team(2))
-
-        wizard2.add(new Brain("combatant"))
-        
-        this.add(wizard2)
         
         if (DEV_TOOLS_ENABLED){
             this.battlePaused = true;
