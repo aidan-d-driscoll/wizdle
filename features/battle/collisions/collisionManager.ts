@@ -4,7 +4,6 @@ import { Scene } from "../scene";
 import { Collider } from "../modules/collider";
 import { Body, BodyType, ForceMode } from "../modules/body";
 import Vector from "../types/vector";
-import { softSign } from "../utilities/mathUtils";
 
 interface Endpoint {
     readonly cb: Collider
@@ -31,13 +30,7 @@ function getRadii(shape: RoundShape): { rx: number, ry: number } {
 }
 
 /**
- * Center-to-center distance at which the two shapes just touch when one is
- * placed along the unit direction (ux, uy) from the other.
- *
- * Uses the same separation function as Ellipse.overlaps: the shapes are
- * separated at offset t*u when t^2 * max_s g(s) > 1, where g is concave in s.
- * So the touching distance is 1 / sqrt(max_s g(s)). For two circles this
- * collapses to radiusA + radiusB.
+ * Center-to-center distance at which the two shapes just touch.
  */
 function getContactDistance(a: RoundShape, b: RoundShape, ux: number, uy: number): number {
     if (a instanceof Circle && b instanceof Circle) {
@@ -70,39 +63,17 @@ function getContactDistance(a: RoundShape, b: RoundShape, ux: number, uy: number
     return 1 / Math.sqrt(reach((lo + hi) / 2))
 }
 
-function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
-    if (isRoundShape(colliderA.tight) && isRoundShape(colliderB.tight)) {
-        const bodyA = colliderA.body;
-        const bodyB = colliderB.body;
+function handlePhysicsOverlap(bodyA: Body, bodyB: Body) {
+    const shapeA = bodyA.physicsCollider.tight;
+    const shapeB = bodyB.physicsCollider.tight;
 
-        const a = colliderA.tight
-        const b = colliderB.tight
+    seperateBodies(bodyA, bodyB)
 
-        const totalMass = bodyA.mass + bodyB.mass
-
-        // const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
-        // const massRatioB = bodyA.mass == Infinity ? 1 : bodyA.mass/totalMass
-
+    if (isRoundShape(shapeA) && isRoundShape(shapeB)) {
         const normal = new Vector({startPos: bodyA.owner.position, endPos: bodyB.owner.position})
         const distance = normal.magnitude
         if (distance === 0) { normal.dx = 1; normal.dy = 0 }
         else normal.magnitude = 1
-
-        // const overlap = getContactDistance(a, b, normal.dx, normal.dy) - distance
-        // if (overlap <= 0) return
-
-        // const pushX = normal.dx * overlap
-        // const pushY = normal.dy * overlap
-
-        // colliderA.owner.position = {
-        //     x: colliderA.owner.position.x + pushX * massRatioA,
-        //     y: colliderA.owner.position.y + pushY * massRatioA
-        // }
-
-        // colliderB.owner.position = {
-        //     x: colliderB.owner.position.x - pushX * massRatioB,
-        //     y: colliderB.owner.position.y - pushY * massRatioB
-        // }
 
         const relV = (bodyA.velocity.dx - bodyB.velocity.dx) * normal.dx
             + (bodyA.velocity.dy - bodyB.velocity.dy) * normal.dy
@@ -121,14 +92,10 @@ function handlePhysicsOverlap(colliderA: Collider, colliderB: Collider) {
     }
 }
 
-function seperateBodies(colliderA: Collider, colliderB: Collider) {
-    if (isRoundShape(colliderA.tight) && isRoundShape(colliderB.tight)) {
-        const bodyA = colliderA.body;
-        const bodyB = colliderB.body;
-
-        const a = colliderA.tight
-        const b = colliderB.tight
-
+function seperateBodies(bodyA: Body, bodyB: Body) {
+    const shapeA = bodyA.physicsCollider.tight;
+    const shapeB = bodyB.physicsCollider.tight;
+    if (isRoundShape(shapeA) && isRoundShape(shapeB)) {
         const totalMass = bodyA.mass + bodyB.mass
 
         const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
@@ -139,20 +106,20 @@ function seperateBodies(colliderA: Collider, colliderB: Collider) {
         if (distance === 0) { normal.dx = 1; normal.dy = 0 }
         else normal.magnitude = 1
 
-        const overlap = getContactDistance(a, b, normal.dx, normal.dy) - distance
+        const overlap = getContactDistance(shapeA, shapeB, normal.dx, normal.dy) - distance
         if (overlap <= 0) return
 
         const pushX = normal.dx * (overlap + 0.001)
         const pushY = normal.dy * (overlap + 0.001)
 
-        colliderA.owner.position = {
-            x: colliderA.owner.position.x - pushX * massRatioA,
-            y: colliderA.owner.position.y - pushY * massRatioA
+        bodyA.owner.position = {
+            x: bodyA.owner.position.x - pushX * massRatioA,
+            y: bodyA.owner.position.y - pushY * massRatioA
         }
 
-        colliderB.owner.position = {
-            x: colliderB.owner.position.x + pushX * massRatioB,
-            y: colliderB.owner.position.y + pushY * massRatioB
+        bodyB.owner.position = {
+            x: bodyB.owner.position.x + pushX * massRatioB,
+            y: bodyB.owner.position.y + pushY * massRatioB
         }
     }
 }
@@ -172,7 +139,6 @@ export default class CollisionManager {
     }
 
     update(dt: number): void {
-
         for (const c of this.scene.dirtyColliders) {
             if (this.handles.has(c)) { this.repositionCollider(c) }
         }
@@ -189,10 +155,12 @@ export default class CollisionManager {
 
             const wasActive = this.activeCollisions.has(key)
             if (tightBoxCollision) {
-                if (colliderA.body.bodyType === BodyType.DYNAMIC
-                    || colliderB.body.bodyType === BodyType.DYNAMIC){
-                    seperateBodies(colliderA, colliderB);
-                    handlePhysicsOverlap(colliderA, colliderB);
+                const bodyA = colliderA.physicsBody;
+                if (bodyA){
+                    const bodyB = colliderB.physicsBody;
+                    if (bodyB && (bodyA.bodyType === BodyType.DYNAMIC || bodyB.bodyType === BodyType.DYNAMIC)){
+                        handlePhysicsOverlap(bodyA, bodyB);
+                    }
                 }
                 if (!wasActive) {
                     // The bodies are overlapping and they weren't last frame -> collision starts -> Emit collision ENTER

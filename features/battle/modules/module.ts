@@ -1,6 +1,5 @@
 import { Renderable, Updatable } from "./interfaces";
 import { GameObject } from "../gameObject";
-import { insertionSort, insertionSorted } from "../utilities/sortUtils";
 
 export type ModuleType<T extends Module = Module> = (abstract new (...args: any[]) => T) & {
     requires: ModuleType[];
@@ -13,6 +12,7 @@ export abstract class Module{
     static max: number = Infinity;
 
     static requires: ModuleType<Module>[] = [];
+    static optional: ModuleType<Module>[] = []
 
     onAttach(): void {}
     

@@ -39,14 +39,13 @@ export function wizard(args:{
     wizard.add(new Body({
         bodyType: BodyType.DYNAMIC,
         bounce: 0.6,
-        mass: 1.5
-    }))
-
-    wizard.add(new Collider({
-        shape: new Ellipse({
-            position: wizard.position,
-            radiusX: 0.09,
-            radiusY: 0.09
+        mass: 1.5,
+        physicsCollider: new Collider({
+            shape: new Ellipse({
+                position: wizard.position,
+                radiusX: 0.09,
+                radiusY: 0.09
+            })
         })
     }))
 

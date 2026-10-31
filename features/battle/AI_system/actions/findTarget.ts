@@ -16,11 +16,7 @@ export class findTarget extends Action{
         
         let target_timer = ctx.blackboard.get("target_timer") as number
         target_timer += ctx.dt;
-        
-        console.log(`target Timer: ${target_timer}`)
-
         if(target_timer >= 0.05){
-            console.log("Target timer triggered")
 
             // reset target timer
             target_timer -= 0.5;
@@ -36,7 +32,6 @@ export class findTarget extends Action{
                             bestDistance = distance;
                             newTarget = t;
                             ctx.blackboard.set("current_target", t)
-                            console.log(`newTarget: ${newTarget}`)
                         }
                     }
                 }

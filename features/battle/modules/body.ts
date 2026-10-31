@@ -1,6 +1,7 @@
 import { Module } from "./module";
 import Vector from "../types/vector";
 import { Updatable } from "./interfaces";
+import { Collider } from "./collider";
 
 export enum BodyType {
     STATIC,
@@ -14,6 +15,8 @@ export enum ForceMode {
 }
 
 type BodyOptions = {
+    physicsCollider: Collider;
+
     velocity?: Vector,
     acceleration?: Vector
     mass?:number
@@ -27,6 +30,8 @@ type BodyOptions = {
 
 export class Body extends Module implements Updatable{
     static max = 1;
+
+    physicsCollider: Collider;
 
     bodyType: BodyType;
 
@@ -43,6 +48,9 @@ export class Body extends Module implements Updatable{
 
     constructor(args: BodyOptions){
         super()
+
+        this.physicsCollider = args.physicsCollider;
+        this.physicsCollider.physicsBody = this;
 
         this.bodyType = args.bodyType;
 
@@ -61,6 +69,8 @@ export class Body extends Module implements Updatable{
 
     onAttach(): void {
         super.onAttach();
+        
+        this.owner.add(this.physicsCollider);
 
         this.registerUpdateable();
     }

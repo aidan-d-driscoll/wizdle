@@ -15,9 +15,6 @@ export class approachTarget implements Action{
 
         const target = ctx.blackboard.get("current_target") as Team
 
-        console.log(`My Team: ${ctx.owner.get(Team)?.teamId}`)
-        console.log(`target: ${target}`)
-
         if (target){
             const movementDir = new Vector({
                 startPos: ctx.owner.position, 
@@ -32,8 +29,6 @@ export class approachTarget implements Action{
             })
 
             movementDir.add(circleDir)
-
-            console.log(`movementDir: ${movementDir}`)
     
             movement.moveInDirection(movementDir)
         }

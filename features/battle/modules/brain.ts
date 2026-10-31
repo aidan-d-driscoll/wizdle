@@ -81,9 +81,6 @@ export class Brain extends Module implements Updatable{
         this.timeInCurrentState += dt;
         this.blackboard.set("timeInCurrentState", this.timeInCurrentState)
 
-        console.log("-----------------------------------------------------------")
-        console.log(`current state: ${this.currentState}`)
-
         let currentState = this.configData?.states[this.currentState]
         if (!currentState) return;
 
@@ -100,7 +97,6 @@ export class Brain extends Module implements Updatable{
                 triggerOutput = BehaviorRegistry.getTrigger(t.trigger).evaluate(this.ctx, t.params);
                 
                 if(t.params && t.params["invert_output"] === 1) {
-                    console.log("inversion")
                     triggerOutput = !triggerOutput;
                 }
 
@@ -118,7 +114,6 @@ export class Brain extends Module implements Updatable{
         if (!list) return;
 
         for(const a of list) {
-            console.log(`Performing action ${a.action}`)
             BehaviorRegistry.getAction(a.action).perform(this.ctx, a.params)
         }
     }

@@ -21,9 +21,7 @@ export class Collider extends Module implements Updatable, Renderable{
     static nextId = 0;
     id: number;
 
-    requires: ModuleType[] = [Body]
-
-    body!: Body;
+    physicsBody?: Body;
 
     offset: Position = {x: 0, y: 0}
 
@@ -61,8 +59,6 @@ export class Collider extends Module implements Updatable, Renderable{
             width: this.tight.width + 0.1,
             height: this.tight.height + 0.1
         })
-
-        this.body = this.owner.getRequired(Body);
 
         this.registerUpdateable();
         this.registerRenderable();

@@ -69,11 +69,6 @@ export class MovementControl extends Module implements Updatable{
         this.force.dx = dir.dx
         this.force.dy = dir.dy
 
-        console.log(`Pre adjustment: ${this.force}`)
-
         this.force.magnitude = this.speed
-
-        console.log(this.speed)
-        console.log(`movement force applied ${this.force}`)
     }
 }

@@ -10,8 +10,6 @@ export class withinRangeOfPosition extends Trigger{
             throw new Error(`${this.name} missing required parameters`);
         }
 
-        console.log(`Distance from center ${getDistance({from: ctx.owner.position, to: {x: params["positionX"], y: params["positionY"]}})}`)
-
         return (getDistance({from: ctx.owner.position, to: {x: params["positionX"], y: params["positionY"]}}) < params["range"]);
     }
 }

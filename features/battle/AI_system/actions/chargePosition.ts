@@ -17,8 +17,6 @@ export class chargePosition extends Action{
 
         const movementDir = new Vector({startPos: ctx.owner.position, endPos: {x: params["positionX"], y: params["positionY"]}})
 
-        console.log(`movementDir: ${movementDir}`)
-
         movement.moveInDirection(movementDir)
     }
 }
