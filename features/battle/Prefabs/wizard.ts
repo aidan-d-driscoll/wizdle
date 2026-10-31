@@ -41,6 +41,7 @@ export function wizard(args:{
         bounce: 0.6,
         mass: 1.5,
         physicsCollider: new Collider({
+            offset: {x: 0, y: 0},
             shape: new Ellipse({
                 position: wizard.position,
                 radiusX: 0.09,

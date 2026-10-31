@@ -24,8 +24,6 @@ type BodyOptions = {
     bodyType: BodyType
 
     bounce?: number
-
-    maxInternalvelocity?: number
 }
 
 export class Body extends Module implements Updatable{

@@ -70,7 +70,7 @@ function handlePhysicsOverlap(bodyA: Body, bodyB: Body) {
     seperateBodies(bodyA, bodyB)
 
     if (isRoundShape(shapeA) && isRoundShape(shapeB)) {
-        const normal = new Vector({startPos: bodyA.owner.position, endPos: bodyB.owner.position})
+        const normal = new Vector({startPos: shapeA.position, endPos: shapeB.position})
         const distance = normal.magnitude
         if (distance === 0) { normal.dx = 1; normal.dy = 0 }
         else normal.magnitude = 1
@@ -101,7 +101,7 @@ function seperateBodies(bodyA: Body, bodyB: Body) {
         const massRatioA = bodyB.mass == Infinity ? 1 : bodyB.mass/totalMass
         const massRatioB = bodyA.mass == Infinity ? 1 : bodyA.mass/totalMass
 
-        const normal = new Vector({startPos: bodyA.owner.position, endPos: bodyB.owner.position})
+        const normal = new Vector({startPos: shapeA.position, endPos: shapeB.position})
         const distance = normal.magnitude
         if (distance === 0) { normal.dx = 1; normal.dy = 0 }
         else normal.magnitude = 1

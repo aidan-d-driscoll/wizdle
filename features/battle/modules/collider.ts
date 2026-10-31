@@ -23,7 +23,7 @@ export class Collider extends Module implements Updatable, Renderable{
 
     physicsBody?: Body;
 
-    offset: Position = {x: 0, y: 0}
+    offset: Position;
 
     tight: Shape;
     fat!: Rectangle;
@@ -40,6 +40,8 @@ export class Collider extends Module implements Updatable, Renderable{
         this.tight.color = "#ff00007e"
 
         this.renderHeight = 0;
+
+        this.offset = args.offset ?? {x: 0, y: 0}
 
         this.onCollisionEnter = args.onCollisionEnter;
         this.onCollisionStay = args.onCollisionStay;
