@@ -1,6 +1,6 @@
 import { Position } from "@/features/battle/types/position";
 import { Scene } from "./scene";
-import { getDistance, getRawDistance } from "@/features/battle/utilities/mathUtils";
+import { getDistance, getRawDistance } from "@/lib/utilities/mathUtils";
 import { Integer, integer } from "./types/integer";
 import { RenderLayer } from "./globals";
 

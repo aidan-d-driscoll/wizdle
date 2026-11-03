@@ -49,7 +49,7 @@ export class Collider extends Module implements Updatable, Renderable{
     }
 
     onAttach(): void {
-        super.onAttach();
+        
 
         this.followOwnerPosition();
 

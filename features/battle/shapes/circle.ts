@@ -3,7 +3,7 @@ import { Rectangle } from "./rectangle";
 import { Scene } from "@/features/battle/scene";
 import { toScreenPosition, toScreenValue } from "@/features/battle/rendering/renderingUtils";
 import { Position } from "@/features/battle/types/position";
-import { getDistance } from "@/features/battle/utilities/mathUtils";
+import { getDistance } from "@/lib/utilities/mathUtils";
 
 export type circleOptions = ShapeOptions & {
     radius: number

@@ -18,7 +18,7 @@ export class Team extends Module{
     }
 
     onAttach(): void {
-        super.onAttach();
+        
 
         this.body = this.owner.getRequired(Body);
 

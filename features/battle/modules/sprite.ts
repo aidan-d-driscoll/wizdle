@@ -38,14 +38,10 @@ export class Sprite extends Module implements Renderable{
     }
 
     onAttach(): void {
-        super.onAttach();
-
         this.registerRenderable();
     }
 
     onDetach(): void {
-        super.onDetach();
-
         this.unregisterRenderable();
     }
 

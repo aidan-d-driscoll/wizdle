@@ -1,4 +1,4 @@
-import { getDistance } from "../../utilities/mathUtils";
+import { getDistance } from "@/lib/utilities/mathUtils";
 import { Trigger } from "../behavior";
 import { EntityContext} from "../behaviorRegistry";
 

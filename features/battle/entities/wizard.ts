@@ -1,5 +1,5 @@
 import Combatant, { CombatantOptions } from "./combatant";
-import { getRandomFloat, setOptionalRandomNumber } from "@/features/battle/utilities/mathUtils";
+import { getRandomFloat, setOptionalRandomNumber } from "@/lib/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
 import { BoltSpell } from "../spells/boltSpell";
 import { HexColor } from "../rendering/renderingUtils";

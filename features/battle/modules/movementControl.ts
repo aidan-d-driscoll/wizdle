@@ -24,16 +24,12 @@ export class MovementControl extends Module implements Updatable{
     }
 
     onAttach(): void {
-        super.onAttach()
-
         this.body = this.owner.getRequired(Body)
 
         this.registerUpdateable()
     }
 
     onDetach(): void {
-        super.onDetach()
-
         this.unregisterUpdateable()
     }
 

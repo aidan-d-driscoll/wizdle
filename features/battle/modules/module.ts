@@ -14,9 +14,9 @@ export abstract class Module{
     static requires: ModuleType<Module>[] = [];
     static optional: ModuleType<Module>[] = []
 
-    onAttach(): void {}
+    abstract onAttach(): void;
     
-    onDetach(): void{}
+    abstract onDetach(): void;
 
     protected registerUpdateable(this: Module & Updatable) {
         this.owner.scene.updatables.add(this);

@@ -13,7 +13,8 @@ import { Team } from "./modules/team";
 import { Brain } from "./modules/brain";
 import { MovementControl } from "./modules/movementControl";
 import { wizard } from "./Prefabs/wizard";
-import { insertionSort } from "./utilities/sortUtils";
+import { insertionSort } from "@/lib/utilities/sortUtils";
+import { EffectRegistry } from "./skills/effectRegistry";
 
 const DEV_TOOLS_ENABLED = true;
 
@@ -49,6 +50,7 @@ export class Scene{
         this.ctx.imageSmoothingEnabled = false;
 
         BehaviorRegistry.initialize();
+        EffectRegistry.initialize();
 
         const arenaArt = new Image();
         arenaArt.src = "/assets/testing-assets/arena-orig.jpg";
@@ -69,18 +71,6 @@ export class Scene{
             width: 3.3,
             height: 3.5,
             renderHeight: -10
-        }))
-
-        this.add(wizard({
-            scene: this,
-            position: {x: -0.55, y: -0.55},
-            team: 1
-        }))
-
-        this.add(wizard({
-            scene: this,
-            position: {x: 0.55, y: 0.55},
-            team: 2
         }))
         
         if (DEV_TOOLS_ENABLED){
@@ -120,9 +110,25 @@ export class Scene{
         }
     }
 
-    start() {
+    async start() {
         // prevents two instances from running at once
         if (this.running) return;
+
+        const wiz1 = await this.load_prefab(wizard, {
+            scene: this,
+            position: {x: -0.55, y: -0.55},
+            team: 1
+        })
+
+        const wiz2 = await this.load_prefab(wizard, {
+            scene: this,
+            position: {x: 0.55, y: 0.55},
+            team: 2
+        })
+
+        this.add(wiz1)
+
+        this.add(wiz2)
 
         this.running = true
         this.prevTimestamp = null;
@@ -206,6 +212,10 @@ export class Scene{
     add(e: Entity){
         this.entities.push(e)
         for (const child of e.children) { this.add(child) }
+    }
+
+    async load_prefab(p: (args: any) => Promise<GameObject>, args: any): Promise<GameObject> {
+        return await p(args);
     }
 
     markForDestruction(e: Entity){

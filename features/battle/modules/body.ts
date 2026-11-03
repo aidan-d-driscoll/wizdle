@@ -66,7 +66,7 @@ export class Body extends Module implements Updatable{
     }
 
     onAttach(): void {
-        super.onAttach();
+        
         
         this.owner.add(this.physicsCollider);
 
@@ -74,7 +74,7 @@ export class Body extends Module implements Updatable{
     }
 
     onDetach(): void {
-        super.onAttach();
+        
 
         this.unregisterUpdateable();
     }

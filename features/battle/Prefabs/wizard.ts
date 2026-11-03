@@ -1,19 +1,21 @@
+import { generateSkill } from "@/lib/api_functions/skillsApi";
 import { GameObject } from "../gameObject";
 import { Body, BodyType } from "../modules/body";
 import { Brain } from "../modules/brain";
 import { Collider } from "../modules/collider";
 import { MovementControl } from "../modules/movementControl";
+import { SkillManager } from "../modules/skillManager";
 import { Sprite } from "../modules/sprite";
 import { Team } from "../modules/team";
 import { Scene } from "../scene";
 import { Ellipse } from "../shapes/ellipse";
 import { Position } from "../types/position";
 
-export function wizard(args:{
+export async function wizard(args:{
     scene: Scene,
     team: number,
     position: Position
-}): GameObject{
+}): Promise<GameObject>{
     const wizardArt = new Image();
         
     const artNum = Math.random() * 4
@@ -41,7 +43,6 @@ export function wizard(args:{
         bounce: 0.6,
         mass: 1.5,
         physicsCollider: new Collider({
-            offset: {x: 0, y: 0},
             shape: new Ellipse({
                 position: wizard.position,
                 radiusX: 0.09,
@@ -55,6 +56,10 @@ export function wizard(args:{
     wizard.add(new Team(args.team))
 
     wizard.add(new Brain("combatant"))
+
+    const skills = wizard.add(new SkillManager())
+    const spell = await generateSkill()
+    skills.addSkill(spell._id)
     
     return wizard
 }

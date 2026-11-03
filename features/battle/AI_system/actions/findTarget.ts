@@ -1,5 +1,5 @@
 import { Team } from "../../modules/team";
-import { getRawDistance } from "../../utilities/mathUtils";
+import { getRawDistance } from "@/lib/utilities/mathUtils";
 import { Action } from "../behavior";
 import { EntityContext } from "../behaviorRegistry";
 

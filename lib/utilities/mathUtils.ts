@@ -14,7 +14,6 @@ export function absMin(a: number, b: number){
 }
 
 export function getRandomFloat(min: number, max: number): number {
-  // Returns a value from min (inclusive) up to max (exclusive)
   return Math.random() * (max - min) + min;
 }
 

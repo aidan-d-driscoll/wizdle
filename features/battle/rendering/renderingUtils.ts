@@ -1,5 +1,5 @@
 import { Position } from "@/features/battle/types/position";
-import { getRandomFloat } from "../utilities/mathUtils";
+import { getRandomFloat } from "@/lib/utilities/mathUtils";
 
 export function toScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return {

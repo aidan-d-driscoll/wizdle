@@ -1,10 +1,9 @@
 import { Module, ModuleType } from "./module";
 import { Updatable } from "./interfaces";
 import { BehaviorRegistry} from "../AI_system/behaviorRegistry";
-import { loadAIConfig } from "../utilities/fileUtils";
 import { EntityContext } from "../AI_system/behaviorRegistry";
 
-interface AIAction {
+export interface AIAction {
     action: string,
     params?: Record<string, any>
 }
@@ -29,8 +28,20 @@ export interface AIConfig {
     states: Record<string, AIState>
 }
 
+async function loadAIConfig(filename: string) {
+    try {
+      const module = await import(`../AI_system/config_files/${filename}.json`, {
+        with: { type: "json" }
+      });
+  
+      const config: AIConfig = module.default;
+      return config;
+    } catch (error) {
+      console.error("Failed to load AI_config file:", error);
+    }
+  }
+
 export class Brain extends Module implements Updatable{
-    static requires = [];
     static max = 1;
 
     private ctx!: EntityContext
@@ -49,7 +60,7 @@ export class Brain extends Module implements Updatable{
     }
 
     async onAttach(): Promise<void> {
-        super.onAttach()
+        
 
         this.configData = await loadAIConfig(this.configName)
         if (!this.configData){
@@ -60,7 +71,7 @@ export class Brain extends Module implements Updatable{
             this.getActionRequirements(state.on_enter)
             this.getActionRequirements(state.on_update)
             this.getActionRequirements(state.on_update)
-            
+            this.getTransitionRequirements(state.transitions)
         }
 
         this.currentState = this.configData.initial_state;
@@ -73,7 +84,6 @@ export class Brain extends Module implements Updatable{
     }
 
     onDetach(): void {
-        super.onDetach()
         this.unregisterUpdateable()
     }
 
