@@ -1,5 +1,5 @@
 import Vector from "@/features/battle/types/vector";
-import { GameObject, ObjectOptions } from "../gameObject";
+import { GameObject, ObjectOptions } from "../../gameObject";
 import Combatant from "../combatant";
 
 export type projectileOptions = ObjectOptions & {

@@ -1,0 +1,34 @@
+import { Body } from "./body";
+import { Collider } from "./collider";
+import { Module, ModuleType } from "./module";
+
+export class Team extends Module{
+    static max = 1;
+    static requires = [Body, Collider]
+
+    body!: Body;
+    collider!: Collider;
+
+    teamId: number;
+
+    constructor(teamId: number){
+        super()
+
+        this.teamId = teamId;
+    }
+
+    onAttach(): void {
+        
+
+        this.body = this.owner.getRequired(Body);
+
+        this.collider = this.owner.getRequired(Collider);
+
+        this.owner.scene.targetables.push(this);
+    }
+
+    onDetach(): void {
+        const idx = this.owner.scene.targetables.indexOf(this)
+        if(idx !== -1) this.owner.scene.targetables.splice(idx, 1)
+    }
+}

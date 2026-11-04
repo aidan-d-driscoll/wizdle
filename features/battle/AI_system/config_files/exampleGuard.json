@@ -1,0 +1,61 @@
+{
+  "ai_name": "BasicGuard",
+  "initial_state": "Patrol",
+  "states": {
+    "Patrol": {
+      "on_enter": [
+        { "action": "set_movement_speed", "params": { "speed": 2.5 } },
+        { "action": "pick_next_patrol_node" }
+      ],
+      "on_update": [{ "action": "follow_patrol_path" }],
+      "transitions": [
+        {
+          "trigger": "enemy_in_vision_cone",
+          "target_state": "Combat",
+          "actions": [
+            { "action": "play_sound", "params": { "cue": "alert_shout" } }
+          ]
+        },
+        {
+          "trigger": "heard_suspicious_noise",
+          "target_state": "Investigate"
+        }
+      ]
+    },
+    "Investigate": {
+      "on_enter": [
+        { "action": "stop_movement" },
+        { "action": "look_around", "params": { "duration": 3.0 } }
+      ],
+      "transitions": [
+        {
+          "trigger": "timer_expired",
+          "params": { "seconds": 3.0 },
+          "target_state": "Patrol"
+        },
+        {
+          "trigger": "enemy_in_vision_cone",
+          "target_state": "Combat"
+        }
+      ]
+    },
+    "Combat": {
+      "on_enter": [{ "action": "draw_weapon" }],
+      "on_update": [
+        { "action": "face_target" },
+        { "action": "attack_if_in_range" }
+      ],
+      "transitions": [
+        {
+          "trigger": "target_out_of_range_for",
+          "params": { "seconds": 5.0 },
+          "target_state": "Patrol",
+          "actions": [
+            { "action": "sheath_weapon" },
+            { "action": "clear_blackboard_target" }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "ai_name": "Combatant",
+  "initial_state": "AvoidEdge",
+  "states": {
+    "Combat": {
+      "on_enter": [
+        {
+          "action": "start_target_timer"
+        }
+      ],
+      "on_update": [
+        {
+          "action": "find_target"
+        },
+        {
+          "action": "approach_target"
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "within_range_of_position",
+          "params": {
+            "positionX": 0,
+            "positionY": 0,
+            "range": 0.3,
+            "invert_output": 1
+          },
+          "target_state": "AvoidEdge"
+        }
+      ]
+    },
+    "AvoidEdge": {
+      "on_update": [
+        {
+          "action": "charge_position",
+          "params": { "positionX": 0, "positionY": 0 }
+        }
+      ],
+      "transitions": [
+        {
+          "trigger": "within_range_of_position",
+          "params": { "positionX": 0, "positionY": 0, "range": 0.3 },
+          "target_state": "Combat"
+        }
+      ]
+    }
+  }
+}
