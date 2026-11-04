@@ -20,14 +20,14 @@ function toBinary<S extends Schema>(schema: Schema, values: ValueList<S>): Uint8
         let valueBits = spec.bits;
 
         let bitValue = Math.ceil((value-min)/step);
-        console.log(`Storing Key - ${key}: ${bitValue.toString(2)}`)
+        console.log(`Storing Key - ${key}: ${bitValue.toString(2).padStart(8, '0')}`)
 
         while (valueBits > 0){
             const bits = Math.min(freeBits, valueBits);
             console.log(`Bits: ${bits}`)
             const mask = (2**bits)-1;
             out[currentByte] |= (bitValue & mask) << (8-freeBits);
-            console.log(`Temp: ${out[currentByte].toString(2)}`)
+            console.log(`Temp: ${out[currentByte].toString(2).padStart(8, '0')}`)
 
             freeBits -= bits;
             valueBits -= bits;
@@ -62,7 +62,7 @@ function fromBinary<S extends Schema>(schema: Schema, packed: Uint8Array): Value
 
         while (valueBits > 0){
             const bits = Math.min(freeBits, valueBits);
-            console.log(`Temp: ${temp.toString(2)}`)
+            console.log(`Temp: ${temp.toString(2).padStart(8, '0')}`)
             console.log(`Bits: ${bits}`)
             const mask = (2**bits)-1;
             value |= (temp & mask) << (spec.bits - valueBits)
@@ -99,7 +99,7 @@ function main(){
     const bin = toBinary(testSchema, { cooldown: 1.56, damage: 55, size: 89, speed: 34})
 
     for (const byte of bin){
-        console.log(byte.toString(2))
+        console.log(byte.toString(2).padStart(8, '0'))
     }
 
     console.log(fromBinary(testSchema, bin))
