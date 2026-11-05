@@ -1,23 +1,19 @@
 import { ObjectId } from "mongodb";
 import clientPromise from "@/lib/mongodb";
+import { toBinaryId } from "@/lib/api_functions/utils";
  
 export const dynamic = "force-dynamic";
  
-// GET /api/skills/:id  -> one skill
 export async function GET(request, { params }) {
   try {
-    const { id } = await params; // the [id] part of the URL
- 
-    // MongoDB ids are ObjectId objects, so validate before converting
-    if (!ObjectId.isValid(id)) {
-      return Response.json({ error: "Invalid id" }, { status: 400 });
-    }
+    const { id } = await params; 
+    const _id = toBinaryId(id);
  
     const client = await clientPromise;
     const skill = await client
       .db("wizdle")
       .collection("skills")
-      .findOne({ _id: new ObjectId(id) });
+      .findOne({ _id });
  
     if (!skill) {
       return Response.json({ error: "skill not found" }, { status: 404 });
@@ -29,20 +25,16 @@ export async function GET(request, { params }) {
   }
 }
  
-// DELETE /api/skills/:id  -> delete one skill
 export async function DELETE(request, { params }) {
   try {
-    const { id } = await params;
- 
-    if (!ObjectId.isValid(id)) {
-      return Response.json({ error: "Invalid id" }, { status: 400 });
-    }
+    const { id } = await params; 
+    const _id = toBinaryId(id);
  
     const client = await clientPromise;
     const result = await client
       .db("wizdle")
       .collection("skills")
-      .deleteOne({ _id: new ObjectId(id) });
+      .deleteOne({ _id });
  
     if (result.deletedCount === 0) {
       return Response.json({ error: "skill not found" }, { status: 404 });

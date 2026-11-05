@@ -1,5 +1,6 @@
 import clientPromise from "@/lib/mongodb";
- 
+import { toBinaryId } from "@/lib/api_functions/utils";
+
 // Always run this on each request instead of caching the result at build time
 export const dynamic = "force-dynamic";
  
@@ -26,16 +27,26 @@ export async function POST(request) {
   try {
     // The body arrives as a stream; .json() reads it and parses it
     const body = await request.json();
-    const cooldown = body.cooldown;
-    const on_activate = body.on_activate;
- 
-    // Store only the fields we expect, never the raw request body
-    const doc = { cooldown, on_activate, createdAt: new Date() };
+    const { id } = body;
+
+    if (!id){
+      return NextResponse.json({ error: "Missing required ID" }, { status: 400 });
+    }
+
+    const { _id, ...fields } = {
+      _id: toBinaryId(id),
+      createdAt: new Date(),
+      // Add more fields here if needed, UserID...
+    };
  
     const client = await clientPromise;
-    const result = await client.db("wizdle").collection("skills").insertOne(doc);
+    const result = await client.db("wizdle").collection("skills").findOneAndUpdate(
+      { _id },
+      { $setOnInsert: fields },
+      { upsert: true, returnDocument: "after", includeResultMetadata: true }
+    )
  
-    return Response.json({ _id: result.insertedId, ...doc }, { status: 201 });
+    return Response.json({ _id: result.insertedId, ...fields }, { status: 201 });
   } catch (err) {
     console.error(err);
     return Response.json({ error: "Failed to create skill" }, { status: 500 });

@@ -1,5 +1,9 @@
-import { ObjectId } from "mongodb";
-import { postJson } from "./utils";
+import { deserializeRawID, postJson, serializeRawID } from "./utils";
+
+const BASE_URL =
+  typeof window === "undefined"
+    ? process.env.API_BASE_URL ?? "http://localhost:3000"
+    : "";
 
 interface SkillEffect {
     label: string,
@@ -7,9 +11,8 @@ interface SkillEffect {
 }
 
 export type Skill = {
-    _id: string
-    cooldown: number
-    on_activate: [SkillEffect]
+    _id: Uint8Array
+    createdAt: Date
 }
 
 export async function getSkills() {
@@ -31,11 +34,23 @@ export async function generateSkill(): Promise<Skill> {
     })
 }
 
-export async function getSkillById(id: string): Promise<Skill | null> {
-    const res = await fetch(`/api/skills/${encodeURIComponent(id)}`);
+export async function getSkillById(id: Uint8Array): Promise<Skill | null> {
+    const res = await fetch(`${BASE_URL}/api/skills/${serializeRawID(id)}`);
   
-    if (res.status === 404) return null; // not found is a normal outcome, not an error
+    if (res.status === 404) return null;
     if (!res.ok) throw new Error(`Request failed: ${res.status}`);
   
-    return res.json();
-  }
+    const out = await res.json();
+    out._id = deserializeRawID(out._id);
+
+    return out;
+}
+
+export async function insertSkill(id: Uint8Array) {
+    const data = {
+        id: serializeRawID(id)
+    }
+
+    return await postJson("/api/skills", data)
+}
+
