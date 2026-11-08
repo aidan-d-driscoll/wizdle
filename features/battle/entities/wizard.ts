@@ -1,5 +1,5 @@
 import Combatant, { CombatantOptions } from "./combatant";
-import { getRandomFloat, setOptionalRandomNumber } from "@/lib/utilities/mathUtils";
+import { getRandomNumber, setOptionalRandomNumber } from "@/lib/utilities/mathUtils";
 import Spell from "@/features/battle/spells/spell";
 import { BoltSpell } from "../spells/boltSpell";
 import { HexColor } from "../rendering/renderingUtils";
@@ -25,11 +25,11 @@ export class Wizard extends Combatant{
         this.name = args.name;
 
         let numSpells = 1
-        let randomNum = getRandomFloat(0, 1)
+        let randomNum = getRandomNumber(0, 1)
 
         while (randomNum < 0.5){
             numSpells++;
-            randomNum = getRandomFloat(0, 1)
+            randomNum = getRandomNumber(0, 1)
         }
 
         for(let i = 0; i < numSpells; i++){
@@ -92,8 +92,6 @@ export class Wizard extends Combatant{
         }
 
         this.name = args.name;
-
-        console.log(this.toString())
 
     }
 

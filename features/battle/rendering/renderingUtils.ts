@@ -1,5 +1,5 @@
 import { Position } from "@/features/battle/types/position";
-import { getRandomFloat } from "@/lib/utilities/mathUtils";
+import { getRandomNumber } from "@/lib/utilities/mathUtils";
 
 export function toScreenPosition(position: Position, canvas: HTMLCanvasElement) { // convert world coordinates (-1..1)
     return {
@@ -16,7 +16,7 @@ export type HexColor = `#${string}`
 
 export function getRandomWizardArt(): HTMLImageElement {
     const wizardArt = new Image();
-    const artNum = getRandomFloat(0, 4)
+    const artNum = getRandomNumber({min:0, max:4})
     
     if (artNum < 1){
         wizardArt.src = "/assets/testing-assets/blood-sorcerer.png"

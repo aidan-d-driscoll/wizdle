@@ -53,7 +53,7 @@ export class SkillManager extends Module implements Updatable{
             throw new Error(`Could not find skill where ID=${skillId}`)
         }
 
-        console.log(skill.on_activate)
+        // console.log(skill.on_activate)
 
         for (const e of skill.on_activate){
             const reqs = EffectRegistry.get(e.label).required_params

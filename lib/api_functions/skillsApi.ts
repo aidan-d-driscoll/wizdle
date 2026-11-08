@@ -5,11 +5,6 @@ const BASE_URL =
     ? process.env.API_BASE_URL ?? "http://localhost:3000"
     : "";
 
-interface SkillEffect {
-    label: string,
-    params?: Record<string, number | string>
-}
-
 export type Skill = {
     _id: Uint8Array
     createdAt: Date
@@ -17,21 +12,6 @@ export type Skill = {
 
 export async function getSkills() {
     return await (await(fetch("/api/skills"))).json()
-}
-
-export async function generateSkill(): Promise<Skill> {
-    return await postJson("/api/skills", {
-        cooldown: 0.5,
-        on_activate:[
-            { 
-                label: "create_projectile",
-                params: {
-                    size: 0.1,
-                    speed: 0.1
-                }
-            }
-        ]
-    })
 }
 
 export async function getSkillById(id: Uint8Array): Promise<Skill | null> {
@@ -46,11 +26,12 @@ export async function getSkillById(id: Uint8Array): Promise<Skill | null> {
     return out;
 }
 
-export async function insertSkill(id: Uint8Array) {
+export async function insertSkill(id: Uint8Array): Promise<Uint8Array> {
     const data = {
         id: serializeRawID(id)
     }
+    await postJson("/api/skills", data)
 
-    return await postJson("/api/skills", data)
+    return id;
 }
 
