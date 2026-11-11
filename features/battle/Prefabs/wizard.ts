@@ -1,4 +1,3 @@
-import { generateSkill } from "@/lib/api_functions/skillsApi";
 import { GameObject } from "../gameObject";
 import { Body, BodyType } from "../modules/body";
 import { Brain } from "../modules/brain";

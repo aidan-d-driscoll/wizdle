@@ -27,17 +27,19 @@ export async function POST(request) {
   try {
     // The body arrives as a stream; .json() reads it and parses it
     const body = await request.json();
-    const { id } = body;
+    let { _id, ...fields } = body;
 
-    if (!id){
+    if (!_id){
       return NextResponse.json({ error: "Missing required ID" }, { status: 400 });
     }
 
-    const { _id, ...fields } = {
-      _id: toBinaryId(id),
-      createdAt: new Date(),
-      // Add more fields here if needed, UserID...
-    };
+    _id = toBinaryId(_id)
+
+    // const { _id, ...fields } = {
+    //   _id: toBinaryId(_id),
+    //   createdAt: new Date(),
+    //   // Add more fields here if needed, UserID...
+    // };
  
     const client = await clientPromise;
     const result = await client.db("wizdle").collection("skills").findOneAndUpdate(

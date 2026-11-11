@@ -4,14 +4,16 @@ import { Skill } from "./packables";
 // Run with: npx tsx .\scratch\spell_id\test.ts
 
 async function addSkill(){
-    let skill = new Skill({ spell_type: 0, cooldown: 1.28, damage: 100, damage_type: 1 });
+    let skill = new Skill({ spell_type: 0, cooldown: 1.14, damage: 95, damage_type: 3 });
+    console.log(skill)
+    console.log(skill.toDoc())
     
-    const skillID = await insertSkill(skill.pack());
+    await insertSkill(skill.toDoc());
 
-    const retreivedSkill = await getSkillById(skillID)
+    const retreivedSkill = await getSkillById(skill.toDoc()._id)
     if (retreivedSkill){
-        const unpackedSkill = Skill.fromBytes(retreivedSkill._id)
-        unpackedSkill.activate()
+        retreivedSkill.activate()
+        console.log(retreivedSkill.doc)
     }
 }
 

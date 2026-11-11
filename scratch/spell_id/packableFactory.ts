@@ -86,6 +86,7 @@ export function definePackable<S extends Schema>(schema: S){
         static readonly totalBits = totalBits;
 
         readonly values: Readonly<ValueList<S>>;
+        readonly doc: Record<string, any> = {};
 
         constructor(values: ValueList<S>){
             const known = new Set(layout.map((field) => field.key))
@@ -96,7 +97,7 @@ export function definePackable<S extends Schema>(schema: S){
             for (const f of layout) {
                 toRaw(f, values[f.key]); // validates; throws on missing/invalid
             }
-            this.values = Object.freeze({...values})
+            this.values = Object.freeze({...values});
         }
 
         static fromBytes<R>(this: PackableConstructor<S, R>, bytes: Uint8Array): R {

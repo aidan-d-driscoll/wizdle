@@ -40,3 +40,8 @@ export function setOptionalRandomNumber({value, min, max}:{value?: number, min: 
 export function softSign(value: number): number{
     return value/(value + Math.abs(value))
 }
+
+export function getRandomFromList<T>(list: T[]): T {
+    const idx = getRandomNumber({min: 0, max: list.length-1, step: 1});
+    return list[idx];
+}
